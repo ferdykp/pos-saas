@@ -51,4 +51,10 @@ class Tenant extends Model
     {
         return $this->hasMany(Order::class);
     }
+    // app/Models/Tenant.php
+    public function getSetting($key, $default = null)
+    {
+        $setting = $this->settings()->where('key', $key)->first();
+        return $setting ? $setting->value : $default;
+    }
 }

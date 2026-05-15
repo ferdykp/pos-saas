@@ -36,17 +36,16 @@
                     class="w-full transition-all border-gray-200 bg-gray-50 rounded-2xl focus:border-blue-500 focus:ring-blue-500"
                     placeholder="Alamat lengkap outlet Anda..."></textarea>
             </div>
+        </div>
 
-
+        <div class="pt-4">
+            <x-primary-button type="submit"
+                class="justify-center w-full py-4 text-base bg-blue-600 shadow-lg hover:bg-blue-700 rounded-2xl shadow-blue-200">
+                Selesaikan & Masuk ke Dashboard
+            </x-primary-button>
         </div>
     </form>
-
-    <div class="pt-4 space-y-3">
-        <x-primary-button
-            class="justify-center w-full py-4 text-base bg-blue-600 shadow-lg hover:bg-blue-700 rounded-2xl shadow-blue-200">
-            Selesaikan & Masuk ke Dashboard
-        </x-primary-button>
-
+    <div class="pt-2">
         <form method="POST" action="{{ route('logout') }}">
             @csrf
             <button type="submit"

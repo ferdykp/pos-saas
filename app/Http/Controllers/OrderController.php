@@ -23,6 +23,12 @@ class OrderController extends Controller
         return view('orders.index', compact('orders'));
     }
 
+    public function print($id)
+    {
+        $order = Order::with(['items', 'customer', 'user'])->findOrFail($id);
+        return view('orders.print', compact('order'));
+    }
+
     /**
      * Menampilkan detail transaksi dan struk.
      */
@@ -36,5 +42,6 @@ class OrderController extends Controller
         $order->load(['customer', 'items.product', 'user']);
 
         return view('orders.show', compact('order'));
+        // return view('orders.print', compact('order'));
     }
 }

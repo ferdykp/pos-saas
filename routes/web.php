@@ -7,11 +7,13 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\PosController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SettingController;
 
 // use App\Http\Controllers\ReportController;
 
@@ -68,17 +70,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return back()->with('status', 'Berhasil pindah ke bisnis: ' . $tenant->name);
     })->name('tenants.switch');
 
+    Route::post('/customers/api', [CustomerController::class, 'storeApi'])->name('customers.storeApi');
     // Master Data
     Route::resource('categories', CategoryController::class);
     Route::resource('products', ProductController::class);
     Route::resource('customers', CustomerController::class);
     Route::resource('suppliers', SupplierController::class);
     Route::resource('pos', PosController::class);
-
+    Route::resource('discounts', DiscountController::class);
+    Route::resource('settings', SettingController::class);
 
     // POS / Orders
     Route::resource('orders', OrderController::class);
-    // Route::get('/pos', [OrderController::class, 'create'])->name('pos.create'); // Alias jika perlu
+    // Route untuk melihat tampilan cantik di web
+    Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
+
+    // Route khusus untuk struk thermal polos
+    Route::get('/orders/{id}/print', [OrderController::class, 'print'])->name('orders.print');    // Route::get('/pos', [OrderController::class, 'create'])->name('pos.create'); // Alias jika perlu
 
     // Inventory
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');

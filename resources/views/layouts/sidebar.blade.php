@@ -43,6 +43,9 @@
                 <x-sidebar-link :href="route('orders.index')" :active="request()->routeIs('orders.index')" icon="customer">
                     Order
                 </x-sidebar-link>
+                <x-sidebar-link :href="route('discounts.index')" :active="request()->routeIs('discounts.index')" icon="customer">
+                    Discounts
+                </x-sidebar-link>
 
                 {{-- <x-sidebar-link :href="route('orders.index')" :active="request()->routeIs('orders.*')" icon="shopping-cart">
                     Penjualan (POS)

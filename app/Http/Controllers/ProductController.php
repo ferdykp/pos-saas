@@ -11,7 +11,6 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        // WAJIB: Filter berdasarkan tenant_id yang sedang login
         $products = Product::with('category')
             ->where('tenant_id', auth()->user()->tenant_id)
             ->when($request->search, function ($query, $search) {
@@ -58,12 +57,12 @@ class ProductController extends Controller
             'product_name' => $request->product_name,
             'type' => $request->type,
             'sku' => $request->sku,
-            'barcode' => $request->barcode,
-            'image' => $imagePath, // SEKARANG GAMBAR TERSIMPAN
+            'image' => $imagePath,
             'cost_price' => $request->cost_price ?? 0,
             'sell_price' => $request->sell_price,
             'stock' => $request->stock ?? 0,
             'min_stock' => $request->min_stock ?? 0,
+            'manage_stock' => $request->has('manage_stock') ? 1 : 0, // Ditambahkan
             'is_active' => $request->has('is_active') ? 1 : 0,
         ]);
 
@@ -72,6 +71,7 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
+        // Security check
         if ($product->tenant_id !== auth()->user()->tenant_id) {
             abort(403);
         }
@@ -99,16 +99,16 @@ class ProductController extends Controller
             'product_name' => $request->product_name,
             'type' => $request->type,
             'sku' => $request->sku,
-            'barcode' => $request->barcode,
             'cost_price' => $request->cost_price ?? 0,
             'sell_price' => $request->sell_price,
             'stock' => $request->stock ?? 0,
             'min_stock' => $request->min_stock ?? 0,
+            'manage_stock' => $request->has('manage_stock') ? 1 : 0, // Ditambahkan
             'is_active' => $request->has('is_active') ? 1 : 0,
         ];
 
         if ($request->hasFile('image')) {
-            // Hapus gambar lama jika ada
+            // Hapus gambar lama dari storage jika ada produk mengunggah gambar baru
             if ($product->image) {
                 Storage::disk('public')->delete($product->image);
             }
@@ -118,5 +118,26 @@ class ProductController extends Controller
         $product->update($data);
 
         return redirect()->route('products.index')->with('success', 'Produk berhasil diperbarui');
+    }
+
+    /**
+     * Tambahan: Fungsi Delete
+     */
+    public function destroy(Product $product)
+    {
+        // Security check
+        if ($product->tenant_id !== auth()->user()->tenant_id) {
+            abort(403);
+        }
+
+        // 1. Hapus gambar dari storage agar tidak memenuhi server
+        if ($product->image) {
+            Storage::disk('public')->delete($product->image);
+        }
+
+        // 2. Hapus data dari database
+        $product->delete();
+
+        return redirect()->route('products.index')->with('success', 'Produk berhasil dihapus');
     }
 }

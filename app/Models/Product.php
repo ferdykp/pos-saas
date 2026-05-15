@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Product extends Model
 {
@@ -78,5 +79,10 @@ class Product extends Model
     public function inventory()
     {
         return $this->hasOne(Inventory::class);
+    }
+    public function discounts(): BelongsToMany
+    {
+        // Parameter kedua adalah nama tabel pivot yang kita buat di migration
+        return $this->belongsToMany(Discount::class, 'discount_product');
     }
 }

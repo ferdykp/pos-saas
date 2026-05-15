@@ -48,7 +48,7 @@
                     </svg>
                     <span>Profil Saya</span>
                 </a>
-                <a href="#"
+                <a href="{{ route('settings.index') }}"
                     class="flex items-center p-3 space-x-3 text-sm font-bold text-gray-700 transition rounded-xl hover:bg-gray-50">
                     <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-width="2"

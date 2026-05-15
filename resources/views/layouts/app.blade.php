@@ -18,6 +18,29 @@
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <style>
+        /* Menyesuaikan tampilan Select2 agar menyatu dengan desain POS */
+        .select2-container--default .select2-selection--single {
+            border: none !important;
+            background-color: #f9fafb !important;
+            /* bg-gray-50 */
+            height: 48px !important;
+            border-radius: 1rem !important;
+            /* rounded-2xl */
+            display: flex;
+            align-items: center;
+            padding-left: 30px;
+        }
+
+        .select2-container--default .select2-selection__arrow {
+            height: 48px !important;
+        }
+    </style>
+
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
