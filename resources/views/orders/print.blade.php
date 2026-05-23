@@ -193,12 +193,23 @@
         <p>Struk ini adalah bukti pembayaran sah</p>
     </div>
 
-    <script>
+    {{-- <script>
         // Otomatis buka dialog print saat halaman dimuat
         window.onload = function() {
             window.print();
             // window.onafterprint = function() { window.close(); }
         }
+    </script> --}}
+    <script>
+        window.focus();
+
+        // Beri jeda sedikit agar CSS thermal termuat sempurna di Chrome
+        setTimeout(function() {
+            window.print();
+
+            // Otomatis menutup pop-up window setelah dialog print ditutup (di-print atau di-cancel)
+            window.close();
+        }, 500);
     </script>
 </body>
 

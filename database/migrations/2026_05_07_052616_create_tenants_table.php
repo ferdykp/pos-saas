@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Berhasil karena users sudah ada
             $table->string('name');
+            $table->string('business_type'); // <-- Tambahkan Kolom Baru Ini
             $table->string('slug');
             $table->string('email');
             $table->string('phone');

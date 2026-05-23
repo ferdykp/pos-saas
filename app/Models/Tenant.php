@@ -14,6 +14,7 @@ class Tenant extends Model
     protected $fillable = [
         'user_id',
         'name',
+        'business_type', // <-- Pastikan ini ada!
         'slug',
         'email',
         'phone',

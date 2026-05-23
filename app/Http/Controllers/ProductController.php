@@ -6,6 +6,8 @@ use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache; // <--- PASTIKAN IMPORT INI ADA DI ATAS
+
 
 class ProductController extends Controller
 {
@@ -50,6 +52,8 @@ class ProductController extends Controller
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('products', 'public');
         }
+        // Ambil status manage_stock (1 = lacak, 0 = tidak dilacak)
+        $manageStock = $request->has('manage_stock') ? 1 : 0;
 
         Product::create([
             'tenant_id' => auth()->user()->tenant_id,
@@ -60,11 +64,17 @@ class ProductController extends Controller
             'image' => $imagePath,
             'cost_price' => $request->cost_price ?? 0,
             'sell_price' => $request->sell_price,
-            'stock' => $request->stock ?? 0,
-            'min_stock' => $request->min_stock ?? 0,
-            'manage_stock' => $request->has('manage_stock') ? 1 : 0, // Ditambahkan
+            // 'stock' => $request->stock ?? 0,
+            // 'min_stock' => $request->min_stock ?? 0,
+            'stock' => $manageStock === 1 ? ($request->stock ?? 0) : 0, // Jika tidak dilacak, paksa simpan 0
+            'min_stock' => $manageStock === 1 ? ($request->min_stock ?? 0) : 0,
+            'manage_stock' => $manageStock,
+            // 'manage_stock' => $request->has('manage_stock') ? 1 : 0, // Ditambahkan
             'is_active' => $request->has('is_active') ? 1 : 0,
         ]);
+
+        $tenantId = auth()->user()->tenant_id;
+        Cache::forget("tenant_{$tenantId}_products_pos");
 
         return redirect()->route('products.index')->with('success', 'Produk berhasil ditambahkan');
     }
@@ -116,6 +126,7 @@ class ProductController extends Controller
         }
 
         $product->update($data);
+        Cache::forget("tenant_{$product->tenant_id}_products_pos");
 
         return redirect()->route('products.index')->with('success', 'Produk berhasil diperbarui');
     }
@@ -137,6 +148,7 @@ class ProductController extends Controller
 
         // 2. Hapus data dari database
         $product->delete();
+        Cache::forget("tenant_{$product->tenant_id}_products_pos");
 
         return redirect()->route('products.index')->with('success', 'Produk berhasil dihapus');
     }

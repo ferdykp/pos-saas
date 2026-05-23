@@ -8,11 +8,8 @@
                 </svg>
                 Kembali ke POS
             </a>
-            {{-- <button onclick="window.print()"
-                class="px-6 py-2 text-xs font-black text-white transition bg-blue-600 shadow-lg rounded-xl hover:bg-blue-700">
-                <i class="mr-2 fa-solid fa-print"></i> CETAK STRUK
-            </button> --}}
-            <button onclick="printReceipt('{{ route('orders.print', $order->id) }}')"
+
+            <button id="btnPrintReceipt"
                 class="px-6 py-2 text-xs font-black text-white transition bg-blue-600 shadow-lg rounded-xl hover:bg-blue-700">
                 <i class="mr-2 fa-solid fa-print"></i> CETAK STRUK
             </button>
@@ -136,8 +133,11 @@
                 display: none !important;
             }
 
-            body {
+            body,
+            html {
                 background: white;
+                margin: 0;
+                padding: 0;
             }
 
             #receipt {
@@ -152,10 +152,9 @@
             .receipt-content {
                 width: 100% !important;
                 max-width: 100% !important;
-                padding: 5px !important;
+                padding: 0px 10px !important;
             }
 
-            /* Ukuran font khusus printer thermal */
             .font-mono {
                 font-family: 'Courier New', Courier, monospace !important;
             }
@@ -169,27 +168,29 @@
         }
     </style>
 
+    <!-- Iframe Tersembunyi -->
+    {{-- <iframe id="printFrame" style="position: absolute; width: 0; height: 0; border: 0; opacity: 0;"></iframe> --}}
     <iframe id="printFrame" style="display:none;"></iframe>
 
+
     <script>
-        function printReceipt(url) {
-            const frame = document.getElementById('printFrame');
+        const btnPrint = document.getElementById('btnPrintReceipt');
 
-            // Tampilkan loading sederhana jika perlu
-            console.log('Sedang menyiapkan struk...');
+        btnPrint.onclick = function() {
+            const url = "{{ route('orders.print', $order->id) }}";
 
-            frame.src = url;
+            // 1. Ubah tombol ke mode loading sebentar
+            btnPrint.disabled = true;
+            btnPrint.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> MENYIAPKAN...';
 
-            frame.onload = function() {
-                try {
-                    frame.contentWindow.focus();
-                    frame.contentWindow.print();
-                } catch (e) {
-                    console.error("Gagal mencetak:", e);
-                    // Fallback jika iframe diblokir browser
-                    window.open(url, '_blank');
-                }
-            };
-        }
+            // 2. Buka jendela pop-up kecil di latar belakang
+            const printWindow = window.open(url, '_blank', 'width=400,height=600,top=100,left=100');
+
+            // 3. Kembalikan tombol ke normal setelah 2 detik
+            setTimeout(() => {
+                btnPrint.disabled = false;
+                btnPrint.innerHTML = '<i class="mr-2 fa-solid fa-print"></i> CETAK STRUK';
+            }, 2000);
+        };
     </script>
 </x-app-layout>

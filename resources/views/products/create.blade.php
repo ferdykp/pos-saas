@@ -208,7 +208,7 @@
                         inventoryFields.classList.remove('hidden');
                     } else {
                         inventoryFields.classList.add('hidden');
-                        stockInput.value = 1;
+                        stockInput.value = 0;
                         minStockInput.value = 0;
                     }
                 }

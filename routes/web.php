@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AiReportController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TenantController;
@@ -8,12 +9,16 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DiscountController;
+use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\PosApiController;
 use App\Http\Controllers\PosController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\ShiftController;
 
 // use App\Http\Controllers\ReportController;
 
@@ -23,6 +28,12 @@ Route::get('/', function () {
 
 // Route yang dilindungi otentikasi
 Route::middleware(['auth', 'verified'])->group(function () {
+
+    Route::middleware(['admin'])->group(function () {
+        Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
+        Route::post('/employees', [EmployeeController::class, 'store'])->name('employees.store');
+        Route::delete('/employees/{id}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
+    });
 
     // ERROR FIX: Definisikan route dashboard di sini
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -53,6 +64,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/inventory/history', [InventoryController::class, 'history'])->name('inventory.history');
 
     // Tenant Management
+    Route::get('/tenants', [TenantController::class, 'index'])->name('tenants.index');
     Route::get('/tenants/create', [TenantController::class, 'create'])->name('tenants.create');
     Route::post('/tenants', [TenantController::class, 'store'])->name('tenants.store');
     Route::get('/tenants/{tenant}/edit', [TenantController::class, 'edit'])->name('tenants.edit');
@@ -79,6 +91,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('pos', PosController::class);
     Route::resource('discounts', DiscountController::class);
     Route::resource('settings', SettingController::class);
+    Route::post('/settings/update-points', [SettingController::class, 'updatePoints'])->name('settings.update-points');
+
+    Route::post('/shifts/open', [ShiftController::class, 'open']);
+    // Route::post('/shifts/open', [ShiftController::class, 'openStore'])->name('shifts.openStore');
+    Route::get('/shifts/summary', [ShiftController::class, 'summary']);
+    Route::post('/shifts/close', [ShiftController::class, 'close']);
+    Route::resource('shifts', ShiftController::class);
+
 
     // POS / Orders
     Route::resource('orders', OrderController::class);
@@ -91,6 +111,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Inventory
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
     Route::get('/inventory/history', [InventoryController::class, 'history'])->name('inventory.history');
+
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/export-excel', [ReportController::class, 'exportExcel'])->name('reports.export-excel');
+    Route::get('/reports/exports', [ReportController::class, 'exportList'])->name('reports.exports-list');
+    Route::get('/reports/exports/download/{id}', [ReportController::class, 'downloadFile'])->name('reports.download-file');
+    Route::get('/reports/exports/status-json', [ReportController::class, 'getExportsStatusJson'])->name('reports.exports-status-json');
+
+    Route::get('/reports/ai-analysis', [AiReportController::class, 'index'])->name('reports.ai');
+    Route::get('/api/pos/recommendation', [PosApiController::class, 'getRecommendation'])->name('api.pos.recommendation');
 });
 
 require __DIR__ . '/auth.php';

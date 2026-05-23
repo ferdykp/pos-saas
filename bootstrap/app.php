@@ -4,6 +4,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\CheckTenant;
+use App\Http\Middleware\EnsureUserIsAdmin;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -13,8 +14,13 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
+            'admin' => EnsureUserIsAdmin::class,
             'check.tenant' => CheckTenant::class,
         ]);
+        // $middleware->alias([
+        //     'admin' => \App\Http\Middleware\AdminMiddleware::class, // Sesuaikan dengan nama class middleware admin Anda
+        //     'check.tenant' => \App\Http\Middleware\CheckTenant::class, // Pastikan check.tenant juga sudah ada
+        // ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

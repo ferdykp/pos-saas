@@ -89,10 +89,27 @@
             <div class="p-6 border-b border-gray-50">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-xl font-black text-gray-900">Daftar Pesanan</h3>
-                    <button type="button" onclick="openCustomerModal()"
-                        class="flex items-center justify-center w-8 h-8 text-blue-600 transition-colors rounded-lg bg-blue-50 hover:bg-blue-100">
-                        <i class="fa-solid fa-user-plus"></i>
-                    </button>
+                    <div class="flex gap-2">
+                        @if (!$hasShift)
+                            <button type="button" onclick="openOpenShiftModal()"
+                                class="flex items-center gap-1 px-3 py-1 text-xs font-bold text-blue-600 transition-colors rounded-lg bg-blue-50 hover:bg-blue-100 animate-pulse">
+                                <i class="fa-solid fa-cash-register"></i> Buka Shift
+                            </button>
+                        @else
+                            <button type="button" onclick="openCloseShiftModal()"
+                                class="flex items-center gap-1 px-3 py-1 text-xs font-bold transition-colors rounded-lg text-rose-600 bg-rose-50 hover:bg-rose-100 animate-pulse">
+                                <i class="fa-solid fa-cash-register"></i> Tutup Shift
+                            </button>
+                            {{-- <button type="button" onclick="openCloseShiftModal()" title="Tutup Shift Kerja"
+                                class="flex items-center justify-center w-8 h-8 transition-colors rounded-lg text-rose-600 bg-rose-50 hover:bg-rose-100">
+                                <i class="fa-solid fa-store-slash"></i> Tutup Shift
+                            </button> --}}
+                        @endif
+                        <button type="button" onclick="openCustomerModal()"
+                            class="flex items-center justify-center w-8 h-8 text-blue-600 transition-colors rounded-lg bg-blue-50 hover:bg-blue-100">
+                            <i class="fa-solid fa-user-plus"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="relative">
@@ -109,6 +126,7 @@
                     </select>
                 </div>
             </div>
+
             <div id="cartItems" class="flex-1 p-6 space-y-4 overflow-y-auto text-center no-scrollbar">
                 <div class="py-20 italic text-gray-300">
                     <p>Pilih menu untuk mulai...</p>
@@ -148,10 +166,83 @@
         </div>
     </div>
 
+    <div id="openShiftModal"
+        class="fixed inset-0 z-[100] flex items-center justify-center hidden p-4 bg-gray-900/80 backdrop-blur-md">
+        <div class="bg-white rounded-[2.5rem] p-8 w-full max-w-md shadow-2xl text-center">
+            <div class="flex items-center justify-center w-20 h-20 mx-auto mb-4 text-blue-600 bg-blue-100 rounded-full">
+                <i class="text-3xl fa-solid fa-cash-register"></i>
+            </div>
+            <h3 class="mb-2 text-2xl font-black text-gray-900">Buka Shift Kasir</h3>
+            <p class="mb-6 text-xs font-medium text-gray-400">Masukkan jumlah saldo kas kecil / modal awal uang tunai
+                yang ada di dalam laci meja kasir saat ini.</p>
+
+            <form id="openShiftForm" class="space-y-4 text-left">
+                <div>
+                    <label class="block mb-2 text-xs font-black text-gray-400 uppercase">Uang Modal Awal (Cash)</label>
+                    <input type="text" id="input_cash_start" oninput="formatCurrencyInput(this)" required
+                        class="w-full px-6 py-4 text-xl font-black text-center border-none bg-gray-50 rounded-2xl focus:ring-blue-500"
+                        placeholder="Rp 0">
+                </div>
+                <div class="flex gap-3">
+                    <button type="button" onclick="document.getElementById('openShiftModal').classList.add('hidden')"
+                        class="flex-1 py-4 font-bold text-gray-400 bg-gray-100 rounded-2xl">Batal</button>
+                    <button type="submit"
+                        class="flex-[2] py-4 font-black text-white bg-blue-600 shadow-xl rounded-2xl hover:bg-blue-700">
+                        MULAI OPERASIONAL TOKO
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="closeShiftModal"
+        class="fixed inset-0 z-[100] flex items-center justify-center hidden p-4 bg-gray-900/60 backdrop-blur-sm">
+        <div class="bg-white rounded-[2.5rem] p-8 w-full max-w-md shadow-2xl">
+            <h3 class="mb-2 text-2xl font-black text-center text-gray-900">Laporan Tutup Shift</h3>
+            <p class="mb-6 text-xs font-medium text-center text-gray-400">Hitung uang fisik di laci dan samakan dengan
+                hitungan sistem.</p>
+
+            <div class="p-4 mb-4 space-y-2 text-sm font-bold text-gray-600 bg-gray-50 rounded-2xl">
+                <div class="flex justify-between"><span>Modal Awal:</span><span id="text_shift_start"
+                        class="text-gray-900">Rp 0</span></div>
+                <div class="flex justify-between"><span>Penjualan Tunai:</span><span id="text_shift_sales"
+                        class="text-blue-600">+Rp 0</span></div>
+                <div class="flex justify-between pt-2 font-black text-gray-900 border-t border-gray-200">
+                    <span>Total Ekspektasi Sistem:</span><span id="text_shift_expected">Rp 0</span>
+                </div>
+            </div>
+
+            <form id="closeShiftForm" class="space-y-4">
+                <div>
+                    <label class="block mb-2 text-xs font-black text-gray-400 uppercase">Total Uang Fisik Di Laci
+                        (Cash)</label>
+                    <input type="text" id="input_cash_actual" oninput="formatCurrencyInput(this)" required
+                        class="w-full px-5 py-3 text-lg font-black bg-gray-100 border-none rounded-2xl focus:ring-blue-500"
+                        placeholder="Hitung uang fisik tunai...">
+                </div>
+                <div>
+                    <label class="block mb-2 text-xs font-black text-gray-400 uppercase">Catatan / Keterangan</label>
+                    <textarea id="shift_notes" rows="2"
+                        class="w-full px-4 py-3 text-sm border-none bg-gray-50 rounded-2xl focus:ring-blue-500"
+                        placeholder="Contoh: Selisih minus Rp 2.000 karena tidak ada kembalian kembalian pecahan kecil..."></textarea>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button"
+                        onclick="document.getElementById('closeShiftModal').classList.add('hidden')"
+                        class="flex-1 py-4 font-bold text-gray-400 bg-gray-100 rounded-2xl">Batal</button>
+                    <button type="submit"
+                        class="flex-1 py-4 font-black text-white shadow-xl bg-rose-600 rounded-2xl hover:bg-rose-700">
+                        TUTUP SHIFT
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div id="customerModal"
         class="fixed inset-0 z-[80] flex items-center justify-center hidden p-4 bg-gray-900/60 backdrop-blur-sm">
         <div class="bg-white rounded-[2.5rem] p-8 w-full max-w-md shadow-2xl">
-            <h3 class="mb-6 text-2xl font-black text-center text-gray-900">Tambah Pelanggan</h3>
+            <h3 class="mb-6 text-2xl font-black text-center text-gray-900">Tambah Pelanggan Baru</h3>
 
             <form id="addCustomerForm" class="space-y-4">
                 <div>
@@ -161,10 +252,16 @@
                         placeholder="Contoh: Budi Santoso">
                 </div>
                 <div>
-                    <label class="block mb-2 text-xs font-black text-gray-400 uppercase">Nomor HP</label>
+                    <label class="block mb-2 text-xs font-black text-gray-400 uppercase">No. WhatsApp</label>
                     <input type="text" id="cust_phone"
                         class="w-full px-5 py-3 border-none rounded-2xl bg-gray-50 focus:ring-blue-500"
                         placeholder="0812xxxx">
+                </div>
+                <div class="flex items-center p-4 bg-blue-50 rounded-2xl">
+                    <input type="checkbox" id="cust_member" value="1"
+                        class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                    <label for="cust_member" class="ml-3 text-sm font-bold text-blue-900">Daftarkan sebagai Member
+                        Aktif</label>
                 </div>
 
                 <div class="pt-4 space-y-2">
@@ -191,8 +288,7 @@
                     </div>
                     <div>
                         <h4 class="mb-2 text-xs font-black text-gray-400 uppercase">Rincian Item</h4>
-                        <div id="reviewItems" class="space-y-1 max-h-40 overflow-y-auto pr-2 text-[11px]">
-                        </div>
+                        <div id="reviewItems" class="space-y-1 max-h-40 overflow-y-auto pr-2 text-[11px]"></div>
                     </div>
                     <div class="pt-2 border-t border-gray-200">
                         <div class="flex justify-between text-xs">
@@ -282,7 +378,6 @@
 
         let cart = [];
 
-        // Inisialisasi Select2 saat halaman siap
         $(document).ready(function() {
             $('#customerSelect').select2({
                 placeholder: "Cari nama atau nomor HP...",
@@ -364,19 +459,19 @@
                 cartContainer.innerHTML = '<div class="py-20 italic text-gray-300">Pilih menu untuk mulai...</div>';
             } else {
                 cartContainer.innerHTML = cart.map(item => `
-                <div class="flex items-center justify-between p-3 bg-white border shadow-sm border-gray-50 rounded-2xl">
-                    <div class="flex-1 text-left">
-                        <p class="text-sm font-bold leading-tight text-gray-900">${item.name}</p>
-                        <p class="text-[10px] font-black text-rose-500">${item.discountApplied > 0 ? item.discountName : ''}</p>
-                        <p class="text-xs font-black text-blue-600">Rp ${new Intl.NumberFormat('id-ID').format(item.finalPrice)}</p>
+                    <div class="flex items-center justify-between p-3 bg-white border shadow-sm border-gray-50 rounded-2xl">
+                        <div class="flex-1 text-left">
+                            <p class="text-sm font-bold leading-tight text-gray-900">${item.name}</p>
+                            <p class="text-[10px] font-black text-rose-500">${item.discountApplied > 0 ? item.discountName : ''}</p>
+                            <p class="text-xs font-black text-blue-600">Rp ${new Intl.NumberFormat('id-ID').format(item.finalPrice)}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="updateQty(${item.id}, -1)" class="font-bold bg-gray-100 rounded-lg w-7 h-7 hover:bg-gray-200">-</button>
+                            <span class="w-4 text-sm font-bold text-center">${item.quantity}</span>
+                            <button onclick="updateQty(${item.id}, 1)" class="font-bold bg-gray-100 rounded-lg w-7 h-7 hover:bg-gray-200">+</button>
+                        </div>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="updateQty(${item.id}, -1)" class="font-bold bg-gray-100 rounded-lg w-7 h-7 hover:bg-gray-200">-</button>
-                        <span class="w-4 text-sm font-bold text-center">${item.quantity}</span>
-                        <button onclick="updateQty(${item.id}, 1)" class="font-bold bg-gray-100 rounded-lg w-7 h-7 hover:bg-gray-200">+</button>
-                    </div>
-                </div>
-            `).join('');
+                `).join('');
             }
 
             document.getElementById('subtotalText').innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(subtotal);
@@ -438,34 +533,28 @@
                 tax,
                 total
             } = calculateTotals();
-
-            // 1. Review Pelanggan
             const customerData = $('#customerSelect').select2('data')[0];
             document.getElementById('reviewCustomer').innerText = customerData ? customerData.text : 'Guest';
 
-            // 2. Review Item
             const reviewItemsContainer = document.getElementById('reviewItems');
             reviewItemsContainer.innerHTML = cart.map(item => `
-            <div class="flex justify-between">
-                <span class="text-gray-600">${item.quantity}x ${item.name}</span>
-                <span class="font-medium text-gray-900">Rp ${new Intl.NumberFormat('id-ID').format(item.finalPrice * item.quantity)}</span>
-            </div>
-        `).join('');
+                <div class="flex justify-between">
+                    <span class="text-gray-600">${item.quantity}x ${item.name}</span>
+                    <span class="font-medium text-gray-900">Rp ${new Intl.NumberFormat('id-ID').format(item.finalPrice * item.quantity)}</span>
+                </div>
+            `).join('');
 
-            // 3. Review Harga
             document.getElementById('reviewSubtotal').innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(subtotal -
                 totalDiscount);
             document.getElementById('reviewTax').innerText = '+Rp ' + new Intl.NumberFormat('id-ID').format(tax);
             document.getElementById('reviewGrandTotal').innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(total);
             document.getElementById('reviewTaxRow').style.display = tax > 0 ? 'flex' : 'none';
 
-            // 4. Reset Modal Input
             document.getElementById('cashAmount').value = "";
             document.getElementById('changeText').innerText = "Rp 0";
             document.getElementById('paymentModal').classList.remove('hidden');
         }
 
-        // FUNGSI UTAMA SUBMIT ORDER (Hanya Satu)
         async function submitOrder(status) {
             const {
                 subtotal,
@@ -498,7 +587,6 @@
                 _token: '{{ csrf_token() }}'
             };
 
-            // Ambil referensi button sebelum proses
             const btn = event.target;
 
             try {
@@ -516,43 +604,29 @@
                 const res = await response.json();
 
                 if (res.success) {
-                    // 1. Sembunyikan Modal Pembayaran
                     document.getElementById('paymentModal').classList.add('hidden');
-
-                    // 2. Siapkan tombol cetak di Modal Sukses
                     const btnPrint = document.getElementById('btnPrintReceipt');
                     btnPrint.onclick = function() {
-                        // Ambil elemen iframe
                         const frame = document.getElementById('printFrame');
-
-                        // Set URL ke route print
                         const url = `/orders/${res.order_id}/print`;
                         frame.src = url;
 
-                        // Tambahkan indikator loading pada tombol agar user tahu proses berjalan
                         btnPrint.disabled = true;
                         btnPrint.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> MENYIAPKAN...';
 
-                        // Tunggu hingga konten di dalam iframe selesai dimuat
                         frame.onload = function() {
                             try {
-                                // Fokus dan Print konten iframe
                                 frame.contentWindow.focus();
                                 frame.contentWindow.print();
-
-                                // Setelah dialog print muncul/selesai, reload halaman
                                 setTimeout(() => {
                                     location.reload();
                                 }, 1000);
                             } catch (e) {
                                 console.error("Gagal mencetak melalui iframe:", e);
-                                // Fallback jika iframe gagal (buka tab baru sebagai cadangan)
                                 window.open(url, '_blank');
                             }
                         };
                     };
-
-                    // 3. Tampilkan Modal Sukses
                     document.getElementById('successModal').classList.remove('hidden');
                 } else {
                     alert('Gagal: ' + res.message);
@@ -566,7 +640,8 @@
                 btn.innerText = "KONFIRMASI & CETAK";
             }
         }
-        // MODAL CUSTOMER LOGIC
+
+        // FUNGSI MODAL & AJAX MANAJEMEN PELANGGAN BARU
         function openCustomerModal() {
             document.getElementById('customerModal').classList.remove('hidden');
         }
@@ -576,35 +651,132 @@
             document.getElementById('addCustomerForm').reset();
         }
 
+        function openOpenShiftModal() {
+            document.getElementById('openShiftModal').classList.remove('hidden');
+        }
+
         document.getElementById('addCustomerForm').onsubmit = async function(e) {
             e.preventDefault();
             const name = document.getElementById('cust_name').value;
             const phone = document.getElementById('cust_phone').value;
+            const is_member = document.getElementById('cust_member').checked ? '1' : '0';
 
             try {
                 const response = await fetch('/customers', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
                     body: JSON.stringify({
                         name,
-                        phone
+                        phone,
+                        is_member
                     })
                 });
 
                 const res = await response.json();
 
                 if (res.success) {
-                    const newOption = new Option(`${res.data.name} (${res.data.phone ?? ''})`, res.data.id, true,
-                        true);
+                    const displayPhone = res.phone ? ` (${res.phone})` : '';
+                    const newOption = new Option(`${res.name}${displayPhone}`, res.id, true, true);
+
                     $('#customerSelect').append(newOption).trigger('change');
                     closeCustomerModal();
                     alert('Pelanggan berhasil ditambahkan!');
+                } else {
+                    alert('Gagal: ' + (res.message || 'Terjadi kesalahan internal.'));
                 }
             } catch (error) {
+                console.error('Error Add Customer:', error);
                 alert('Gagal menambah pelanggan.');
+            }
+        };
+
+        // LOGIKA OPERASIONAL SHIFT KASIR
+        document.getElementById('openShiftForm').onsubmit = async function(e) {
+            e.preventDefault();
+            const rawCash = document.getElementById('input_cash_start').value.replace(/\./g, "") || 0;
+            const cash_start = parseInt(rawCash);
+
+            try {
+                const response = await fetch('/shifts/open', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        cash_start
+                    })
+                });
+                const res = await response.json();
+                if (res.success) {
+                    alert(res.message);
+                    document.getElementById('openShiftModal').classList.add('hidden');
+                    location.reload(); // Refresh untuk update status halaman
+                } else {
+                    alert(res.message);
+                }
+            } catch (error) {
+                alert('Gagal memproses buka shift.');
+            }
+        };
+
+        async function openCloseShiftModal() {
+            try {
+                // Ambil data summary berjalan dari server via AJAX
+                const response = await fetch('/shifts/summary');
+                const res = await response.json();
+
+                if (res.success) {
+                    document.getElementById('text_shift_start').innerText = 'Rp ' + new Intl.NumberFormat('id-ID')
+                        .format(res.cash_start);
+                    document.getElementById('text_shift_sales').innerText = '+Rp ' + new Intl.NumberFormat('id-ID')
+                        .format(res.cash_sales);
+                    document.getElementById('text_shift_expected').innerText = 'Rp ' + new Intl.NumberFormat('id-ID')
+                        .format(res.cash_expected);
+
+                    document.getElementById('input_cash_actual').value = "";
+                    document.getElementById('shift_notes').value = "";
+                    document.getElementById('closeShiftModal').classList.remove('hidden');
+                }
+            } catch (error) {
+                alert('Gagal memuat rangkuman shift berjalan.');
+            }
+        }
+
+        document.getElementById('closeShiftForm').onsubmit = async function(e) {
+            e.preventDefault();
+            const rawActual = document.getElementById('input_cash_actual').value.replace(/\./g, "") || 0;
+            const cash_actual = parseInt(rawActual);
+            const notes = document.getElementById('shift_notes').value;
+
+            if (!confirm('Apakah Anda yakin ingin menutup shift kerja sekarang? Data tidak bisa diubah kembali.'))
+                return;
+
+            try {
+                const response = await fetch('/shifts/close', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        cash_actual,
+                        notes
+                    })
+                });
+                const res = await response.json();
+                if (res.success) {
+                    alert('Shift berhasil ditutup! Halaman akan dimuat ulang.');
+                    location.reload();
+                }
+            } catch (error) {
+                alert('Gagal memproses tutup shift.');
             }
         };
     </script>

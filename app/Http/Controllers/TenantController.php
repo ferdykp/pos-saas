@@ -5,39 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class TenantController extends Controller
 {
-    // Gunakan relasi agar otomatis mengisi user_id
-    public function store(Request $request)
+    public function index()
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'phone' => 'required|string|max:20',
-            'address' => 'required|string',
-        ]);
+        $tenants = auth()->user()->tenants()
+            ->withCount('users')
+            ->orderBy('id', 'desc')
+            ->get();
 
-        /**
-         * Menggunakan auth()->user()->tenants()->create(...) 
-         * secara otomatis akan mengisi kolom 'user_id' di tabel tenants
-         * sesuai dengan ID user yang sedang login.
-         */
-        $tenant = auth()->user()->tenants()->create([
-            'name' => $request->name,
-            'slug' => Str::slug($request->name) . '-' . rand(100, 999),
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'address' => $request->address,
-            'status' => 'active',
-        ]);
-
-        // Langsung set tenant ini sebagai tenant aktif untuk user ini
-        auth()->user()->update([
-            'tenant_id' => $tenant->id
-        ]);
-
-        return redirect()->route('dashboard')->with('success', 'Bisnis berhasil didaftarkan!');
+        return view('tenants.index', compact('tenants'));
     }
 
     public function create()
@@ -45,34 +24,124 @@ class TenantController extends Controller
         return view('tenants.create');
     }
 
-    // Perbaikan Method Update (Gunakan Validasi)
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'business_type' => 'required|string|max:100',
+            'email' => 'required|email|max:255',
+            'phone' => 'required|string|max:20',
+            'address' => 'required|string',
+            'img_logo' => 'nullable|file|mimes:jpeg,png,jpg,webp|max:2048',
+        ]);
+
+        $logoPath = null;
+        if ($request->hasFile('img_logo')) {
+            $file = $request->file('img_logo');
+            $fileName = time() . '_' . Str::slug($request->name) . '.' . $file->getClientOriginalExtension();
+            $logoPath = $file->storeAs('logos', $fileName, 'public');
+        }
+
+        $tenant = auth()->user()->tenants()->create([
+            'name' => $request->name,
+            'slug' => Str::slug($request->name) . '-' . rand(100, 999),
+            'business_type' => $request->business_type,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'address' => $request->address,
+            'img_logo' => $logoPath,
+            'status' => 'active',
+        ]);
+
+        auth()->user()->update([
+            'tenant_id' => $tenant->id
+        ]);
+
+        return redirect()->route('tenants.index')->with('success', 'Bisnis berhasil didaftarkan!');
+    }
+
+    public function edit(Tenant $tenant)
+    {
+        if ($tenant->user_id !== auth()->id()) {
+            abort(403);
+        }
+        return view('tenants.edit', compact('tenant'));
+    }
+
     public function update(Request $request, Tenant $tenant)
     {
-        // Pastikan hanya pemilik yang bisa update
         if ($tenant->user_id !== auth()->id()) {
             abort(403);
         }
 
-        $tenant->update($request->validate([
-            'name' => 'sometimes|string',
-            'email' => 'sometimes|email',
-            'phone' => 'sometimes',
-            'address' => 'sometimes',
-            'status' => 'sometimes',
-        ]));
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'business_type' => 'required|string|max:100',
+            'email' => 'required|email|max:255',
+            'phone' => 'required|string|max:20',
+            'address' => 'required|string',
+            'img_logo' => 'nullable|file|mimes:jpeg,png,jpg,webp|max:2048',
+        ]);
 
-        return redirect()->back()->with('success', 'Data bisnis diperbarui');
+        $data = [
+            'name' => $request->name,
+            'business_type' => $request->business_type,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'address' => $request->address,
+        ];
+
+        if ($request->hasFile('img_logo')) {
+            // Hapus logo lama jika ada
+            if ($tenant->img_logo && Storage::disk('public')->exists($tenant->img_logo)) {
+                Storage::disk('public')->delete($tenant->img_logo);
+            }
+
+            $file = $request->file('img_logo');
+            $fileName = time() . '_' . Str::slug($request->name) . '.' . $file->getClientOriginalExtension();
+            $data['img_logo'] = $file->storeAs('logos', $fileName, 'public');
+        }
+
+        $tenant->update($data);
+
+        return redirect()->route('tenants.index')->with('success', 'Data bisnis berhasil diperbarui!');
     }
 
-    // Perbaikan Method Destroy
     public function destroy(Tenant $tenant)
     {
         if ($tenant->user_id !== auth()->id()) {
             abort(403);
         }
 
+        // Hapus file logo dari storage sebelum menghapus data
+        if ($tenant->img_logo && Storage::disk('public')->exists($tenant->img_logo)) {
+            Storage::disk('public')->delete($tenant->img_logo);
+        }
+
         $tenant->delete();
 
-        return redirect()->route('profile.index')->with('success', 'Bisnis berhasil dihapus');
+        // Jika tenant yang dihapus adalah tenant aktif, set jadi null atau ganti ke tenant lain
+        if (auth()->user()->tenant_id == $tenant->id) {
+            $nextTenant = auth()->user()->tenants()->first();
+            auth()->user()->update([
+                'tenant_id' => $nextTenant ? $nextTenant->id : null
+            ]);
+        }
+
+        return redirect()->route('tenants.index')->with('success', 'Bisnis berhasil dihapus!');
     }
+
+    // METHOD BARU UNTUK SWITCH / PINDAH TOKO AKTIF
+    // public function switchTenant(Tenant $tenant)
+    // {
+    //     if ($tenant->user_id !== auth()->id()) {
+    //         abort(403);
+    //     }
+
+    //     auth()->user()->update([
+    //         'tenant_id' => $tenant->id
+    //     ]);
+
+    //     return redirect()->back()->with('success', "Berhasil pindah ke toko: {$tenant->name}");
+    // }
 }

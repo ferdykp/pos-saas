@@ -86,6 +86,31 @@
                 </div>
             </div>
 
+            <div class="grid grid-cols-1 gap-6 p-6 lg:grid-cols-3">
+                <div class="p-6 bg-white border border-gray-100 shadow-sm lg:col-span-2 rounded-[2.5rem]">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-lg font-black text-gray-900">Tren Grafik Penjualan</h3>
+                            <p class="text-xs font-medium text-gray-400">Melihat pergerakan omzet pada periode terpilih.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="w-full h-64">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="p-6 bg-white border border-gray-100 shadow-sm lg:col-span-1 rounded-[2.5rem]">
+                    <div>
+                        <h3 class="text-lg font-bold font-black text-gray-900">Proporsi Pembayaran</h3>
+                        <p class="mb-4 text-xs font-medium text-gray-400">Perbandingan kanal transaksi masuk.</p>
+                    </div>
+                    <div class="relative flex items-center justify-center w-full h-64">
+                        <canvas id="paymentChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
             <div class="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-8 transition-all hover:shadow-lg">
                 <div class="flex items-center justify-between mb-8">
                     <h3 class="text-xl font-bold text-gray-900">Transaksi Terbaru</h3>
@@ -134,4 +159,117 @@
             </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // --- 1. INISIALISASI GRAFIK TREN PENJUALAN (BAR / LINE CHART) ---
+            const ctxTrend = document.getElementById('trendChart').getContext('2d');
+
+            // Data dari Laravel PHP dimasukkan ke array JS via json_encode
+            const trendLabels = {!! json_encode($chartLabels) !!};
+            const trendData = {!! json_encode($chartValues) !!};
+
+            new Chart(ctxTrend, {
+                type: 'bar', // Anda bisa ganti jadi 'line' jika ingin grafik garis
+                data: {
+                    labels: trendLabels.length > 0 ? trendLabels : ['Tidak Ada Data'],
+                    datasets: [{
+                        label: 'Omzet Penjualan (Rp)',
+                        data: trendData.length > 0 ? trendData : [0],
+                        backgroundColor: 'rgba(37, 99, 235, 0.1)', // Biru transparan
+                        borderColor: '#2563eb', // Biru solid
+                        borderWidth: 3,
+                        borderRadius: 8,
+                        barPercentage: 0.5,
+                        tension: 0.3, // Membuat lengkungan halus jika menggunakan jenis 'line'
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        } // Sembunyikan label kotak atas atas biar minimalis
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.03)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return 'Rp ' + new Intl.NumberFormat('id-ID').format(value);
+                                },
+                                font: {
+                                    weight: 'bold',
+                                    size: 10
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    weight: 'bold',
+                                    size: 11
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // --- 2. INISIALISASI GRAFIK PROPORSI PEMBAYARAN (DOUGHNUT CHART) ---
+            const ctxPayment = document.getElementById('paymentChart').getContext('2d');
+
+            // Ambil data metode pembayaran dari loop database laravel
+            let pmLabels = [];
+            let pmValues = [];
+            @foreach ($paymentMethods as $pm)
+                pmLabels.push("{{ $pm->payment_method == 'cash' ? 'Tunai' : 'QRIS/TF' }}");
+                pmValues.push({{ $pm->total_amount }});
+            @endforeach
+
+            new Chart(ctxPayment, {
+                type: 'doughnut',
+                data: {
+                    labels: pmLabels.length > 0 ? pmLabels : ['Belum Ada Transaksi'],
+                    datasets: [{
+                        data: pmValues.length > 0 ? pmValues : [1],
+                        backgroundColor: pmValues.length > 0 ? ['#2563eb', '#a855f7'] : [
+                            '#e2e8f0'
+                        ], // Biru & Ungu
+                        borderWidth: 4,
+                        borderColor: '#ffffff',
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 20,
+                                font: {
+                                    weight: 'bold',
+                                    size: 12
+                                }
+                            }
+                        }
+                    },
+                    cutout: '70%' // Membuat lubang tengah donat menjadi lebih besar & elegan
+                }
+            });
+        });
+    </script>
 </x-app-layout>
