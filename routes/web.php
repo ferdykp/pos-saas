@@ -10,9 +10,11 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\FinanceController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\MaterialController;
+// use App\Http\Controllers\PaymentCallbackController;
 use App\Http\Controllers\PosApiController;
 use App\Http\Controllers\PosController;
 use App\Http\Controllers\ProfileController;
@@ -120,6 +122,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/reports/ai-analysis', [AiReportController::class, 'index'])->name('reports.ai');
     Route::get('/api/pos/recommendation', [PosApiController::class, 'getRecommendation'])->name('api.pos.recommendation');
+
+    // Route::post('/pos', [PosController::class, 'store'])->name('pos.store');
+    // Route::post('/orders/{id}/mark-as-paid', [PosController::class, 'markAsPaid']);
+    Route::get('/orders/{id}/check-status', [PosController::class, 'checkStatus'])->name('orders.checkStatus');
+
+    Route::get('/finance', [FinanceController::class, 'index'])->name('finance.index');
+    Route::post('/finance/withdraw', [FinanceController::class, 'withdraw'])->name('finance.withdraw');
+    Route::post('/finance/settings', [FinanceController::class, 'updateSettings'])->name('finance.settings'); // <-- BARU
 });
 
 require __DIR__ . '/auth.php';

@@ -317,7 +317,7 @@
                                 Tunai</div>
                         </label>
                         <label class="cursor-pointer">
-                            <input type="radio" name="payment_method" value="transfer" class="hidden peer"
+                            <input type="radio" name="payment_method" value="midtrans" class="hidden peer"
                                 onchange="toggleCashInput(false)">
                             <div
                                 class="p-3 text-sm font-bold text-center text-gray-600 border-2 rounded-xl peer-checked:border-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-600">
@@ -369,7 +369,34 @@
             </div>
         </div>
     </div>
+    <div id="qrisModal"
+        class="fixed inset-0 z-[100] flex items-center justify-center hidden p-4 bg-gray-900/60 backdrop-blur-sm">
+        <div class="bg-white rounded-[2.5rem] p-8 w-full max-w-sm shadow-2xl text-center">
+            <h3 class="mb-1 text-xl font-black text-gray-900">Pembayaran QRIS</h3>
+            <p id="qrisInvoiceNumber" class="mb-4 text-xs font-bold text-blue-600">INV-XXXXX</p>
 
+            <div class="inline-block p-4 mb-4 border border-gray-100 bg-gray-50 rounded-2xl">
+                <img id="qrisImage" src="" alt="QRIS Code" class="object-contain w-64 h-64 mx-auto">
+            </div>
+
+            <div class="mb-6 space-y-2">
+                <p class="text-sm font-medium text-gray-500">Silakan scan QRIS di atas untuk menyelesaikan pembayaran
+                </p>
+                <p id="qrisTotalAmount" class="text-2xl font-black text-gray-900">Rp 0</p>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="tutupModalQris()"
+                    class="flex-1 py-3 text-sm font-bold text-gray-400 bg-gray-100 rounded-xl">
+                    TUTUP
+                </button>
+                <button id="btnCheckStatus" onclick="cekStatusManual()"
+                    class="flex-1 py-3 text-sm font-black text-white bg-blue-600 shadow-lg rounded-xl hover:bg-blue-700">
+                    CEK STATUS
+                </button>
+            </div>
+        </div>
+    </div>
     <iframe id="printFrame" style="display:none;"></iframe>
 
     <script>
@@ -377,6 +404,8 @@
         const TAX_PERCENTAGE = {{ $settings['tax_percentage'] ?? '0' }};
 
         let cart = [];
+        let currentOrderId = null; // Menyimpan ID Transaksi aktif untuk cek status
+        let qrisInterval = null; // Variabel penampung interval auto-polling QRIS
 
         $(document).ready(function() {
             $('#customerSelect').select2({
@@ -587,16 +616,19 @@
                 _token: '{{ csrf_token() }}'
             };
 
-            const btn = event.target;
+            const btn = document.querySelector('#paymentModal button[onclick="submitOrder(\'paid\')"]');
 
             try {
-                btn.disabled = true;
-                btn.innerText = "MEMPROSES...";
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerText = "MEMPROSES...";
+                }
 
                 const response = await fetch('/pos', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     },
                     body: JSON.stringify(data)
                 });
@@ -604,44 +636,138 @@
                 const res = await response.json();
 
                 if (res.success) {
+                    // Sembunyikan modal konfirmasi awal
                     document.getElementById('paymentModal').classList.add('hidden');
-                    const btnPrint = document.getElementById('btnPrintReceipt');
-                    btnPrint.onclick = function() {
-                        const frame = document.getElementById('printFrame');
-                        const url = `/orders/${res.order_id}/print`;
-                        frame.src = url;
 
-                        btnPrint.disabled = true;
-                        btnPrint.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> MENYIAPKAN...';
+                    if (res.payment_method === 'midtrans' && res.qr_url) {
+                        currentOrderId = res.order_id;
+                        document.getElementById('qrisInvoiceNumber').innerText = res.invoice_number;
+                        document.getElementById('qrisTotalAmount').innerText = 'Rp ' + new Intl.NumberFormat('id-ID')
+                            .format(total);
+                        document.getElementById('qrisImage').src = res.qr_url;
 
-                        frame.onload = function() {
-                            try {
-                                frame.contentWindow.focus();
-                                frame.contentWindow.print();
-                                setTimeout(() => {
-                                    location.reload();
-                                }, 1000);
-                            } catch (e) {
-                                console.error("Gagal mencetak melalui iframe:", e);
-                                window.open(url, '_blank');
-                            }
-                        };
-                    };
-                    document.getElementById('successModal').classList.remove('hidden');
+                        document.getElementById('qrisModal').classList.remove('hidden');
+
+                        // ================= FUNGSI BARU: AKTIFKAN POLING OTOMATIS =================
+                        if (qrisInterval) clearInterval(qrisInterval); // Proteksi duplikasi interval
+
+                        qrisInterval = setInterval(function() {
+                            jalankanAutoCheckStatus(currentOrderId);
+                        }, 3000); // Poling berjalan mendeteksi setiap 3 detik sekali
+                        // =========================================================================
+                    } else {
+                        // Jalur Tunai / Cash biasa langsung ke cetak nota sukses
+                        triggerTampilkanReceipt(res.order_id);
+                    }
                 } else {
                     alert('Gagal: ' + res.message);
-                    btn.disabled = false;
-                    btn.innerText = "KONFIRMASI & CETAK";
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerText = "KONFIRMASI & CETAK";
+                    }
                 }
             } catch (e) {
                 console.error('Detail Error:', e);
                 alert('Terjadi kesalahan koneksi sistem.');
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = "KONFIRMASI & CETAK";
+                }
+            }
+        }
+
+        function tutupModalQris() {
+            // ================= FUNGSI BARU: STOP POLING JIKA MODAL DITUTUP =================
+            if (qrisInterval) {
+                clearInterval(qrisInterval);
+                qrisInterval = null;
+            }
+            // ===============================================================================
+
+            document.getElementById('qrisModal').classList.add('hidden');
+            const btn = document.querySelector('#paymentModal button[onclick="submitOrder(\'paid\')"]');
+            if (btn) {
                 btn.disabled = false;
                 btn.innerText = "KONFIRMASI & CETAK";
             }
         }
 
-        // FUNGSI MODAL & AJAX MANAJEMEN PELANGGAN BARU
+        // ================= FUNGSI BARU: CORE ENGINE POLING DI LATAR BELAKANG =================
+        async function jalankanAutoCheckStatus(orderId) {
+            if (!orderId) return;
+            try {
+                const response = await fetch(`/orders/${orderId}/check-status`);
+                const res = await response.json();
+
+                if (res.status === 'paid') {
+                    if (qrisInterval) {
+                        clearInterval(qrisInterval);
+                        qrisInterval = null;
+                    }
+                    document.getElementById('qrisModal').classList.add('hidden');
+                    triggerTampilkanReceipt(orderId);
+                }
+            } catch (e) {
+                console.error('Auto check status error:', e);
+            }
+        }
+        // =====================================================================================
+
+        async function cekStatusManual() {
+            if (!currentOrderId) return;
+            const btn = document.getElementById('btnCheckStatus');
+            btn.disabled = true;
+            btn.innerText = "MEMERIKSA...";
+
+            try {
+                const response = await fetch(`/orders/${currentOrderId}/check-status`);
+                const res = await response.json();
+
+                if (res.status === 'paid') {
+                    if (qrisInterval) {
+                        clearInterval(qrisInterval);
+                        qrisInterval = null;
+                    }
+                    alert('Pembayaran Terverifikasi Lunas!');
+                    document.getElementById('qrisModal').classList.add('hidden');
+                    triggerTampilkanReceipt(currentOrderId);
+                } else {
+                    alert('Pembayaran belum masuk. Silakan lakukan pembayaran terlebih dahulu.');
+                }
+            } catch (e) {
+                alert('Gagal memeriksa status.');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "CEK STATUS";
+            }
+        }
+
+        function triggerTampilkanReceipt(orderId) {
+            const btnPrint = document.getElementById('btnPrintReceipt');
+            btnPrint.onclick = function() {
+                const frame = document.getElementById('printFrame');
+                const url = `/orders/${orderId}/print`;
+                frame.src = url;
+
+                btnPrint.disabled = true;
+                btnPrint.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> MENYIAPKAN...';
+
+                frame.onload = function() {
+                    try {
+                        frame.contentWindow.focus();
+                        frame.contentWindow.print();
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000);
+                    } catch (e) {
+                        console.error("Gagal mencetak melalui iframe:", e);
+                        window.open(url, '_blank');
+                    }
+                };
+            };
+            document.getElementById('successModal').classList.remove('hidden');
+        }
+
         function openCustomerModal() {
             document.getElementById('customerModal').classList.remove('hidden');
         }
@@ -694,7 +820,6 @@
             }
         };
 
-        // LOGIKA OPERASIONAL SHIFT KASIR
         document.getElementById('openShiftForm').onsubmit = async function(e) {
             e.preventDefault();
             const rawCash = document.getElementById('input_cash_start').value.replace(/\./g, "") || 0;
@@ -716,7 +841,7 @@
                 if (res.success) {
                     alert(res.message);
                     document.getElementById('openShiftModal').classList.add('hidden');
-                    location.reload(); // Refresh untuk update status halaman
+                    location.reload();
                 } else {
                     alert(res.message);
                 }
@@ -727,7 +852,6 @@
 
         async function openCloseShiftModal() {
             try {
-                // Ambil data summary berjalan dari server via AJAX
                 const response = await fetch('/shifts/summary');
                 const res = await response.json();
 

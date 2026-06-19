@@ -9,8 +9,10 @@
         "php": "^8.3",
         "google-gemini-php/client": "^2.7",
         "laravel/framework": "^13.7",
+        "laravel/sanctum": "^4.0",
         "laravel/tinker": "^3.0",
         "maatwebsite/excel": "^3.1",
+        "midtrans/midtrans-php": "^2.6",
         "predis/predis": "^3.4",
         "sentry/sentry-laravel": "^4.25",
         "spatie/laravel-permission": "^7.4"

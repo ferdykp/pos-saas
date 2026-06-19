@@ -34,8 +34,9 @@ return new class extends Migration
             $table->decimal('change_amount', 15, 2)->default(0); // Uang kembalian
 
             // Status Transaksi
-            $table->enum('payment_status', ['paid', 'unpaid']);
+            $table->enum('payment_status', ['paid', 'unpaid'])->default('unpaid');
             $table->enum('order_status', ['pending', 'completed', 'cancelled'])->default('completed');
+            $table->enum('withdrawal_status', ['none', 'pending', 'transferred'])->default('none');
             $table->text('note')->nullable();
             $table->timestamps();
 

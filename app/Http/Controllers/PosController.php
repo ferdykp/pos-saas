@@ -9,16 +9,16 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Setting;
 use App\Models\Shift;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class PosController extends Controller
 {
     public function index()
     {
-        $tenantId = auth()->user()->tenant_id;
+        $tenantId = auth()->user()?->tenant_id;
         $userId = auth()->id();
 
         // 1. BUAT KUNCI CACHE UNIK PER TENANT
@@ -39,8 +39,6 @@ class PosController extends Controller
 
         // 4. AMBIL/SIMPAN CACHE PRODUK BESERTA DISKONNYA
         $productsRawCache = Cache::remember($cacheKeyProducts, 86400, function () use ($tenantId) {
-            // $productsRaw = Product::where('tenant_id', $tenantId)->with('discounts')->get();
-            // Tambahkan 'category' di dalam fungsi with()
             $productsRaw = Product::where('tenant_id', $tenantId)->with(['discounts', 'category'])->get();
             return $productsRaw->map(function ($product) {
                 $activeDiscount = $product->discounts->filter(function ($discount) {
@@ -64,7 +62,6 @@ class PosController extends Controller
                 $product->discount_name = $activeDiscount ? $activeDiscount->name : null;
 
                 return $product;
-                // Diubah ke array murni agar tersimpan rapi sebagai JSON string di dalam Redis
             })->toArray();
         });
 
@@ -79,13 +76,14 @@ class PosController extends Controller
             ->where('status', 'open')
             ->first();
 
-        if ($activeShift) {
+        if ($activeShift instanceof Shift) {
+            /** @var \App\Models\Shift $activeShift */
             session(['active_shift_id' => $activeShift->id]);
+            $hasShift = true;
         } else {
             session()->forget('active_shift_id');
+            $hasShift = false;
         }
-
-        $hasShift = $activeShift ? true : false;
 
         return view('pos.index', compact('customers', 'categories', 'products', 'settings', 'hasShift'));
     }
@@ -93,27 +91,35 @@ class PosController extends Controller
     public function store(Request $request)
     {
         return DB::transaction(function () use ($request) {
-            $tenantId = auth()->user()->tenant_id;
+            $tenantId = auth()->user()?->tenant_id;
 
-            // Hitung order berdasarkan tenant_id agar nomor invoice tidak melompat karena toko lain
-            $orderCount = Order::where('tenant_id', $tenantId)->count();
-            $invoice = 'INV-' . now()->format('Ymd') . '-' . str_pad($orderCount + 1, 4, '0', STR_PAD_LEFT);
+            // FORMAT INVOICE AMAN
+            $invoice = 'INV-' . now()->format('YmdHis') . '-' . str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT);
 
-            // Hitung Kembalian di sisi server untuk validasi keamanan
-            $grandTotal = $request->grand_total;
+            $grandTotal = (int) $request->grand_total;
             $paidAmount = $request->paid_amount ?? 0;
             $changeAmount = 0;
 
-            if ($request->payment_method === 'cash' && $request->payment_status === 'paid') {
-                $changeAmount = $paidAmount - $grandTotal;
+            // Cek apakah metode yang dipilih adalah digital/payment gateway QRIS
+            $isDigitalPayment = $request->payment_method === 'midtrans';
+
+            if ($isDigitalPayment) {
+                $paymentStatus = 'unpaid';
+                $orderStatus   = 'pending';
+                $paidAmount    = 0;
+            } else if ($request->payment_method === 'cash' && $request->payment_status === 'paid') {
+                $paymentStatus = 'paid';
+                $orderStatus   = 'completed';
+                $changeAmount  = $paidAmount - $grandTotal;
                 if ($changeAmount < 0) {
-                    return response()->json(['success' => false, 'message' => 'Uang yang diterima kurang!'], 422);
+                    return response()->json(['success' => false, 'message' => 'Uang tunai kurang!'], 422);
                 }
             } else {
-                $paidAmount = $request->payment_status === 'paid' ? $grandTotal : 0;
+                $paymentStatus = 'unpaid';
+                $orderStatus   = 'pending';
             }
 
-            // Simpan ke Table Orders
+            // Simpan ke Tabel Orders
             $order = Order::create([
                 'tenant_id'      => $tenantId,
                 'customer_id'    => $request->customer_id,
@@ -127,31 +133,22 @@ class PosController extends Controller
                 'payment_method' => $request->payment_method,
                 'paid_amount'    => $paidAmount,
                 'change_amount'  => $changeAmount,
-                'payment_status' => $request->payment_status,
-                'order_status'   => $request->payment_status === 'paid' ? 'completed' : 'pending',
+                'payment_status' => $paymentStatus,
+                'order_status'   => $orderStatus,
                 'note'           => $request->note,
             ]);
 
-            // Simpan Detail Item & Potong Stok dengan Pessimistic Locking
+            // Simpan Detail Item & Potong Stok
             foreach ($request->items as $item) {
+                $product = Product::where('tenant_id', $tenantId)->lockForUpdate()->find($item['id']);
 
-                // KUNCI BARIS DATA: Ambil data langsung dari DB (Bukan dari Cache) khusus untuk manipulasi stok krusial
-                $product = Product::where('tenant_id', $tenantId)
-                    ->lockForUpdate()
-                    ->find($item['id']);
-
-                // VALIDASI STOK: Hanya diproses jika produk dilacak (manage_stock == 1)
                 if ($product && $product->type === 'product' && $product->manage_stock == 1) {
-
                     if ($product->stock < $item['quantity']) {
-                        throw new \Exception("Transaksi dibatalkan. Stok untuk produk '{$product->product_name}' tidak mencukupi!");
+                        throw new \Exception("Stok untuk produk '{$product->product_name}' tidak mencukupi!");
                     }
-
-                    // Potong stok produk asli di database
                     $product->decrement('stock', $item['quantity']);
                 }
 
-                // Catat detail item order
                 OrderItem::create([
                     'order_id'     => $order->id,
                     'product_id'   => $item['id'],
@@ -162,33 +159,55 @@ class PosController extends Controller
                 ]);
             }
 
-            // Tambah ke total piutang/hutang customer jika memilih BON/PIUTANG
-            if ($request->payment_status === 'unpaid' && $request->customer_id) {
+            // Hutang Customer jika BON
+            if ($request->payment_status === 'unpaid' && $request->customer_id && !$isDigitalPayment) {
                 $customer = Customer::where('tenant_id', $tenantId)->lockForUpdate()->find($request->customer_id);
                 if ($customer) {
                     $customer->increment('total_debt', $grandTotal);
                 }
             }
 
-            // Logika Pemberian Poin Dinamis Berdasarkan Setting User
-            if ($request->payment_status === 'paid' && $request->customer_id) {
-                $customer = Customer::where('tenant_id', $tenantId)->lockForUpdate()->find($request->customer_id);
+            // 3. PROSES INTEGRASI MIDTRANS CORE API (QRIS ONLY)
+            $qrUrl = null;
 
+            if ($isDigitalPayment) {
+                \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY');
+                \Midtrans\Config::$isProduction = filter_var(env('MIDTRANS_IS_PRODUCTION', false), FILTER_VALIDATE_BOOLEAN);
+                \Midtrans\Config::$isSanitized = true;
+                \Midtrans\Config::$is3ds = true;
+
+                $params = [
+                    'payment_type' => 'qris',
+                    'transaction_details' => [
+                        'order_id' => $invoice,
+                        'gross_amount' => (int) $grandTotal,
+                    ],
+                    'qris' => [
+                        'acquirer' => 'gopay'
+                    ]
+                ];
+
+                try {
+                    /** @var \stdClass $response */
+                    $response = \Midtrans\CoreApi::charge($params);
+
+                    $qrUrl = isset($response->actions[0]->url) ? $response->actions[0]->url : null;
+                } catch (\Exception $e) {
+                    throw new \Exception("Gagal menghasilkan kode QRIS: " . $e->getMessage());
+                }
+            }
+
+            // Logika Poin Customer
+            if ($paymentStatus === 'paid' && $request->customer_id) {
+                $customer = Customer::where('tenant_id', $tenantId)->lockForUpdate()->find($request->customer_id);
                 if ($customer) {
                     $settings = Setting::where('tenant_id', $tenantId)->pluck('value', 'key');
-
                     $pointMode    = $settings['point_mode'] ?? 'disabled';
                     $ruleValue    = (float) ($settings['point_rule_value'] ?? 0);
                     $isMemberOnly = filter_var($settings['point_member_only'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
-                    $canGetPoint = true;
-                    if ($isMemberOnly && !$customer->is_member) {
-                        $canGetPoint = false;
-                    }
-
-                    if ($pointMode !== 'disabled' && $canGetPoint && $ruleValue > 0) {
+                    if ($pointMode !== 'disabled' && ($isMemberOnly ? $customer->is_member : true) && $ruleValue > 0) {
                         $pointsEarned = 0;
-
                         switch ($pointMode) {
                             case 'per_investment':
                                 $pointsEarned = floor($grandTotal / $ruleValue);
@@ -200,7 +219,6 @@ class PosController extends Controller
                                 $pointsEarned = floor($grandTotal * ($ruleValue / 100));
                                 break;
                         }
-
                         if ($pointsEarned > 0) {
                             $customer->increment('points', $pointsEarned);
                         }
@@ -210,9 +228,188 @@ class PosController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Transaksi Berhasil!',
-                'order_id' => $order->id
+                'message' => 'Transaksi Berhasil Dibuat!',
+                'order_id' => $order->id,
+                'invoice_number' => $invoice,
+                'payment_method' => $request->payment_method,
+                'qr_url' => $qrUrl
             ]);
         });
+    }
+
+    /**
+     * Memeriksa status pembayaran order secara real-time langsung ke server Midtrans
+     * * @param mixed $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    // public function checkStatus(int $id)
+    // {
+    //     $tenantId = auth()->user()?->tenant_id;
+    //     $order = Order::where('tenant_id', $tenantId)->findOrFail($id);
+
+    //     // 1. Jika di database lokal kita memang sudah 'paid'
+    //     if ($order->payment_status === 'paid') {
+    //         return response()->json([
+    //             'success' => true,
+    //             'status' => 'paid'
+    //         ]);
+    //     }
+
+    //     // 2. Jika di database lokal masih 'unpaid', kita tanya langsung ke Server Midtrans
+    //     if ($order->payment_method === 'midtrans') {
+    //         \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY');
+    //         \Midtrans\Config::$isProduction = filter_var(env('MIDTRANS_IS_PRODUCTION', false), FILTER_VALIDATE_BOOLEAN);
+
+    //         try {
+    //             /** @var object|array $midtransStatus */
+    //             $midtransStatus = \Midtrans\Transaction::status($order->invoice_number);
+
+    //             $transactionStatus = $midtransStatus->transaction_status;
+
+    //             if ($transactionStatus == 'settlement' || $transactionStatus == 'capture') {
+    //                 $order->update([
+    //                     'payment_status' => 'paid',
+    //                     'order_status'   => 'completed'
+    //                 ]);
+
+    //                 // Pemicu poin customer jika status berubah jadi lunas
+    //                 if ($order->customer_id) {
+    //                     $customer = Customer::where('tenant_id', $tenantId)->lockForUpdate()->find($order->customer_id);
+    //                     if ($customer) {
+    //                         $settings = Setting::where('tenant_id', $tenantId)->pluck('value', 'key');
+    //                         $pointMode    = $settings['point_mode'] ?? 'disabled';
+    //                         $ruleValue    = (float) ($settings['point_rule_value'] ?? 0);
+    //                         $isMemberOnly = filter_var($settings['point_member_only'] ?? false, FILTER_VALIDATE_BOOLEAN);
+
+    //                         if ($pointMode !== 'disabled' && ($isMemberOnly ? $customer->is_member : true) && $ruleValue > 0) {
+    //                             $pointsEarned = 0;
+    //                             switch ($pointMode) {
+    //                                 case 'per_investment':
+    //                                     $pointsEarned = floor($order->grand_total / $ruleValue);
+    //                                     break;
+    //                                 case 'flat':
+    //                                     $pointsEarned = $ruleValue;
+    //                                     break;
+    //                                 case 'percentage':
+    //                                     $pointsEarned = floor($order->grand_total * ($ruleValue / 100));
+    //                                     break;
+    //                             }
+    //                             if ($pointsEarned > 0) {
+    //                                 $customer->increment('points', $pointsEarned);
+    //                             }
+    //                         }
+    //                     }
+    //                 }
+
+    //                 return response()->json([
+    //                     'success' => true,
+    //                     'status' => 'paid'
+    //                 ]);
+    //             }
+    //         } catch (\Exception $e) {
+    //             Log::error("Gagal cek status Midtrans untuk ID {$id}: " . $e->getMessage());
+    //         }
+    //     }
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'status' => 'unpaid'
+    //     ]);
+    // }
+    public function checkStatus(int $id)
+    {
+        $tenantId = auth()->user()?->tenant_id;
+
+        // Menggunakan Pessimistic Locking (lockForUpdate) mencegah race condition saldo ganda
+        $order = Order::where('tenant_id', $tenantId)->lockForUpdate()->findOrFail($id);
+
+        // 1. Jika di database lokal kita memang sudah 'paid'
+        if ($order->payment_status === 'paid') {
+            return response()->json([
+                'success' => true,
+                'status' => 'paid'
+            ]);
+        }
+
+        // 2. Jika di database lokal masih 'unpaid', kita tanya langsung ke Server Midtrans
+        if ($order->payment_method === 'midtrans') {
+            \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY');
+            \Midtrans\Config::$isProduction = filter_var(env('MIDTRANS_IS_PRODUCTION', false), FILTER_VALIDATE_BOOLEAN);
+
+            try {
+                /** @var object|array $midtransStatus */
+                $midtransStatus = \Midtrans\Transaction::status($order->invoice_number);
+                $transactionStatus = $midtransStatus->transaction_status;
+
+                if ($transactionStatus == 'settlement' || $transactionStatus == 'capture') {
+
+                    // UPDATE STATUS INDUK ORDER
+                    $order->update([
+                        'payment_status'    => 'paid',
+                        'order_status'      => 'completed',
+                        'withdrawal_status' => 'pending' // Siap ditarik dana oleh tenant
+                    ]);
+
+                    // =========================================================================
+                    // LOGIKA BARU: HITUNG KOMISI & UPDATE DOMPET TENANT (SOLUSI 1)
+                    // =========================================================================
+                    // Misal komisi platform Anda adalah 1.5% dari nilai Grand Total transaksi
+                    $platformFeePercent = 1.5;
+                    $totalFee = ($order->grand_total * $platformFeePercent) / 100;
+                    $netIncomeForTenant = $order->grand_total - $totalFee;
+
+                    // Masukkan ke saldo dompet tenant secara aman
+                    DB::table('tenant_wallets')->updateOrInsert(
+                        ['tenant_id' => $tenantId],
+                        [
+                            'balance'    => DB::raw("balance + $netIncomeForTenant"),
+                            'updated_at' => now()
+                        ]
+                    );
+                    // =========================================================================
+
+                    // Pemicu poin customer jika status berubah jadi lunas (Kode bawaan Anda)
+                    if ($order->customer_id) {
+                        $customer = Customer::where('tenant_id', $tenantId)->lockForUpdate()->find($order->customer_id);
+                        if ($customer) {
+                            $settings = Setting::where('tenant_id', $tenantId)->pluck('value', 'key');
+                            $pointMode    = $settings['point_mode'] ?? 'disabled';
+                            $ruleValue    = (float) ($settings['point_rule_value'] ?? 0);
+                            $isMemberOnly = filter_var($settings['point_member_only'] ?? false, FILTER_VALIDATE_BOOLEAN);
+
+                            if ($pointMode !== 'disabled' && ($isMemberOnly ? $customer->is_member : true) && $ruleValue > 0) {
+                                $pointsEarned = 0;
+                                switch ($pointMode) {
+                                    case 'per_investment':
+                                        $pointsEarned = floor($order->grand_total / $ruleValue);
+                                        break;
+                                    case 'flat':
+                                        $pointsEarned = $ruleValue;
+                                        break;
+                                    case 'percentage':
+                                        $pointsEarned = floor($order->grand_total * ($ruleValue / 100));
+                                        break;
+                                }
+                                if ($pointsEarned > 0) {
+                                    $customer->increment('points', $pointsEarned);
+                                }
+                            }
+                        }
+                    }
+
+                    return response()->json([
+                        'success' => true,
+                        'status' => 'paid'
+                    ]);
+                }
+            } catch (\Exception $e) {
+                Log::error("Gagal cek status Midtrans untuk ID {$id}: " . $e->getMessage());
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'status' => 'unpaid'
+        ]);
     }
 }

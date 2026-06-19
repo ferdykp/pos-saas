@@ -132,7 +132,13 @@
                     AI Analysis
                 </x-sidebar-link>
             </div>
-
+        </div>
+        <div>
+            <p class="px-4 text-xs font-bold text-gray-400 uppercase tracking-[0.2em] mb-4">Finance Management</p>
+            <div class="space-y-1">
+                <x-sidebar-link :href="route('finance.index')" :active="request()->routeIs('finance.index')" icon="box">
+                    Finance</x-sidebar-link>
+            </div>
         </div>
     </nav>
 

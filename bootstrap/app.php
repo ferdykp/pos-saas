@@ -9,6 +9,7 @@ use App\Http\Middleware\EnsureUserIsAdmin;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__ . '/../routes/web.php',
+        api: __DIR__ . '/../routes/api.php', // <--- FIX 1: Pastikan rute API didaftarkan di sini
         commands: __DIR__ . '/../routes/console.php',
         health: '/up',
     )
@@ -17,10 +18,14 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => EnsureUserIsAdmin::class,
             'check.tenant' => CheckTenant::class,
         ]);
-        // $middleware->alias([
-        //     'admin' => \App\Http\Middleware\AdminMiddleware::class, // Sesuaikan dengan nama class middleware admin Anda
-        //     'check.tenant' => \App\Http\Middleware\CheckTenant::class, // Pastikan check.tenant juga sudah ada
+
+        // FIX 2: Matikan proteksi CSRF khusus untuk Webhook Midtrans agar tidak terblokir eror 419
+        // $middleware->validateCsrfTokens(except: [
+        //     'api/midtrans/callback'
         // ]);
+        $middleware->validateCsrfTokens(except: [
+            'midtrans-callback'
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
