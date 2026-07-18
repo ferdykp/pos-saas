@@ -7,44 +7,115 @@
       <meta name="csrf-token" content="{{ csrf_token() }}">
 
       {{-- <title>{{ config('app.name', 'Laravel') }}</title> --}}
-      <title>POS SaaS</title>
+      <title>GrowPOS</title>
 
 
       <!-- Fonts -->
-      <link rel="preconnect" href="https://fonts.bunny.net">
-      <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+      {{-- <link rel="preconnect" href="https://fonts.bunny.net">
+      <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" /> --}}
+
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://gstatic.com" crossorigin>
+      <link href="https://googleapis.com" rel="stylesheet">
 
       <!-- Scripts -->
       @vite(['resources/css/app.css', 'resources/js/app.js'])
   </head>
 
-  <body class="font-sans antialiased text-gray-900">
-      <div class="relative min-h-screen font-sans antialiased bg-white">
+  <body class="antialiased text-gray-900 ">
+      <div class="relative min-h-screen antialiased bg-white">
           <nav class="sticky top-0 z-50 border-b border-gray-100 bg-white/80 backdrop-blur-md">
-              <div class="flex items-center justify-between h-16 px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-                  <div class="flex items-center space-x-2">
-                      <div
-                          class="flex items-center justify-center bg-blue-600 shadow-lg w-9 h-9 rounded-xl shadow-blue-200">
-                          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M13 10V3L4 14h7v7l9-11h-7z" />
-                          </svg>
+              <div class="flex items-center justify-between px-4 py-5 mx-3 max-w-8xl sm:px-6 lg:px-8">
+                  <div class="flex items-center space-x-10">
+                      <a href="/"> <span
+                              class="text-3xl font-extrabold tracking-tight text-[#005236] hover:text-[#00885D] duration-500 transition-all">GrowPOS
+                      </a>
+                      <div class="flex items-center space-x-6 text-[15px] font-semibold ">
+
+                          <a href="#fitur"
+                              class="group relative hover:text-[#00885D] transition duration-300 inline-block">
+                              <span>Fitur</span>
+                              <!-- Perubahan ada di class w-0, group-hover:w-full, dan left-0 -->
+                              <span
+                                  class="absolute left-0 bottom-[-6px] w-0 group-hover:w-full transition-all duration-500 h-0.5 bg-[#00885D]"></span>
+                          </a>
+                          <a href="#"
+                              class="group relative hover:text-[#00885D] transition duration-300 inline-block">
+                              <span>Harga</span>
+                              <span
+                                  class="absolute left-0 bottom-[-6px] w-0 group-hover:w-full transition-all duration-500 h-0.5 bg-[#00885D]"></span>
+                          </a>
+                          <a href="#"
+                              class="group relative hover:text-[#00885D] transition duration-300 inline-block"><span>Tentang
+                                  Kami</span>
+                              <span
+                                  class="absolute left-0 bottom-[-6px] w-0 group-hover:w-full transition-all duration-500 h-0.5 bg-[#00885D]"></span>
+                          </a>
                       </div>
-                      <span class="text-xl font-bold tracking-tight text-gray-900">POS<span
-                              class="text-blue-600">SaaS</span></span>
                   </div>
-                  <div class="items-center hidden space-x-8 text-sm font-semibold text-gray-600 md:flex">
-                      <a href="#fitur" class="transition hover:text-blue-600">Fitur</a>
-                      <a href="#" class="transition hover:text-blue-600">Harga</a>
-                      <a href="{{ route('login') }}" class="text-gray-900">Masuk</a>
+                  <div class="flex items-center space-x-8 text-[15px] font-semibold text-gray-600">
+                      <a href="{{ route('login') }}"
+                          class="group relative hover:text-[#00885D] transition duration-300 inline-block">Masuk<span
+                              class="absolute left-0 bottom-[-6px] w-0 group-hover:w-full transition-all duration-500 h-0.5 bg-[#00885D]"></span></a>
                       <a href="{{ route('register') }}"
-                          class="bg-blue-600 text-white px-5 py-2.5 rounded-full hover:bg-blue-700 transition shadow-md shadow-blue-100">Mulai
+                          class="relative bg-[#00A572] text-white px-5 py-2.5 rounded-[15px] hover:bg-[#006C49] transition shadow-md shadow-blue-100">Mulai
                           Gratis</a>
                   </div>
               </div>
           </nav>
+          <div class="py-32 border-[5px]">
+              <div class="px-2 mx-10 max-w-7xl">
+                  <div class="w-40 py-6">
+                      <div
+                          class="text-sm rounded-xl tracking-wider text-[#003824] text-center font-semibold px-2 py-1.5 bg-[#00885D]/30 ">
+                          All in One
+                          Solution</div>
+                  </div>
+                  <div class="flex items-center justify-between w-full gap-8">
+                      <div class="w-full max-w-xl">
+                          <div class="relative">
+                              <div class="py-2 text-5xl font-bold text-uppercase">Everything Your Buisness Needs to
+                                  <span class="text-[#00885D]">Grow</span>
+                              </div>
+                              <div class="py-2 text-md">Spend less time managing your business and more time growing it.
+                                  <span class="text-[#00885D] font-semibold">GrowPOS</span> keeps your sales, inventory,
+                                  and reports organized in one easy-to-use system.
+                              </div>
 
-          <div class="relative pt-20 pb-32 overflow-hidden">
+                              <div class="py-6 text-sm font-semibold text-white ">
+                                  <a href=""
+                                      class="py-3 px-1.5 bg-[#00885D] border-[#00885D] border-[1px] rounded-md  text-white hover:bg-white hover:text-[#00885D] transition-all inline-block">Start
+                                      Free
+                                      Trial</a>
+                                  <a href=""
+                                      class="px-1.5 py-3 rounded-md text-[#00885D] border-[#00885D] border-[1px] mx-3 hover:bg-[#00885D] hover:text-white transition-all inline-block">Book
+                                      a
+                                      Demo</a>
+                              </div>
+                          </div>
+                      </div>
+                      <div class="flex justify-end">
+                          <div class="relative group">
+                              <div
+                                  class="absolute -inset-1 bg-gradient-to-r from-[#003824] to-[#00885D] rounded-[2.5rem] blur opacity-10 group-hover:opacity-20 transition duration-1000">
+                              </div>
+                              <div
+                                  class="relative w-[450px] bg-white border border-gray-100 rounded-[2rem] shadow-2xl overflow-hidden p-1.5">
+                                  <div
+                                      class="rounded-[1.5rem] overflow-hidden bg-gray-50 border border-gray-100 aspect-[16/9] flex items-center justify-center">
+                                      <div class="flex flex-col items-center">
+                                          <img class="object-cover w-full h-full" src="{{ asset('img/hero.png') }}"
+                                              alt="">
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          {{-- <div class="relative pt-20 pb-32 overflow-hidden">
               <div class="absolute inset-0 z-0">
                   <div class="absolute top-0 left-1/4 w-96 h-96 bg-blue-50 rounded-full blur-[120px] opacity-60"></div>
                   <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-50 rounded-full blur-[120px] opacity-60">
@@ -114,9 +185,9 @@
                       </div>
                   </div>
               </div>
-          </div>
+          </div> --}}
 
-          <section id="fitur" class="py-32 bg-white">
+          <section id="fitur" class="py-32 bg-white border-[5px]">
               <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
                   <div class="max-w-2xl mb-20">
                       <h2 class="text-blue-600 font-bold uppercase tracking-[0.2em] text-xs mb-4">Fitur Utama</h2>

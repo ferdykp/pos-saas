@@ -19,7 +19,6 @@ return new class extends Migration
             $table->integer('quantity');
             $table->decimal('price', 15, 2);
             $table->decimal('subtotal', 15, 2);
-            $table->enum('withdrawal_status', ['none', 'pending', 'transferred'])->default('none');
             $table->timestamps();
         });
     }
