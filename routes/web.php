@@ -67,6 +67,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Tenant Management
     Route::get('/tenants', [TenantController::class, 'index'])->name('tenants.index');
+
+
     Route::get('/tenants/create', [TenantController::class, 'create'])->name('tenants.create');
     Route::post('/tenants', [TenantController::class, 'store'])->name('tenants.store');
     Route::get('/tenants/{tenant}/edit', [TenantController::class, 'edit'])->name('tenants.edit');

@@ -17,6 +17,7 @@
       <link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://gstatic.com" crossorigin>
       <link href="https://googleapis.com" rel="stylesheet">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
       <!-- Scripts -->
       @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -63,7 +64,7 @@
                   </div>
               </div>
           </nav>
-          <div class="py-32 border-[5px]">
+          <div class="py-32">
               <div class="px-2 mx-10 max-w-7xl">
                   <div class="w-40 py-6">
                       <div
@@ -74,22 +75,22 @@
                   <div class="flex items-center justify-between w-full gap-8">
                       <div class="w-full max-w-xl">
                           <div class="relative">
-                              <div class="py-2 text-5xl font-bold text-uppercase">Everything Your Buisness Needs to
-                                  <span class="text-[#00885D]">Grow</span>
+                              <div class="py-2 text-5xl font-bold text-uppercase">Semua Bisnis yang Anda Butuhkan untuk
+                                  <span class="text-[#00885D]">Berkembang.</span>
                               </div>
-                              <div class="py-2 text-md">Spend less time managing your business and more time growing it.
-                                  <span class="text-[#00885D] font-semibold">GrowPOS</span> keeps your sales, inventory,
-                                  and reports organized in one easy-to-use system.
+                              <div class="py-2 text-md">Luangkan lebih sedikit waktu mengelola bisnis dan lebih banyak
+                                  waktu untuk mengembangkannya.
+                                  <span class="text-[#00885D] font-semibold">GrowPOS</span> menjaga penjualan,
+                                  inventaris, dan laporan Anda
+                                  tetap teratur dalam satu sistem yang mudah digunakan.
                               </div>
 
                               <div class="py-6 text-sm font-semibold text-white ">
                                   <a href=""
-                                      class="py-3 px-1.5 bg-[#00885D] border-[#00885D] border-[1px] rounded-md  text-white hover:bg-white hover:text-[#00885D] transition-all inline-block">Start
-                                      Free
-                                      Trial</a>
+                                      class="py-3 px-1.5 bg-[#00885D] border-[#00885D] border-[1px] rounded-md  text-white hover:bg-white hover:text-[#00885D] transition-all inline-block">Mulai
+                                      Uji Coba Gratis</a>
                                   <a href=""
-                                      class="px-1.5 py-3 rounded-md text-[#00885D] border-[#00885D] border-[1px] mx-3 hover:bg-[#00885D] hover:text-white transition-all inline-block">Book
-                                      a
+                                      class="px-1.5 py-3 rounded-md text-[#00885D] border-[#00885D] border-[1px] mx-3 hover:bg-[#00885D] hover:text-white transition-all inline-block">Jadwalkan
                                       Demo</a>
                               </div>
                           </div>
@@ -100,7 +101,7 @@
                                   class="absolute -inset-1 bg-gradient-to-r from-[#003824] to-[#00885D] rounded-[2.5rem] blur opacity-10 group-hover:opacity-20 transition duration-1000">
                               </div>
                               <div
-                                  class="relative w-[450px] bg-white border border-gray-100 rounded-[2rem] shadow-2xl overflow-hidden p-1.5">
+                                  class="relative w-[550px] bg-white border border-gray-100 rounded-[2rem] shadow-2xl overflow-hidden p-1.5">
                                   <div
                                       class="rounded-[1.5rem] overflow-hidden bg-gray-50 border border-gray-100 aspect-[16/9] flex items-center justify-center">
                                       <div class="flex flex-col items-center">
@@ -115,80 +116,76 @@
               </div>
           </div>
 
-          {{-- <div class="relative pt-20 pb-32 overflow-hidden">
-              <div class="absolute inset-0 z-0">
-                  <div class="absolute top-0 left-1/4 w-96 h-96 bg-blue-50 rounded-full blur-[120px] opacity-60"></div>
-                  <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-50 rounded-full blur-[120px] opacity-60">
-                  </div>
-              </div>
+          <div class="py-20 bg-[#EFF1F3]">
+              <div class="px-4 mx-10">
+                  <div class="grid items-center justify-center w-full grid-cols-1 md:grid-cols-4 gap-11">
 
-              <div class="relative z-10 px-4 mx-auto text-center max-w-7xl sm:px-6 lg:px-8">
-                  <div
-                      class="inline-flex items-center px-4 py-1.5 mb-8 rounded-full bg-blue-50 border border-blue-100/50">
-                      <span class="relative flex w-2 h-2 mr-3">
-                          <span
-                              class="absolute inline-flex w-full h-full bg-blue-400 rounded-full opacity-75 animate-ping"></span>
-                          <span class="relative inline-flex w-2 h-2 bg-blue-600 rounded-full"></span>
-                      </span>
-                      <span class="text-xs font-bold tracking-wider text-blue-700 uppercase">Versi 2.0 Kini
-                          Tersedia</span>
-                  </div>
-
-                  <h1
-                      class="text-5xl md:text-7xl lg:text-8xl font-black text-gray-900 tracking-tighter leading-[1.1] mb-8">
-                      Bisnis Tumbuh <br>
-                      <span
-                          class="text-transparent bg-clip-text bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600">Lebih
-                          Cepat.</span>
-                  </h1>
-
-                  <p class="max-w-2xl mx-auto mb-12 text-lg leading-relaxed text-gray-500 md:text-xl">
-                      Lupakan pencatatan manual. Kelola penjualan, stok, dan laporan keuangan UMKM Anda dengan satu
-                      sistem
-                      kasir yang intuitif dan sangat cepat.
-                  </p>
-
-                  <div class="flex flex-col items-center justify-center gap-5 sm:flex-row">
-                      <a href="{{ route('register') }}"
-                          class="relative inline-flex items-center justify-center px-10 py-4 font-bold text-white transition-all duration-200 bg-blue-600 shadow-2xl group rounded-2xl hover:bg-blue-700 focus:outline-none shadow-blue-200">
-                          Daftar Sekarang - Gratis
-                          <svg class="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" fill="none"
-                              stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                          </svg>
-                      </a>
-                      <a href="#fitur"
-                          class="px-10 py-4 font-bold text-gray-700 transition-all bg-white border border-gray-200 rounded-2xl hover:bg-gray-50">
-                          Eksplor Fitur
-                      </a>
-                  </div>
-
-                  <div class="relative max-w-6xl mx-auto mt-24 group">
                       <div
-                          class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-[2.5rem] blur opacity-10 group-hover:opacity-20 transition duration-1000">
+                          class="justify-between flex flex-col px-2.5 py-6 bg-white rounded-xl max-w-[280px] min-h-[320px] w-full">
+                          <div class="px-5">
+                              <div
+                                  class="bg-[#006C49]/10 backdrop-blur-0 w-fit px-2.5 py-1.5 rounded-md mb-3 hover:bg-[#005236] transition-all">
+                                  <i class="text-2xl fa-solid fa-bolt text-[#006C49] hover:text-[#4EDEA3]"></i>
+                              </div>
+                              <div class="mb-3 text-2xl font-semibold">Jual Lebih Cepat</div>
+                              <div class="w-full text-md">Proses transaksi dalam hitungan detik dengan antarmuka
+                                  intuitif yang dirancang untuk kecepatan.</div>
+                          </div>
+                      </div>
+
+                      <div
+                          class="justify-between flex flex-col px-2.5 py-6 bg-white rounded-xl max-w-[280px] min-h-[320px] w-full ">
+                          <div class="px-5">
+                              <div
+                                  class="bg-[#006C49]/10 backdrop-blur-0 w-fit px-2.5 py-1.5 rounded-md mb-3 hover:bg-[#005236] transition-all">
+                                  <i class="text-2xl fa-solid fa-user-shield text-[#006C49] hover:text-[#4EDEA3]"></i>
+                              </div>
+                              <div class="mb-3 text-2xl font-semibold">Tetap Terkendali</div>
+                              <div class="w-full text-md">Pantau inventaris secara real-time di semua lokasi Anda dari
+                                  satu perangkat saja.</div>
+                          </div>
                       </div>
                       <div
-                          class="relative bg-white border border-gray-100 rounded-[2rem] shadow-2xl overflow-hidden p-3">
-                          <div
-                              class="rounded-[1.5rem] overflow-hidden bg-gray-50 border border-gray-100 aspect-[16/9] flex items-center justify-center">
-                              <div class="flex flex-col items-center">
-                                  <svg class="w-16 h-16 mb-4 text-blue-100" fill="currentColor" viewBox="0 0 20 20">
-                                      <path fill-rule="evenodd"
-                                          d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"
-                                          clip-rule="evenodd" />
-                                  </svg>
-                                  <span class="text-xs font-medium tracking-widest text-gray-400 uppercase">Preview
-                                      Dashboard Interface</span>
+                          class="justify-between flex flex-col px-2.5 py-6 bg-white rounded-xl max-w-[280px] min-h-[320px] w-full">
+                          <div class="px-5">
+                              <div
+                                  class="bg-[#006C49]/10 backdrop-blur-0 w-fit px-2.5 py-1.5 rounded-md mb-3 hover:bg-[#005236] transition-all">
+                                  <i class="text-2xl fa-solid fa-eye text-[#006C49] hover:text-[#4EDEA3]"></i>
                               </div>
+                              <div class="mb-3 text-2xl font-semibold">Pahami Data</div>
+                              <div class="w-full text-md">Analisis mendalam laporan penjualan untuk mengidentifikasi
+                                  item terlaris dan tren pasar.</div>
+                          </div>
+                      </div>
+                      <div
+                          class="justify-between flex flex-col px-2.5 py-6 bg-white rounded-xl max-w-[280px] min-h-[320px] w-full">
+                          <div class="px-5">
+                              <div
+                                  class="bg-[#006C49]/10 backdrop-blur-0 w-fit px-2.5 py-1.5 rounded-md mb-3 hover:bg-[#005236] transition-all">
+                                  <i
+                                      class="text-2xl fa-solid fa-arrow-trend-up text-[#006C49] hover:text-[#4EDEA3]"></i>
+                              </div>
+                              <div class="mb-3 text-2xl font-semibold">Tumbuh dengan Percaya Diri</div>
+                              <div class="w-full text-md">Skalakan bisnis Anda dengan mudah menggunakan alat yang
+                                  dibangun untuk mendukung perjalanan ekspansi Anda.</div>
                           </div>
                       </div>
                   </div>
               </div>
-          </div> --}}
+          </div>
 
-          <section id="fitur" class="py-32 bg-white border-[5px]">
-              <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+          <div class="py-20 bg-[#EFF1F3]">
+              <div class="grid grid-cols-1 justify-items-center ">
+                  <div class="text-3xl font-bold">Semua yang Anda Butuhkan dalam Satu Platform</div>
+                  <div class="w-[620px] text-center py-4 text-xl">Berhenti menggunakan banyak aplikasi secara bersamaan.
+                      <span class="text-[#00885D] font-semibold">GrowPOS</span> mengintegrasikan
+                      setiap aspek operasional Anda ke dalam alur kerja yang mulus.
+                  </div>
+              </div>
+          </div>
+
+          <section id="fitur" class="py-32 bg-white ">
+              <div class="px-4 mx-10 max-w-7xl">
                   <div class="max-w-2xl mb-20">
                       <h2 class="text-blue-600 font-bold uppercase tracking-[0.2em] text-xs mb-4">Fitur Utama</h2>
                       <p class="text-4xl font-extrabold tracking-tight text-gray-900">Didesain untuk Efisiensi Tanpa

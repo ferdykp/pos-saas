@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+// use Illuminate\Http\Request;
 use App\Services\GeminiService;
 use App\Models\Order;
 use Illuminate\Support\Facades\DB;
 
 class AiReportController extends Controller
 {
-    protected $gemini;
+    protected GeminiService $gemini;
 
     public function __construct(GeminiService $gemini)
     {
@@ -97,9 +97,9 @@ class AiReportController extends Controller
         ];
 
         // --- 6. ATUR PROMPT AI YANG LEBIH DETAIL DAN KAYA ELEMEN HTML ---
-        $prompt = "Anda adalah Chief Business Analyst dan Konsultan Bisnis SaaS POS berskala Nasional. 
+        $prompt = "Anda adalah Chief Business Analyst dan Konsultan Bisnis SaaS POS berskala Nasional.
         Analisis data keuangan dan inventaris dari toko berikut secara mendalam: " . json_encode($dataBisnis) . "
-        
+
         Berikan laporan analisis profesional langsung dalam format HTML bersih. Gunakan tag pembungkus seperti <h3> untuk sub-judul, <p> untuk narasi, <strong> untuk penekanan data penting, <ul><li> untuk poin-poin, dan buatkan sebuah <table> statis HTML yang rapi untuk membandingkan metrik penjualan atau rangkuman data. Jangan gunakan format markdown (seperti ** atau ###) atau membungkus jawaban dengan tanda petik backtick ```html.
 
         Struktur laporan wajib memiliki bagian ini:
@@ -125,10 +125,10 @@ class AiReportController extends Controller
                     <i class='fa-solid fa-triangle-exclamation text-amber-500'></i>
                     <span>Koneksi AI sedang sibuk. Menampilkan Laporan Analisis Komputasi Lokal Sistem POS.</span>
                 </div>
-                
+
                 <h3>Rangkuman Eksekutif Finansial</h3>
                 <p>Berdasarkan rekaman performa 30 hari terakhir, <strong>" . auth()->user()->tenant->name . "</strong> berhasil membukukan total omset keseluruhan sebesar <strong>Rp " . number_format($totalOmset, 0, ',', '.') . "</strong> dari total <strong>" . $totalTransaksi . " kali transaksi</strong> sukses.</p>
-                
+
                 <table>
                     <thead>
                         <tr>
@@ -158,7 +158,7 @@ class AiReportController extends Controller
 
                 <h3>Analisis Produk & Inventaris</h3>
                 <p>Produk penggerak utama omset Anda saat ini adalah <strong>" . $produkJuara . "</strong>. Di sisi lain, terdapat produk dengan perputaran stok yang cenderung lambat (*slow-moving*), salah satunya yaitu <strong>" . $produkSepi . "</strong>. Pola ini mengindikasikan adanya ketimpangan minat konsumen yang bisa memicu penumpukan modal mati pada gudang bahan baku.</p>
-                
+
                 <h3>Rekomendasi Aksi Sistem POS</h3>
                 <ul>
                     <li><strong>Paket Bundling Lintas Kategori (*Cross-Selling*):</strong> Buat paket menu kombo yang menyatukan produk terlaris Anda (<em>" . $produkJuara . "</em>) dengan produk yang kurang laku (<em>" . $produkSepi . "</em>) dengan potongan harga tipis. Ini akan menaikkan nilai rata-rata per transaksi (*Basket Size*) sekaligus menghabiskan stok produk *slow-moving*.</li>
