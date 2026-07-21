@@ -174,13 +174,67 @@
               </div>
           </div>
 
-          <div class="py-20 bg-[#EFF1F3]">
+          <div class="py-20 bg-[#E0E3E5]">
               <div class="grid grid-cols-1 justify-items-center ">
-                  <div class="text-3xl font-bold">Semua yang Anda Butuhkan dalam Satu Platform</div>
+                  <div class="text-3xl font-bold">Semua yang Anda Butuhkan dalam <span
+                          class="text-[#00885D] font-semibold">Satu Platform</span></div>
                   <div class="w-[620px] text-center py-4 text-xl">Berhenti menggunakan banyak aplikasi secara bersamaan.
                       <span class="text-[#00885D] font-semibold">GrowPOS</span> mengintegrasikan
                       setiap aspek operasional Anda ke dalam alur kerja yang mulus.
                   </div>
+              </div>
+
+              <div class="py-32 mx-10 max-w-7xl">
+                  <div class="grid grid-cols-1 gap-6 md:grid-cols-12">
+
+                      <div class=" px-5 bg-white py-7 rounded-xl md:col-span-8 min-h-[600px] ">
+                          <div>
+                              <div class="flex flex-row items-center justify-between gap-4">
+
+                                  <div class="text-2xl font-bold">Point of Sale Generasi Terbaru</div>
+                                  <div class="">
+                                      <i class="text-2xl fa-solid fa-cash-register"></i>
+                                  </div>
+
+                              </div>
+                              <div class="max-w-md py-4 text-md">Checkout secepat kilat yang berfungsi secara offline.
+                                  Terima semua jenis pembayaran tanpa hambatan.
+                              </div>
+                          </div>
+                          <div class="flex justify-center w-full mt-6 bg-gray-200 h-[430px] item-center rounded-xl">
+                              <img src="{{ asset('img/section.png') }}" class="object-cover w-full h-full rounded-2xl"
+                                  alt="">
+                          </div>
+                      </div>
+
+                      <div class="flex flex-col gap-6 md:col-span-4">
+                          <div class="text-white bg-[#00885D] rounded-xl py-7 px-5 justify-between h-[300px]">
+                              <div class="mb-7">
+                                  <i class=" fa-solid fa-box-archive text-[25px]"></i>
+                              </div>
+                              <div class="mb-2 text-2xl font-bold ">
+                                  Inventaris
+                              </div>
+                              <div class="text-md">
+                                  Pelacakan stok otomatis di berbagai gudang secara bersamaan.
+                              </div>
+                          </div>
+                          <div class="justify-between px-5 bg-white rounded-xl py-7 h-[300px]">
+                              <div class="">
+                                  <i class="text-2xl fa-solid fa-chart-line"></i>
+                              </div>
+                              <div class="py-4 text-2xl font-bold ">
+                                  Analisis Mendalam
+                              </div>
+                              <div class="text-md">
+                                  Data real-time selalu tersedia di ujung jari Anda.
+                              </div>
+                          </div>
+
+                      </div>
+
+                  </div>
+
               </div>
           </div>
 
