@@ -1,4 +1,27 @@
 <x-guest-layout>
+    <nav class="flex justify-between py-3 mx-10">
+        <a href="/" class="inline-block transition duration-500 scale-100 hover:scale-105">
+            <div class="flex items-center justify-center">
+                <img src="{{ asset('img/growpos_logo.png') }}" class="w-10" alt="">
+                <div class="text-2xl font-bold text-brand">GrowPOS</div>
+            </div>
+        </a>
+
+        <div class="flex items-center justify-center space-x-2">
+            <div class="font-semibold text-md">Sudah punya akun ?</div>
+            <a href="{{ route('login') }}">
+                <div class="relative inline-block font-bold transition-all group text-md text-brand">
+                    <span
+                        class="absolute left-0 bottom-[-2px] w-0 group-hover:w-full transition-all duration-500 h-0.5 bg-brand"></span>
+
+                    Masuk
+                </div>
+                {{-- <x-landing.nav-link href="{{ route('login') }}" class="font-bold text-brand">Masuk</x-landing.nav-link> --}}
+            </a>
+        </div>
+    </nav>
+</x-guest-layout>
+{{-- <x-guest-layout>
     <!-- Multi-Step Tracking Bar -->
     <div class="mb-8">
         <div class="flex items-center justify-between mb-3">
@@ -148,4 +171,4 @@
                 class="ml-1 font-bold text-blue-600 hover:underline decoration-2 underline-offset-4">Masuk</a>
         </p>
     </div>
-</x-guest-layout>
+</x-guest-layout> --}}
