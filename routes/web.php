@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\WithdrawalApprovalController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TenantController;
@@ -20,6 +21,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\AiReportController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\ShiftController;
+use App\Http\Controllers\WithdrawalController;
 
 /*
 |--------------------------------------------------------------------------
@@ -76,6 +78,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
             Route::post('/employees', [EmployeeController::class, 'store'])->name('employees.store');
             Route::delete('/employees/{id}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
+
+            Route::get('/withdrawals', [WithdrawalApprovalController::class, 'index'])->name('admin.withdrawals.index');
+            Route::post('/withdrawals/{withdrawal}/approve', [WithdrawalApprovalController::class, 'approve'])->name('admin.withdrawals.approve');
+            Route::post('/withdrawals/{withdrawal}/reject', [WithdrawalApprovalController::class, 'reject'])->name('admin.withdrawals.reject');
         });
 
         // Master Data: Produk & Kategori
@@ -107,15 +113,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Kasir & POS Terminal
         Route::resource('pos', PosController::class);
         Route::resource('orders', OrderController::class);
-        Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
+        // Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
         Route::get('/orders/{id}/print', [OrderController::class, 'print'])->name('orders.print');
         Route::get('/orders/{id}/check-status', [PosController::class, 'checkStatus'])->name('orders.checkStatus');
 
-        // Audit Shift Kasir
-        Route::resource('shifts', ShiftController::class);
+        // Audit Shift Kasir (DIPINDAHKAN KE ATAS ROUTE RESOURCE)
         Route::post('/shifts/open', [ShiftController::class, 'open']);
         Route::get('/shifts/summary', [ShiftController::class, 'summary']);
         Route::post('/shifts/close', [ShiftController::class, 'close']);
+        Route::resource('shifts', ShiftController::class);
 
         // Keuangan & Dompet Toko
         Route::get('/finance', [FinanceController::class, 'index'])->name('finance.index');

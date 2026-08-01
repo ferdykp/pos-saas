@@ -6,10 +6,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Concerns\BelongsToTenant;
 
 class StockMovement extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToTenant;
 
     protected $fillable = [
         'tenant_id',
@@ -32,14 +33,14 @@ class StockMovement extends Model
         return $this->belongsTo(Supplier::class);
     }
 
-    protected static function booted()
-    {
-        static::addGlobalScope('tenant', function ($builder) {
-            if (auth()->check()) {
-                $builder->where('tenant_id', auth()->user()->tenant_id);
-            }
-        });
-    }
+    // protected static function booted()
+    // {
+    //     static::addGlobalScope('tenant', function ($builder) {
+    //         if (auth()->check()) {
+    //             $builder->where('tenant_id', auth()->user()->tenant_id);
+    //         }
+    //     });
+    // }
 
     // Helper untuk label warna di view nanti
     public function getTypeLabelAttribute()

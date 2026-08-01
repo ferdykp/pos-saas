@@ -26,13 +26,15 @@ class ReportController extends Controller
 
     public function index(Request $request)
     {
-        // ... (Kode index bawaan Anda tetap utuh, tidak perlu ada yang diubah)
+        $tenantId = auth()->user()->tenant_id;
+
         $startDate = $request->get('start_date', Carbon::today()->toDateString());
         $endDate = $request->get('end_date', Carbon::today()->toDateString());
         $startDateTime = Carbon::parse($startDate)->startOfDay();
         $endDateTime = Carbon::parse($endDate)->endOfDay();
 
-        $salesSummary = Order::whereBetween('created_at', [$startDateTime, $endDateTime])
+        $salesSummary = Order::where('tenant_id', $tenantId)
+            ->whereBetween('created_at', [$startDateTime, $endDateTime])
             ->where('payment_status', 'paid')
             ->select(
                 DB::raw('SUM(subtotal) as total_gross'),
@@ -42,7 +44,8 @@ class ReportController extends Controller
                 DB::raw('COUNT(id) as total_transactions')
             )->first();
 
-        $paymentMethods = Order::whereBetween('created_at', [$startDateTime, $endDateTime])
+        $paymentMethods = Order::where('tenant_id', $tenantId)
+            ->whereBetween('created_at', [$startDateTime, $endDateTime])
             ->where('payment_status', 'paid')
             ->groupBy('payment_method')
             ->select('payment_method', DB::raw('SUM(grand_total) as total_amount'))
@@ -51,6 +54,7 @@ class ReportController extends Controller
         $topProducts = DB::table('order_items')
             ->join('products', 'order_items.product_id', '=', 'products.id')
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->where('orders.tenant_id', $tenantId)
             ->whereBetween('orders.created_at', [$startDateTime, $endDateTime])
             ->where('orders.payment_status', 'paid')
             ->groupBy('products.id', 'products.product_name')
@@ -63,12 +67,19 @@ class ReportController extends Controller
             ->take(5)
             ->get();
 
+        // Shift dikaitkan ke tenant lewat relasi user yang membuka shift.
+        // Pastikan kolom tenant_id ada juga di tabel shifts; kalau ada, filter
+        // langsung ->where('tenant_id', $tenantId) jauh lebih murah daripada whereHas.
         $shifts = Shift::whereBetween('start_time', [$startDateTime, $endDateTime])
+            ->whereHas('user', function ($q) use ($tenantId) {
+                $q->where('tenant_id', $tenantId);
+            })
             ->with('user')
             ->orderBy('id', 'desc')
             ->get();
 
-        $dailySalesData = Order::whereBetween('created_at', [$startDateTime, $endDateTime])
+        $dailySalesData = Order::where('tenant_id', $tenantId)
+            ->whereBetween('created_at', [$startDateTime, $endDateTime])
             ->where('payment_status', 'paid')
             ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(grand_total) as total_sales'))
             ->groupBy(DB::raw('DATE(created_at)'))
@@ -122,8 +133,8 @@ class ReportController extends Controller
     //     ];
 
     //     // 3. Instruksikan AI memproduksi teks laporan murni tanpa tag HTML agar elok di Excel
-    //     $prompt = "Anda adalah Chief Business Analyst POS. Analisis data ringkas periode ini: " . json_encode($dataBisnis) . ". 
-    //     Tulis analisis profesional dalam bentuk POIN BARIS (tanpa format markdown, tanpa bintang-bintang, tanpa tag HTML, murni baris teks narasi terpisah menggunakan baris baru \\n). 
+    //     $prompt = "Anda adalah Chief Business Analyst POS. Analisis data ringkas periode ini: " . json_encode($dataBisnis) . ".
+    //     Tulis analisis profesional dalam bentuk POIN BARIS (tanpa format markdown, tanpa bintang-bintang, tanpa tag HTML, murni baris teks narasi terpisah menggunakan baris baru \\n).
     //     Buat struktur 4 baris kalimat utama:
     //     Baris 1: Evaluasi performa finansial toko.
     //     Baris 2: Analisis dominasi produk juara.

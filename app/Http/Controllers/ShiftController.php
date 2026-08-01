@@ -37,6 +37,26 @@ class ShiftController extends Controller
         return view('shifts.index', compact('shifts'));
     }
 
+    // Helper untuk mengambil shift aktif kasir yang sedang login
+    private function getActiveShift()
+    {
+        $shiftId = session('active_shift_id');
+
+        if ($shiftId) {
+            $shift = Shift::where('tenant_id', Auth::user()->tenant_id)
+                ->where('id', $shiftId)
+                ->where('status', 'open')
+                ->first();
+            if ($shift) return $shift;
+        }
+
+        // Fallback jika session terhapus/expired: Cari shift open di DB
+        return Shift::where('tenant_id', Auth::user()->tenant_id)
+            ->where('user_id', Auth::id())
+            ->where('status', 'open')
+            ->first();
+    }
+
     // Buka Shift Baru
     public function open(Request $request)
     {
@@ -45,10 +65,7 @@ class ShiftController extends Controller
         ]);
 
         // Cek apakah ada shift yang masih open untuk user ini
-        $activeShift = Shift::where('tenant_id', Auth::user()->tenant_id)
-            ->where('user_id', Auth::id())
-            ->where('status', 'open')
-            ->first();
+        $activeShift = $this->getActiveShift();
 
         if ($activeShift) {
             return response()->json(['success' => false, 'message' => 'Anda masih memiliki shift yang aktif!']);
@@ -72,22 +89,36 @@ class ShiftController extends Controller
     // Mendapatkan summary berjalan sebelum tutup shift (Dipanggil via AJAX)
     public function summary()
     {
-        $shiftId = session('active_shift_id');
-        $shift = Shift::findOrFail($shiftId);
+        $shift = $this->getActiveShift();
+
+        if (!$shift) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada shift aktif yang ditemukan. Silakan buka shift terlebih dahulu.'
+            ], 404);
+        }
+
+        // Refresh session jika sempat hilang
+        session(['active_shift_id' => $shift->id]);
 
         // Hitung total penjualan tunai (cash) selama shift ini berlangsung
-        $totalCashSales = Order::where('shift_id', $shift->id)
+        // Bisa dihitung berdasarkan shift_id OR rentang waktu jika order belum mencatat shift_id
+        $totalCashSales = Order::where('tenant_id', Auth::user()->tenant_id)
+            ->where(function ($query) use ($shift) {
+                $query->where('shift_id', $shift->id)
+                    ->orWhereBetween('created_at', [$shift->start_time, now()]);
+            })
             ->where('payment_method', 'cash')
             ->where('payment_status', 'paid')
-            ->sum('grand_total'); // Sesuaikan nama kolom grand_total Anda
+            ->sum('grand_total');
 
         $cashExpected = $shift->cash_start + $totalCashSales;
 
         return response()->json([
             'success' => true,
-            'cash_start' => $shift->cash_start,
-            'cash_sales' => $totalCashSales,
-            'cash_expected' => $cashExpected
+            'cash_start' => (float) $shift->cash_start,
+            'cash_sales' => (float) $totalCashSales,
+            'cash_expected' => (float) $cashExpected
         ]);
     }
 
@@ -99,11 +130,22 @@ class ShiftController extends Controller
             'notes' => 'nullable|string'
         ]);
 
-        $shiftId = session('active_shift_id');
-        $shift = Shift::findOrFail($shiftId);
+        $shift = $this->getActiveShift();
 
-        $totalCashSales = Order::where('shift_id', $shift->id)
+        if (!$shift) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menutup shift: Tidak ada shift aktif!'
+            ], 404);
+        }
+
+        $totalCashSales = Order::where('tenant_id', Auth::user()->tenant_id)
+            ->where(function ($query) use ($shift) {
+                $query->where('shift_id', $shift->id)
+                    ->orWhereBetween('created_at', [$shift->start_time, now()]);
+            })
             ->where('payment_method', 'cash')
+            ->where('payment_status', 'paid')
             ->sum('grand_total');
 
         $cashExpected = $shift->cash_start + $totalCashSales;

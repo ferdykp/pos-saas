@@ -15,7 +15,7 @@
                 </p>
             </div>
 
-            <!-- Primary Action Button (Height 44px, Emerald Green) -->
+            <!-- Primary Action Button -->
             <a href="{{ route('products.create') }}"
                 class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body md:text-sm shrink-0">
                 <i class="text-xs fa-solid fa-plus"></i>
@@ -40,12 +40,14 @@
                 </div>
             </div>
 
+            <!-- Metric Stok Aman -->
             <div
                 class="flex items-center justify-between p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
                 <div>
-                    <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Stok Aman</span>
+                    <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Stok Aman /
+                        Unlimited</span>
                     <p class="mt-2 font-mono text-2xl font-semibold md:text-3xl text-primary-600">
-                        {{ $products->filter(fn($p) => $p->stock > $p->min_stock)->count() }}
+                        {{ $products->filter(fn($p) => ($p->type ?? '') === 'service' || empty($p->manage_stock) || $p->stock > $p->min_stock)->count() }}
                     </p>
                 </div>
                 <div
@@ -54,13 +56,14 @@
                 </div>
             </div>
 
+            <!-- Metric Stok Menipis / Habis (Hanya untuk produk yang dilacak stoknya) -->
             <div
                 class="flex items-center justify-between p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
                 <div>
                     <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Stok Menipis /
                         Habis</span>
                     <p class="mt-2 font-mono text-2xl font-semibold md:text-3xl text-semantic-danger">
-                        {{ $products->filter(fn($p) => $p->stock <= $p->min_stock)->count() }}
+                        {{ $products->filter(fn($p) => ($p->type ?? '') !== 'service' && !empty($p->manage_stock) && $p->stock <= $p->min_stock)->count() }}
                     </p>
                 </div>
                 <div
@@ -70,7 +73,7 @@
             </div>
         </div>
 
-        <!-- Table Container (Spesifikasi: Row Height 48px, bg surface-100 header) -->
+        <!-- Table Container -->
         <div class="mb-6 overflow-hidden border rounded-lg shadow-sm bg-surface-0 border-border-200">
             <div class="w-full overflow-x-auto custom-scrollbar">
                 <table class="w-full text-left border-collapse whitespace-nowrap">
@@ -88,7 +91,7 @@
                         @forelse ($products as $product)
                             <tr class="h-12 transition-colors hover:bg-surface-100/60">
 
-                                <!-- Product Avatar/Initial, Name & SKU -->
+                                <!-- Product Detail -->
                                 <td class="px-5 py-3">
                                     <div class="flex items-center gap-3">
                                         @if ($product->image)
@@ -98,7 +101,7 @@
                                         @else
                                             <div
                                                 class="flex items-center justify-center text-xs font-bold rounded-md w-9 h-9 bg-primary-100 text-primary-700 font-heading shrink-0">
-                                                {{ substr($product->product_name, 0, 2) }}
+                                                {{ strtoupper(substr($product->product_name, 0, 2)) }}
                                             </div>
                                         @endif
 
@@ -122,17 +125,23 @@
                                     </span>
                                 </td>
 
-                                <!-- Sell Price (Monospace) -->
+                                <!-- Sell Price -->
                                 <td class="px-5 py-3 font-mono font-semibold text-right text-ink-900">
                                     Rp {{ number_format($product->sell_price, 0, ',', '.') }}
                                 </td>
 
-                                <!-- Stock Status Badge (Pill Shape: radius-full) -->
+                                <!-- Status Stok Badge PERBAIKAN -->
+                                <!-- Status Stok Badge PERBAIKAN -->
                                 <td class="px-5 py-3 text-center">
-                                    @if ($product->type === 'service')
+                                    @if (($product->type ?? 'product') === 'service')
                                         <span
                                             class="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold text-accent-700 bg-accent-100 rounded-full">
                                             Layanan / Jasa
+                                        </span>
+                                    @elseif (empty($product->manage_stock))
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold text-primary-700 bg-primary-100 rounded-full">
+                                            <i class="fa-solid fa-infinity text-[10px] mr-1"></i> Unlimited
                                         </span>
                                     @elseif ($product->stock <= $product->min_stock)
                                         <span
@@ -147,8 +156,7 @@
                                         </span>
                                     @endif
                                 </td>
-
-                                <!-- Action Column -->
+                                <!-- Action -->
                                 <td class="px-5 py-3 text-center">
                                     <div class="flex items-center justify-center gap-1.5">
                                         <a href="{{ route('products.edit', $product->id) }}"
@@ -167,7 +175,6 @@
                                 </td>
                             </tr>
                         @empty
-                            <!-- Friendly Empty State -->
                             <tr>
                                 <td colspan="5" class="px-6 py-12 text-center">
                                     <div class="flex flex-col items-center justify-center">
@@ -177,9 +184,6 @@
                                         </div>
                                         <p class="text-sm font-semibold font-heading text-ink-900">Belum ada produk
                                             dalam katalog</p>
-                                        <p class="font-body text-xs text-ink-700 mt-0.5 max-w-xs">
-                                            Mulai tambahkan daftar produk atau layanan jasa yang dijual di toko Anda.
-                                        </p>
                                     </div>
                                 </td>
                             </tr>
@@ -190,41 +194,29 @@
         </div>
 
         <!-- Modal Confirm Hapus Produk -->
-        <div x-show="showDeleteModal" x-cloak x-transition:enter="transition ease-out duration-200"
-            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-            x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
-            x-transition:leave-end="opacity-0"
+        <div x-show="showDeleteModal" x-cloak
             class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-900/40 backdrop-blur-[2px]">
-
             <div class="w-full p-6 border rounded-lg shadow-lg max-w-modal-sm bg-surface-0 border-border-200"
                 @click.away="showDeleteModal = false">
-
                 <div
                     class="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-red-50 text-semantic-danger">
                     <i class="text-xl fa-solid fa-trash-can"></i>
                 </div>
-
                 <div class="mb-6 text-center">
                     <h3 class="text-lg font-semibold font-heading text-ink-900">Hapus Produk Ini?</h3>
                     <p class="mt-2 text-xs leading-relaxed font-body text-ink-700">
                         Apakah Anda yakin ingin menghapus produk <span class="font-semibold text-ink-900"
-                            x-text="productName"></span>? Produk ini tidak akan muncul lagi di POS Terminal.
+                            x-text="productName"></span>?
                     </p>
                 </div>
-
                 <div class="flex items-center gap-3">
                     <button type="button" @click="showDeleteModal = false"
-                        class="flex-1 text-xs font-semibold transition-colors rounded-md h-11 bg-surface-100 hover:bg-border-200 text-ink-900 font-body">
-                        Batal
-                    </button>
-
+                        class="flex-1 text-xs font-semibold rounded-md h-11 bg-surface-100 text-ink-900 font-body">Batal</button>
                     <form :action="deleteUrl" method="POST" class="flex-1">
-                        @csrf
-                        @method('DELETE')
+                        @csrf @method('DELETE')
                         <button type="submit"
-                            class="w-full text-xs font-semibold text-white transition-colors rounded-md h-11 bg-semantic-danger hover:bg-red-700 font-body">
-                            Ya, Hapus
-                        </button>
+                            class="w-full text-xs font-semibold text-white rounded-md h-11 bg-semantic-danger font-body">Ya,
+                            Hapus</button>
                     </form>
                 </div>
             </div>

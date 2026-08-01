@@ -9,6 +9,13 @@
 
     <title>GrowPOS - @yield('title', 'SaaS POS UMKM')</title>
 
+    <!-- 1. PERBAIKAN: CSS x-cloak wajib ditaruh paling atas di head agar langsung menyembunyikan elemen Alpine sebelum JS load -->
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
+
     <!-- Google Fonts Google Jakarta Sans, Inter, IBM Plex Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -76,7 +83,7 @@
 
 <body class="antialiased font-body text-ink-900 bg-surface-100 selection:bg-primary-100 selection:text-primary-700">
 
-    <!-- Offline Mode Banner (Alpine.js Listener) -->
+    <!-- Offline Mode Banner -->
     <div x-data="{ isOffline: !navigator.onLine }" x-init="window.addEventListener('online', () => isOffline = false);
     window.addEventListener('offline', () => isOffline = true);" x-show="isOffline" x-cloak
         class="fixed top-0 inset-x-0 z-[110] bg-accent-500 text-white text-xs font-semibold py-2 px-4 text-center flex items-center justify-center gap-2 shadow-sm">
@@ -103,7 +110,8 @@
 
                         {{-- Pesan Sukses --}}
                         @if (session('success'))
-                            <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
+                            <!-- 2. PERBAIKAN: Ditambahkan x-cloak -->
+                            <div x-data="{ show: true }" x-show="show" x-cloak x-init="setTimeout(() => show = false, 4000)"
                                 x-transition:enter="transform transition ease-out duration-300"
                                 x-transition:enter-start="translate-x-full opacity-0"
                                 x-transition:enter-end="translate-x-0 opacity-100"
@@ -121,7 +129,8 @@
 
                         {{-- Pesan Error Session --}}
                         @if (session('error'))
-                            <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
+                            <!-- 2. PERBAIKAN: Ditambahkan x-cloak -->
+                            <div x-data="{ show: true }" x-show="show" x-cloak x-init="setTimeout(() => show = false, 5000)"
                                 x-transition:enter="transform transition ease-out duration-300"
                                 x-transition:enter-start="translate-x-full opacity-0"
                                 x-transition:enter-end="translate-x-0 opacity-100"
@@ -139,7 +148,8 @@
 
                         {{-- Pesan Error Validasi --}}
                         @if ($errors->any())
-                            <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 6000)"
+                            <!-- 2. PERBAIKAN: Ditambahkan x-cloak -->
+                            <div x-data="{ show: true }" x-show="show" x-cloak x-init="setTimeout(() => show = false, 6000)"
                                 x-transition:enter="transform transition ease-out duration-300"
                                 x-transition:enter-start="translate-x-full opacity-0"
                                 x-transition:enter-end="translate-x-0 opacity-100"

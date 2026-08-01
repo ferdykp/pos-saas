@@ -74,6 +74,13 @@
                         <i class="w-5 text-base text-center fa-solid fa-store"></i>
                         <span x-show="!sidebarCollapsed" class="truncate">Manajemen Tenant</span>
                     </a>
+
+                    <a href="{{ route('admin.withdrawals.index') }}"
+                        class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('admin.withdrawals.*') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
+                        :title="sidebarCollapsed ? 'Approval Penarikan' : ''">
+                        <i class="w-5 text-base text-center fa-solid fa-money-check-dollar"></i>
+                        <span x-show="!sidebarCollapsed" class="truncate">Approval Penarikan</span>
+                    </a>
                 </div>
             </div>
         @endif

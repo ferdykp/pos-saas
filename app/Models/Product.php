@@ -7,10 +7,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use App\Models\Concerns\BelongsToTenant;
 
 class Product extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToTenant;
 
     protected $fillable = [
         'tenant_id',
@@ -32,22 +33,22 @@ class Product extends Model
         'is_active' => 'boolean',
     ];
 
-    protected static function booted()
-    {
-        static::addGlobalScope('tenant', function ($builder) {
-            if (auth()->check()) {
-                // Hanya ambil produk milik tenant yang sedang aktif login
-                $builder->where('tenant_id', auth()->user()->tenant_id);
-            }
-        });
+    // protected static function booted()
+    // {
+    //     static::addGlobalScope('tenant', function ($builder) {
+    //         if (auth()->check()) {
+    //             // Hanya ambil produk milik tenant yang sedang aktif login
+    //             $builder->where('tenant_id', auth()->user()->tenant_id);
+    //         }
+    //     });
 
-        // Otomatis isi tenant_id saat membuat produk baru
-        static::creating(function ($product) {
-            if (auth()->check()) {
-                $product->tenant_id = auth()->user()->tenant_id;
-            }
-        });
-    }
+    //     // Otomatis isi tenant_id saat membuat produk baru
+    //     static::creating(function ($product) {
+    //         if (auth()->check()) {
+    //             $product->tenant_id = auth()->user()->tenant_id;
+    //         }
+    //     });
+    // }
 
     public function tenant()
     {

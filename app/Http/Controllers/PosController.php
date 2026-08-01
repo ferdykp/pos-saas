@@ -171,11 +171,10 @@ class PosController extends Controller
             $qrUrl = null;
 
             if ($isDigitalPayment) {
-                \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY');
-                \Midtrans\Config::$isProduction = filter_var(env('MIDTRANS_IS_PRODUCTION', false), FILTER_VALIDATE_BOOLEAN);
-                \Midtrans\Config::$isSanitized = true;
-                \Midtrans\Config::$is3ds = true;
-
+                \Midtrans\Config::$serverKey = config('services.midtrans.server_key');
+                \Midtrans\Config::$isProduction = (bool) config('services.midtrans.is_production');
+                \Midtrans\Config::$isSanitized = config('services.midtrans.is_sanitized', true);
+                \Midtrans\Config::$is3ds = config('services.midtrans.is_3ds', true);
                 $params = [
                     'payment_type' => 'qris',
                     'transaction_details' => [
@@ -333,9 +332,8 @@ class PosController extends Controller
 
         // 2. Jika di database lokal masih 'unpaid', kita tanya langsung ke Server Midtrans
         if ($order->payment_method === 'midtrans') {
-            \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY');
-            \Midtrans\Config::$isProduction = filter_var(env('MIDTRANS_IS_PRODUCTION', false), FILTER_VALIDATE_BOOLEAN);
-
+            \Midtrans\Config::$serverKey = config('services.midtrans.server_key');
+            \Midtrans\Config::$isProduction = (bool) config('services.midtrans.is_production');
             try {
                 /** @var object|array $midtransStatus */
                 $midtransStatus = \Midtrans\Transaction::status($order->invoice_number);

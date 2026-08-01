@@ -103,7 +103,13 @@
                                 </div>
 
                                 <span class="text-[10px] font-medium text-ink-400">
-                                    {{ $p->type === 'service' ? 'Jasa' : 'Stok: ' . $p->stock }}
+                                    @if (($p->type ?? 'product') === 'service')
+                                        Jasa
+                                    @elseif (empty($p->manage_stock))
+                                        Stok: ∞
+                                    @else
+                                        Stok: {{ $p->stock }}
+                                    @endif
                                 </span>
                             </div>
                         </div>

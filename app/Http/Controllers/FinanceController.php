@@ -48,63 +48,68 @@ class FinanceController extends Controller
     public function withdraw(Request $request)
     {
         $request->validate([
-            'amount' => 'required|integer|min:10000', // Batas minimal penarikan misalnya Rp 10.000
+            'amount' => 'required|integer|min:10000',
         ]);
 
         $tenantId = Auth::user()->tenant_id;
         $amountToWithdraw = (int) $request->amount;
 
-        // Gunakan DB Transaction & Pessimistic Locking untuk mencegah fraud / request ganda dalam waktu bersamaan
-        return DB::transaction(function () use ($tenantId, $amountToWithdraw) {
+        try {
+            return DB::transaction(function () use ($tenantId, $amountToWithdraw) {
 
-            // Ambil data wallet terbaru dan kunci barisnya
-            $wallet = DB::table('tenant_wallets')
-                ->where('tenant_id', $tenantId)
-                ->lockForUpdate()
-                ->first();
+                $wallet = DB::table('tenant_wallets')
+                    ->where('tenant_id', $tenantId)
+                    ->lockForUpdate()
+                    ->first();
 
-            // Proteksi 1: Pastikan data wallet ada
-            if (!$wallet) {
-                return response()->json(['success' => false, 'message' => 'Dompet toko tidak ditemukan.'], 404);
-            }
+                if (!$wallet) {
+                    return response()->json(['success' => false, 'message' => 'Dompet toko tidak ditemukan.'], 404);
+                }
 
-            // Proteksi 2: Pastikan informasi rekening bank tujuan sudah diisi
-            if (empty($wallet->account_number)) {
-                return response()->json(['success' => false, 'message' => 'Informasi rekening bank tujuan belum dilengkapi.'], 422);
-            }
+                if (empty($wallet->account_number)) {
+                    return response()->json(['success' => false, 'message' => 'Informasi rekening bank tujuan belum dilengkapi.'], 422);
+                }
 
-            // Proteksi 3: Pastikan saldo mencukupi
-            if ($wallet->balance < $amountToWithdraw) {
-                return response()->json(['success' => false, 'message' => 'Saldo Anda tidak mencukupi untuk melakukan penarikan ini.'], 422);
-            }
+                if ($wallet->balance < $amountToWithdraw) {
+                    return response()->json(['success' => false, 'message' => 'Saldo Anda tidak mencukupi untuk melakukan penarikan ini.'], 422);
+                }
 
-            // Generate nomor referensi pengajuan unik: WDR-YYYYMMDD-RANDOM
-            $referenceNumber = 'WDR-' . now()->format('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3)));
+                $referenceNumber = 'WDR-' . now()->format('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3)));
 
-            // LOGIKA PENTING: Potong langsung saldo utama tenant (Saldo ditahan dalam sistem antrean)
-            DB::table('tenant_wallets')
-                ->where('tenant_id', $tenantId)
-                ->decrement('balance', $amountToWithdraw);
+                DB::table('tenant_wallets')
+                    ->where('tenant_id', $tenantId)
+                    ->decrement('balance', $amountToWithdraw);
 
-            // Masukkan data ke antrean tabel withdrawal_requests
-            DB::table('withdrawal_requests')->insert([
-                'tenant_id'        => $tenantId,
-                'reference_number' => $referenceNumber,
-                'bank_name'        => $wallet->bank_name,
-                'account_number'   => $wallet->account_number,
-                'account_name'     => $wallet->account_name,
-                'amount'           => $amountToWithdraw,
-                'platform_fee'     => 0, // Bisa diisi nominal biaya transfer antar-bank jika diperlukan
-                'status'           => 'pending',
-                'created_at'       => now(),
-                'updated_at'       => now(),
-            ]);
+                // insert() melempar QueryException kalau reference_number bentrok
+                // (sangat jarang, tapi karena kolomnya unique(), harus ditangani -
+                // supaya kalau gagal, seluruh transaction di-rollback termasuk
+                // decrement saldo di atas, bukan saldo kepotong tanpa record).
+                DB::table('withdrawal_requests')->insert([
+                    'tenant_id'        => $tenantId,
+                    'reference_number' => $referenceNumber,
+                    'bank_name'        => $wallet->bank_name,
+                    'account_number'   => $wallet->account_number,
+                    'account_name'     => $wallet->account_name,
+                    'amount'           => $amountToWithdraw,
+                    'platform_fee'     => 0,
+                    'status'           => 'pending',
+                    'created_at'       => now(),
+                    'updated_at'       => now(),
+                ]);
 
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Pengajuan penarikan berhasil didaftarkan.'
+                ]);
+            });
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Transaction otomatis rollback oleh Laravel saat exception dilempar
+            // di dalam DB::transaction(), jadi saldo TIDAK jadi terpotong.
             return response()->json([
-                'success' => true,
-                'message' => 'Pengajuan penarikan berhasil didaftarkan.'
-            ]);
-        });
+                'success' => false,
+                'message' => 'Terjadi kendala sistem saat memproses pengajuan. Silakan coba lagi.'
+            ], 500);
+        }
     }
     /**
      * Menyimpan atau Memperbarui Pengaturan Rekening Bank Tenant

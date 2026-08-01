@@ -4,9 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Concerns\BelongsToTenant;
 
 class Discount extends Model
 {
+    use HasFactory, BelongsToTenant;
+
     protected $fillable = [
         'tenant_id',
         'name',
