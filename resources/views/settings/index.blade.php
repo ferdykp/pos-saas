@@ -1,175 +1,96 @@
-{{-- <x-app-layout>
-    <div class="max-w-4xl px-4 py-12 mx-auto">
-        <h1 class="mb-8 text-3xl font-black text-gray-900">Sistem Pengaturan</h1>
-
-        <form action="{{ route('settings.store') }}" method="POST" class="space-y-6">
-            @csrf
-            <div class="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
-                <h3 class="flex items-center mb-6 text-lg font-bold text-gray-900">
-                    <i class="mr-3 text-blue-500 fa-solid fa-receipt"></i> Konfigurasi Pajak (PPN)
-                </h3>
-
-                <div class="flex items-center justify-between p-6 mb-6 bg-gray-50 rounded-2xl">
-                    <div>
-                        <p class="font-bold text-gray-700">Aktifkan Pajak Restoran</p>
-                        <p class="text-xs text-gray-400">Jika aktif, total belanja akan otomatis ditambah pajak.</p>
-                    </div>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" name="tax_active" value="1"
-                            {{ ($settings['tax_active'] ?? '0') == '1' ? 'checked' : '' }} class="sr-only peer">
-                        <div
-                            class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full">
-                        </div>
-                    </label>
-                </div>
-
-                <div>
-                    <label class="block mb-2 text-sm font-bold text-gray-700">Persentase Pajak (%)</label>
-                    <input type="number" name="tax_percentage" value="{{ $settings['tax_percentage'] ?? '10' }}"
-                        class="w-full px-4 py-3 border-gray-100 rounded-2xl bg-gray-50 focus:ring-blue-500">
-                </div>
-            </div>
-
-
-            <div class="p-6 bg-white shadow-xl rounded-2xl">
-                <h3 class="mb-4 text-lg font-black text-gray-900">Konfigurasi Poin Loyalitas Pelanggan</h3>
-
-                <form action="{{ route('settings.update-points') }}" method="POST" class="space-y-4">
-                    @csrf
-
-                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700">Metode Perhitungan Poin</label>
-                            <select name="point_mode" id="point_mode"
-                                class="w-full mt-1 border-gray-200 rounded-xl focus:ring-blue-500">
-                                <option value="disabled"
-                                    {{ ($settings['point_mode'] ?? '') == 'disabled' ? 'selected' : '' }}>Nonaktifkan
-                                    Poin</option>
-                                <option value="per_investment"
-                                    {{ ($settings['point_mode'] ?? '') == 'per_investment' ? 'selected' : '' }}>
-                                    Kelipatan Total Belanja (Rekomendasi)</option>
-                                <option value="flat"
-                                    {{ ($settings['point_mode'] ?? '') == 'flat' ? 'selected' : '' }}>Poin Tetap Per
-                                    Transaksi</option>
-                                <option value="percentage"
-                                    {{ ($settings['point_mode'] ?? '') == 'percentage' ? 'selected' : '' }}>Persentase
-                                    dari Total Belanja</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700" id="value_label">Nilai Aturan</label>
-                            <input type="number" name="point_rule_value"
-                                value="{{ $settings['point_rule_value'] ?? 0 }}"
-                                class="w-full mt-1 border-gray-200 rounded-xl focus:ring-blue-500">
-                            <p class="text-[11px] text-gray-400 mt-1" id="value_help">Contoh: Isi 10000 jika ingin 1
-                                poin setiap belanja Rp10.000.</p>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center p-4 mt-2 bg-gray-50 rounded-2xl">
-                        <input type="checkbox" name="point_member_only" id="point_member_only" value="1"
-                            {{ ($settings['point_member_only'] ?? '0') == '1' ? 'checked' : '' }}
-                            class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                        <label for="point_member_only" class="ml-3 text-sm font-bold text-gray-700">Hanya berikan poin
-                            kepada pelanggan dengan status "Member Active"</label>
-                    </div>
-
-                    <div class="flex justify-end">
-                        <button type="submit"
-                            class="px-6 py-3 font-black text-white bg-blue-600 rounded-xl hover:bg-blue-700">Simpan
-                            Aturan Poin</button>
-                    </div>
-                </form>
-            </div>
-
-            <script>
-                // Script sederhana untuk mengubah teks bantuan agar user tidak bingung saat memilih opsi
-                document.getElementById('point_mode').addEventListener('change', function() {
-                    const mode = this.value;
-                    const label = document.getElementById('value_label');
-                    const help = document.getElementById('value_help');
-
-                    if (mode === 'per_investment') {
-                        label.innerText = "Kelipatan Belanja (Rp)";
-                        help.innerText = "Contoh: Isi 10000 artinya kelipatan kelipatan Rp10.000 dapat 1 poin.";
-                    } else if (mode === 'flat') {
-                        label.innerText = "Jumlah Poin Tetap";
-                        help.innerText =
-                            "Contoh: Isi 5 artinya berapapun total belanjanya, pelanggan otomatis dapat 5 poin.";
-                    } else if (mode === 'percentage') {
-                        label.innerText = "Persentase Poin (%)";
-                        help.innerText =
-                            "Contoh: Isi 1 artinya pelanggan dapat poin sebesar 1% dari total nilai transaksinya.";
-                    } else {
-                        label.innerText = "Nilai Aturan";
-                        help.innerText = "-";
-                    }
-                });
-            </script>
-
-            <div class="flex justify-end">
-                <button type="submit"
-                    class="px-10 py-4 font-black text-white transition bg-blue-600 shadow-xl rounded-2xl hover:bg-blue-700">
-                    Simpan Semua Perubahan
-                </button>
-            </div>
-        </form>
-    </div>
-</x-app-layout> --}}
 <x-app-layout>
-    <div class="max-w-4xl px-4 py-12 mx-auto">
-        <h1 class="mb-8 text-3xl font-black text-gray-900">Sistem Pengaturan</h1>
+    @section('title', 'Sistem Pengaturan')
+
+    <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-modal-lg">
+
+        <!-- Header Halaman -->
+        <div class="pb-6 mb-8 border-b border-border-200">
+            <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
+                Sistem Pengaturan Toko
+            </h1>
+            <p class="mt-1 text-xs font-body md:text-sm text-ink-700">
+                Atur konfigurasi Pajak Restoran (PB1/PPN), kalkulasi poin loyalitas pelanggan, dan kebijakan operasional
+                outlet.
+            </p>
+        </div>
 
         <form action="{{ route('settings.store') }}" method="POST" class="space-y-6">
             @csrf
 
-            <div class="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
-                <h3 class="flex items-center mb-6 text-lg font-bold text-gray-900">
-                    <i class="mr-3 text-blue-500 fa-solid fa-receipt"></i> Konfigurasi Pajak (PPN)
-                </h3>
-
-                <div class="flex items-center justify-between p-6 mb-6 bg-gray-50 rounded-2xl">
-                    <div>
-                        <p class="font-bold text-gray-700">Aktifkan Pajak Restoran</p>
-                        <p class="text-xs text-gray-400">Jika aktif, total belanja akan otomatis ditambah pajak.</p>
+            <!-- Section 1: Konfigurasi Pajak (PPN/PB1) -->
+            <div class="p-6 border rounded-lg shadow-sm bg-surface-0 border-border-200">
+                <div class="flex items-center gap-2.5 pb-4 mb-6 border-b border-border-200">
+                    <div
+                        class="flex items-center justify-center w-8 h-8 text-xs font-bold rounded-md bg-primary-50 text-primary-600 font-heading">
+                        <i class="text-xs fa-solid fa-receipt"></i>
                     </div>
-                    <label class="relative inline-flex items-center cursor-pointer">
+                    <h3 class="text-base font-semibold font-heading text-ink-900">
+                        Konfigurasi Pajak Restoran / PPN
+                    </h3>
+                </div>
+
+                <!-- Toggle Aktifkan Pajak -->
+                <div
+                    class="flex items-center justify-between p-4 mb-4 border rounded-md bg-surface-100 border-border-200">
+                    <div>
+                        <h4 class="text-xs font-semibold font-heading text-ink-900">Aktifkan Pajak Otomatis</h4>
+                        <p class="font-body text-[11px] text-ink-400 mt-0.5">
+                            Jika diaktifkan, kalkulasi total belanja di POS Terminal otomatis menambahkan tarif pajak.
+                        </p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer shrink-0">
                         <input type="checkbox" name="tax_active" value="1"
                             {{ ($settings['tax_active'] ?? '0') == '1' ? 'checked' : '' }} class="sr-only peer">
                         <div
-                            class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full">
+                            class="w-11 h-6 bg-border-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border-200 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600">
                         </div>
                     </label>
                 </div>
 
+                <!-- Persentase Pajak -->
                 <div>
-                    <label class="block mb-2 text-sm font-bold text-gray-700">Persentase Pajak (%)</label>
-                    <input type="number" name="tax_percentage" value="{{ $settings['tax_percentage'] ?? '10' }}"
-                        class="w-full px-4 py-3 border-gray-100 rounded-2xl bg-gray-50 focus:ring-blue-500">
+                    <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
+                        Tarif Persentase Pajak (%)
+                    </label>
+                    <div class="relative max-w-xs">
+                        <input type="number" name="tax_percentage" value="{{ $settings['tax_percentage'] ?? '10' }}"
+                            min="0" max="100" step="0.1"
+                            class="w-full pl-3 pr-8 font-mono text-xs font-semibold transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100">
+                        <span class="absolute font-mono text-xs right-3 top-3 text-ink-400">%</span>
+                    </div>
                 </div>
             </div>
 
-            <div class="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
-                <h3 class="flex items-center mb-6 text-lg font-bold text-gray-900">
-                    <i class="mr-3 text-blue-500 fa-solid fa-star"></i> Konfigurasi Poin Loyalitas Pelanggan
-                </h3>
+            <!-- Section 2: Konfigurasi Poin Loyalitas Pelanggan -->
+            <div class="p-6 border rounded-lg shadow-sm bg-surface-0 border-border-200">
+                <div class="flex items-center gap-2.5 pb-4 mb-6 border-b border-border-200">
+                    <div
+                        class="flex items-center justify-center w-8 h-8 text-xs font-bold rounded-md bg-accent-100 text-accent-700 font-heading">
+                        <i class="text-xs fa-solid fa-star"></i>
+                    </div>
+                    <h3 class="text-base font-semibold font-heading text-ink-900">
+                        Konfigurasi Poin Loyalitas Pelanggan (CRM)
+                    </h3>
+                </div>
 
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <!-- Point Mode Select -->
                     <div>
-                        <label class="block text-sm font-bold text-gray-700">Metode Perhitungan Poin</label>
+                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
+                            Skema Perhitungan Poin
+                        </label>
                         <select name="point_mode" id="point_mode"
-                            class="w-full mt-1 border-gray-200 rounded-xl focus:ring-blue-500">
+                            class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                             <option value="disabled"
                                 {{ ($settings['point_mode'] ?? '') == 'disabled' ? 'selected' : '' }}>
-                                Nonaktifkan Poin
+                                Nonaktifkan Poin Loyalitas
                             </option>
                             <option value="per_investment"
                                 {{ ($settings['point_mode'] ?? '') == 'per_investment' ? 'selected' : '' }}>
                                 Kelipatan Total Belanja (Rekomendasi)
                             </option>
                             <option value="flat" {{ ($settings['point_mode'] ?? '') == 'flat' ? 'selected' : '' }}>
-                                Poin Tetap Per Transaksi
+                                Poin Tetap Per Transaksi Nota
                             </option>
                             <option value="percentage"
                                 {{ ($settings['point_mode'] ?? '') == 'percentage' ? 'selected' : '' }}>
@@ -178,54 +99,70 @@
                         </select>
                     </div>
 
+                    <!-- Rule Value Input -->
                     <div>
-                        <label class="block text-sm font-bold text-gray-700" id="value_label">Nilai Aturan</label>
+                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5" id="value_label">
+                            Nilai Aturan Poin
+                        </label>
                         <input type="number" name="point_rule_value" value="{{ $settings['point_rule_value'] ?? 0 }}"
-                            class="w-full mt-1 border-gray-200 rounded-xl focus:ring-blue-500">
-                        <p class="text-[11px] text-gray-400 mt-1" id="value_help">Contoh: Isi 10000 jika ingin 1 poin
-                            setiap belanja Rp10.000.</p>
+                            class="w-full px-3 font-mono text-xs font-semibold transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
+                        <p class="font-body text-[11px] text-ink-400 mt-1" id="value_help">
+                            Contoh: Isi 10000 jika ingin 1 poin setiap belanja Rp 10.000.
+                        </p>
                     </div>
                 </div>
 
-                <div class="flex items-center p-4 mt-4 bg-gray-50 rounded-2xl">
+                <!-- Member Only Checkbox -->
+                <div class="flex items-center gap-3 p-4 mt-4 border rounded-md bg-surface-100 border-border-200">
                     <input type="checkbox" name="point_member_only" id="point_member_only" value="1"
                         {{ ($settings['point_member_only'] ?? '0') == '1' ? 'checked' : '' }}
-                        class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                    <label for="point_member_only" class="ml-3 text-sm font-bold text-gray-700">Hanya berikan poin
-                        kepada pelanggan dengan status "Member Active"</label>
+                        class="w-4 h-4 rounded text-primary-600 border-border-200 focus:ring-primary-600">
+                    <label for="point_member_only"
+                        class="text-xs font-semibold cursor-pointer select-none font-body text-ink-900">
+                        Hanya berikan poin transaksi kepada pelanggan berstatus "Member Aktif"
+                    </label>
                 </div>
             </div>
 
-            <div class="flex justify-end">
+            <!-- Submit Button Bar -->
+            <div class="flex items-center justify-end p-4 border rounded-lg shadow-sm bg-surface-0 border-border-200">
                 <button type="submit"
-                    class="px-10 py-4 font-black text-white transition bg-blue-600 shadow-xl rounded-2xl hover:bg-blue-700">
-                    Simpan Semua Perubahan
+                    class="inline-flex items-center justify-center gap-2 px-6 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body md:text-sm">
+                    <i class="text-xs fa-solid fa-check"></i>
+                    <span>Simpan Semua Pengaturan</span>
                 </button>
             </div>
         </form>
     </div>
 
+    <!-- Script Dynamic Help Label -->
     <script>
-        document.getElementById('point_mode').addEventListener('change', function() {
-            const mode = this.value;
+        document.addEventListener("DOMContentLoaded", function() {
+            const pointModeSelect = document.getElementById('point_mode');
             const label = document.getElementById('value_label');
             const help = document.getElementById('value_help');
 
-            if (mode === 'per_investment') {
-                label.innerText = "Kelipatan Belanja (Rp)";
-                help.innerText = "Contoh: Isi 10000 artinya kelipatan kelipatan Rp10.000 dapat 1 poin.";
-            } else if (mode === 'flat') {
-                label.innerText = "Jumlah Poin Tetap";
-                help.innerText =
-                    "Contoh: Isi 5 artinya berapapun total belanjanya, pelanggan otomatis dapat 5 poin.";
-            } else if (mode === 'percentage') {
-                label.innerText = "Persentase Poin (%)";
-                help.innerText =
-                    "Contoh: Isi 1 artinya pelanggan dapat poin sebesar 1% dari total nilai transaksinya.";
-            } else {
-                label.innerText = "Nilai Aturan";
-                help.innerText = "-";
+            function updatePointHelp() {
+                const mode = pointModeSelect.value;
+                if (mode === 'per_investment') {
+                    label.innerText = "Kelipatan Belanja (Rp)";
+                    help.innerText = "Contoh: Isi 10000 artinya kelipatan Rp 10.000 akan mendapatkan 1 poin.";
+                } else if (mode === 'flat') {
+                    label.innerText = "Jumlah Poin Tetap";
+                    help.innerText =
+                        "Contoh: Isi 5 artinya berapapun total belanjanya, pelanggan otomatis dapat 5 poin.";
+                } else if (mode === 'percentage') {
+                    label.innerText = "Persentase Poin (%)";
+                    help.innerText =
+                        "Contoh: Isi 1 artinya pelanggan dapat poin sebesar 1% dari total nilai transaksi.";
+                } else {
+                    label.innerText = "Nilai Aturan Poin";
+                    help.innerText = "Poin loyalitas pelanggan saat ini dalam posisi nonaktif.";
+                }
             }
+
+            pointModeSelect.addEventListener('change', updatePointHelp);
+            updatePointHelp();
         });
     </script>
 </x-app-layout>

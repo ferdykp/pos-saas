@@ -1,93 +1,114 @@
 <x-app-layout>
-    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+    @section('title', 'Pengaturan Akun')
 
-        <div class="mb-10">
-            <h1 class="text-3xl font-black tracking-tight text-gray-900">Pengaturan Akun</h1>
-            <p class="mt-1 font-medium text-gray-500">Kelola informasi profil dan daftar unit bisnis Anda.</p>
+    <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-desktop">
+
+        <!-- Header Halaman -->
+        <div class="pb-6 mb-8 border-b border-border-200">
+            <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
+                Pengaturan Akun & Bisnis
+            </h1>
+            <p class="mt-1 text-xs font-body md:text-sm text-ink-700">
+                Perbarui informasi pribadi, keamanan kata sandi, serta manajemen unit bisnis (tenant) Anda.
+            </p>
         </div>
 
-        <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
+        <!-- 2 Column Split Screen Grid -->
+        <div class="grid items-start grid-cols-1 gap-6 lg:grid-cols-12">
 
-            <div class="space-y-8 lg:col-span-1">
-                <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
-                    <h3 class="mb-6 text-lg font-bold text-gray-900">Informasi Personal</h3>
+            <!-- Left Panel (40% / 5 Cols): Forms Personal & Password -->
+            <div class="space-y-6 lg:col-span-5">
+                <!-- Personal Info Card -->
+                <div class="p-6 border rounded-lg shadow-sm bg-surface-0 border-border-200">
                     @include('profile.partials.update-profile-information-form')
                 </div>
 
-                <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
-                    <h3 class="mb-6 text-lg font-bold text-gray-900">Keamanan</h3>
+                <!-- Update Password Card -->
+                <div class="p-6 border rounded-lg shadow-sm bg-surface-0 border-border-200">
                     @include('profile.partials.update-password-form')
+                </div>
+
+                <!-- Danger Zone Card -->
+                <div class="p-6 border border-red-200 rounded-lg shadow-sm bg-surface-0">
+                    @include('profile.partials.delete-user-form')
                 </div>
             </div>
 
-            <div class="space-y-6 lg:col-span-2">
-                <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
-                    <div class="flex items-center justify-between mb-8">
+            <!-- Right Panel (60% / 7 Cols): Multi-Tenant Management -->
+            <div class="space-y-6 lg:col-span-7">
+                <div class="p-6 border rounded-lg shadow-sm bg-surface-0 border-border-200">
+                    <div
+                        class="flex flex-col justify-between gap-4 pb-4 mb-6 border-b sm:flex-row sm:items-center border-border-200">
                         <div>
-                            <h3 class="text-lg font-bold text-gray-900">Daftar Bisnis (Tenant)</h3>
-                            <p class="text-sm text-gray-500">Pilih atau kelola unit usaha Anda.</p>
+                            <h3 class="text-base font-semibold font-heading text-ink-900">
+                                Daftar Unit Bisnis (Tenant)
+                            </h3>
+                            <p class="font-body text-xs text-ink-700 mt-0.5">
+                                Pilih outlet aktif atau daftarkan cabang bisnis baru.
+                            </p>
                         </div>
                         <a href="{{ route('tenants.create') }}"
-                            class="inline-flex items-center px-4 py-2 text-xs font-bold tracking-widest text-white uppercase transition bg-blue-600 border border-transparent shadow-lg rounded-xl hover:bg-blue-700 shadow-blue-100">
-                            + Tambah Tenant
+                            class="inline-flex items-center justify-center gap-2 px-4 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body shrink-0">
+                            <i class="text-xs fa-solid fa-plus"></i>
+                            <span>Tambah Tenant</span>
                         </a>
                     </div>
 
-                    <div class="space-y-4">
+                    <!-- List Tenant -->
+                    <div class="space-y-3">
                         @foreach ($tenants as $tenant)
                             <div
-                                class="flex items-center justify-between p-5 rounded-2xl border {{ auth()->user()->tenant_id == $tenant->id ? 'border-blue-500 bg-blue-50/30' : 'border-gray-100 bg-gray-50' }}">
-                                <div class="flex items-center space-x-4">
+                                class="flex items-center justify-between p-4 rounded-md border transition-colors {{ auth()->user()->tenant_id == $tenant->id ? 'border-primary-600 bg-primary-50/30' : 'border-border-200 bg-surface-100/50' }}">
+                                <div class="flex items-center gap-3.5 min-w-0 pr-2">
                                     <div
-                                        class="flex items-center justify-center w-12 h-12 font-black text-blue-600 bg-white shadow-sm rounded-xl">
-                                        {{ substr($tenant->name, 0, 1) }}
+                                        class="flex items-center justify-center w-10 h-10 text-sm font-bold text-white rounded-md bg-primary-600 font-heading shrink-0">
+                                        {{ strtoupper(substr($tenant->name, 0, 1)) }}
                                     </div>
-                                    <div>
-                                        <div class="flex items-center space-x-2">
-                                            <p class="text-sm font-black text-gray-900">{{ $tenant->name }}</p>
+                                    <div class="min-w-0">
+                                        <div class="flex items-center gap-2">
+                                            <p
+                                                class="text-xs font-semibold truncate font-heading md:text-sm text-ink-900">
+                                                {{ $tenant->name }}
+                                            </p>
                                             @if (auth()->user()->tenant_id == $tenant->id)
                                                 <span
-                                                    class="px-2 py-0.5 bg-blue-600 text-[10px] text-white font-bold rounded-md uppercase">Aktif</span>
+                                                    class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-primary-100 text-primary-700">
+                                                    Aktif
+                                                </span>
                                             @endif
                                         </div>
-                                        <p class="text-xs text-gray-500">{{ $tenant->email }} • {{ $tenant->phone }}</p>
+                                        <p class="font-mono text-[11px] text-ink-400 truncate mt-0.5">
+                                            {{ $tenant->email }} • {{ $tenant->phone ?? '-' }}
+                                        </p>
                                     </div>
                                 </div>
 
-                                <div class="flex items-center space-x-2">
+                                <!-- Action Buttons -->
+                                <div class="flex items-center gap-1.5 shrink-0">
                                     @if (auth()->user()->tenant_id != $tenant->id)
                                         <form action="{{ route('tenants.switch', $tenant->id) }}" method="POST">
                                             @csrf
-                                            <button
-                                                class="p-2 text-gray-400 bg-white border border-gray-200 rounded-lg shadow-sm hover:text-blue-600"
+                                            <button type="submit"
+                                                class="p-2 transition-colors border rounded-md text-ink-700 hover:text-primary-600 bg-surface-0 border-border-200 hover:bg-primary-50"
                                                 title="Pindah ke Bisnis Ini">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-width="2"
-                                                        d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                                                </svg>
+                                                <i class="text-xs fa-solid fa-arrow-right-arrow-left"></i>
                                             </button>
                                         </form>
                                     @endif
 
                                     <a href="{{ route('tenants.edit', $tenant->id) }}"
-                                        class="p-2 text-gray-400 bg-white border border-gray-200 rounded-lg shadow-sm hover:text-orange-600">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-width="2"
-                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                        </svg>
+                                        class="p-2 transition-colors border rounded-md text-ink-700 hover:text-primary-600 bg-surface-0 border-border-200 hover:bg-primary-50"
+                                        title="Edit Tenant">
+                                        <i class="text-xs fa-solid fa-pen-to-square"></i>
                                     </a>
 
                                     <form action="{{ route('tenants.destroy', $tenant->id) }}" method="POST"
                                         onsubmit="return confirm('Hapus tenant ini? Semua data penjualan di dalamnya akan hilang!')">
                                         @csrf @method('DELETE')
-                                        <button
-                                            class="p-2 text-gray-400 bg-white border border-gray-200 rounded-lg shadow-sm hover:text-red-600">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-width="2"
-                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
+                                        <button type="submit"
+                                            class="p-2 transition-colors border rounded-md text-ink-700 hover:text-semantic-danger bg-surface-0 border-border-200 hover:bg-red-50"
+                                            title="Hapus Tenant">
+                                            <i class="text-xs fa-solid fa-trash-can"></i>
                                         </button>
                                     </form>
                                 </div>
@@ -96,22 +117,23 @@
                     </div>
                 </div>
 
-                <div
-                    class="bg-indigo-600 p-8 rounded-[2.5rem] shadow-xl shadow-indigo-100 text-white relative overflow-hidden">
-                    <div class="relative z-10">
-                        <h4 class="mb-2 text-xl font-bold">Butuh bantuan Multi-Outlet?</h4>
-                        <p class="mb-4 text-sm text-indigo-100">Satu akun bisa mengelola banyak cabang toko tanpa biaya
-                            tambahan selama masa promo.</p>
-                        <button class="px-6 py-2 text-sm font-bold text-indigo-600 bg-white rounded-xl">Baca
-                            Panduan</button>
+                <!-- Info Multi-Outlet Box -->
+                <div class="relative p-6 overflow-hidden text-white rounded-lg shadow-sm bg-primary-600">
+                    <div class="relative z-10 max-w-md">
+                        <h4 class="mb-1 text-lg font-semibold font-heading">Dukungan Kelola Multi-Outlet</h4>
+                        <p class="mb-4 text-xs leading-relaxed font-body text-white/80">
+                            Satu akun pemilik dapat mendaftarkan dan berpindah cabang toko dengan mudah tanpa perlu
+                            login ulang.
+                        </p>
+                        <a href="{{ route('tenants.create') }}"
+                            class="inline-flex items-center justify-center px-4 text-xs font-semibold transition-colors rounded-md h-9 bg-surface-0 hover:bg-surface-100 text-primary-600 font-body">
+                            + Tambah Cabang Baru
+                        </a>
                     </div>
-                    <svg class="absolute right-[-20px] bottom-[-20px] w-48 h-48 text-indigo-500 opacity-50"
-                        fill="currentColor" viewBox="0 0 20 20">
-                        <path
-                            d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
-                    </svg>
+                    <i class="fa-solid fa-store text-primary-700/50 text-9xl absolute right-[-20px] bottom-[-20px]"></i>
                 </div>
             </div>
+
         </div>
     </div>
 </x-app-layout>

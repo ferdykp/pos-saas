@@ -1,114 +1,150 @@
 <x-app-layout>
-    <div class="max-w-5xl px-4 mx-auto sm:px-6 lg:px-8">
+    @section('title', 'Profil Pengguna')
 
-        <div class="relative bg-white rounded-[3rem] shadow-sm border border-gray-100 overflow-hidden mb-8">
-            <div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-r from-blue-600 to-indigo-700"></div>
+    <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-desktop">
 
-            <div
-                class="relative flex flex-col items-end justify-between gap-6 px-8 pt-16 pb-8 md:flex-row md:items-center">
-                <div class="flex flex-col items-center space-y-4 md:flex-row md:items-end md:space-y-0 md:space-x-6">
-                    <div class="w-32 h-32 rounded-[2.5rem] bg-white p-2 shadow-xl">
+        <!-- Banner Header Profil Utama -->
+        <div class="relative mb-8 overflow-hidden border rounded-lg shadow-sm bg-surface-0 border-border-200">
+            <div class="h-28 bg-primary-600"></div>
+
+            <div class="relative flex flex-col justify-between gap-4 px-6 pb-6 -mt-12 md:flex-row md:items-end">
+                <div class="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-end sm:text-left">
+                    <div class="w-24 h-24 rounded-lg bg-surface-0 p-1.5 shadow-md border border-border-200 shrink-0">
                         <div
-                            class="w-full h-full rounded-[2rem] bg-blue-50 flex items-center justify-center text-blue-600 text-4xl font-black border-2 border-blue-100">
-                            {{ substr(auth()->user()->name, 0, 1) }}
+                            class="flex items-center justify-center w-full h-full text-3xl font-bold rounded-md bg-primary-100 text-primary-700 font-heading">
+                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                         </div>
                     </div>
 
-                    <div class="pb-2 text-center md:text-left">
-                        <h1 class="text-3xl font-black tracking-tight text-gray-900">{{ auth()->user()->name }}</h1>
-                        <p class="font-medium text-gray-500">{{ auth()->user()->email }}</p>
-                        <div class="flex items-center justify-center mt-2 md:justify-start">
+                    <div class="pb-1">
+                        <h1 class="text-xl font-bold leading-tight font-heading md:text-2xl text-ink-900">
+                            {{ auth()->user()->name }}
+                        </h1>
+                        <p class="font-mono text-xs text-ink-400 mt-0.5">
+                            {{ auth()->user()->email }}
+                        </p>
+                        <div class="flex items-center justify-center mt-2 sm:justify-start">
                             <span
-                                class="px-3 py-1 bg-green-100 text-green-600 text-[10px] font-black uppercase rounded-lg tracking-wider">
+                                class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary-100 text-primary-700">
+                                <span class="w-1.5 h-1.5 rounded-full bg-primary-600"></span>
                                 Akun Terverifikasi
                             </span>
                         </div>
                     </div>
                 </div>
 
-                <div class="flex space-x-3">
+                <div class="flex items-center justify-center sm:justify-end">
                     <a href="{{ route('profile.edit') }}"
-                        class="px-6 py-3 font-bold text-gray-700 transition bg-white border border-gray-200 shadow-sm rounded-2xl hover:bg-gray-50 active:scale-95">
-                        Edit Profil
+                        class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold transition-colors border rounded-md shadow-sm h-11 bg-surface-0 hover:bg-surface-100 border-border-200 text-ink-900 font-body md:text-sm">
+                        <i class="text-xs fa-solid fa-user-pen"></i>
+                        <span>Pengaturan Akun & Tenant</span>
                     </a>
                 </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
+        <!-- 2 Column Overview Grid -->
+        <div class="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2">
 
-            <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-lg font-black text-gray-900">Bisnis Aktif</h3>
-                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
-                </div>
-
-                @if (auth()->user()->tenant)
-                    <div class="flex items-center p-4 space-x-4 border border-blue-100 bg-blue-50 rounded-3xl">
+            <!-- Card 1: Bisnis Aktif -->
+            <div class="flex flex-col justify-between p-6 border rounded-lg shadow-sm bg-surface-0 border-border-200">
+                <div>
+                    <div class="flex items-center justify-between pb-4 mb-4 border-b border-border-200">
+                        <h3 class="text-base font-semibold font-heading text-ink-900">Bisnis & Outlet Aktif</h3>
                         <div
-                            class="flex items-center justify-center w-12 h-12 font-black text-blue-600 bg-white shadow-sm rounded-xl">
-                            {{ substr(auth()->user()->tenant->name, 0, 1) }}
-                        </div>
-                        <div>
-                            <p class="text-sm font-black text-gray-900">{{ auth()->user()->tenant->name }}</p>
-                            <p class="text-xs italic font-medium text-gray-500">{{ auth()->user()->tenant->email }}</p>
+                            class="flex items-center justify-center w-8 h-8 text-xs rounded-md bg-primary-50 text-primary-600">
+                            <i class="fa-solid fa-store"></i>
                         </div>
                     </div>
-                @else
-                    <p class="text-sm italic text-gray-400">Belum ada bisnis yang aktif.</p>
-                @endif
 
-                <div class="flex items-center justify-between pt-6 mt-6 text-sm font-bold border-t border-gray-50">
-                    <span class="text-gray-400">Total Bisnis:</span>
-                    <span class="text-gray-900">{{ auth()->user()->tenants->count() }} Unit</span>
+                    @if (auth()->user()->tenant)
+                        <div class="flex items-center gap-3 p-4 border rounded-md bg-surface-100 border-border-200">
+                            <div
+                                class="flex items-center justify-center w-10 h-10 text-sm font-bold text-white rounded-md bg-primary-600 font-heading shrink-0">
+                                {{ strtoupper(substr(auth()->user()->tenant->name, 0, 1)) }}
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-sm font-semibold truncate font-heading text-ink-900">
+                                    {{ auth()->user()->tenant->name }}
+                                </p>
+                                <p class="font-mono text-xs text-ink-400 truncate mt-0.5">
+                                    {{ auth()->user()->tenant->email ?? auth()->user()->email }}
+                                </p>
+                            </div>
+                        </div>
+                    @else
+                        <p class="text-xs italic font-body text-ink-400">Belum ada unit bisnis yang diaktifkan.</p>
+                    @endif
+                </div>
+
+                <div class="flex items-center justify-between pt-4 mt-6 text-xs border-t border-border-200 font-body">
+                    <span class="text-ink-700">Total Unit Bisnis Terdaftar:</span>
+                    <span class="font-mono font-semibold text-ink-900">{{ auth()->user()->tenants->count() }}
+                        Outlet</span>
                 </div>
             </div>
 
-            <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
-                <h3 class="mb-6 text-lg font-black text-gray-900">Keamanan Akun</h3>
-
-                <div class="space-y-4">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-3 text-sm font-medium text-gray-600">
-                            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-                            <span>Password Terenkripsi</span>
+            <!-- Card 2: Keamanan Akun -->
+            <div class="flex flex-col justify-between p-6 border rounded-lg shadow-sm bg-surface-0 border-border-200">
+                <div>
+                    <div class="flex items-center justify-between pb-4 mb-4 border-b border-border-200">
+                        <h3 class="text-base font-semibold font-heading text-ink-900">Status Keamanan</h3>
+                        <div
+                            class="flex items-center justify-center w-8 h-8 text-xs rounded-md bg-primary-50 text-primary-600">
+                            <i class="fa-solid fa-shield-halved"></i>
                         </div>
-                        <span class="px-2 py-1 text-xs font-bold text-blue-600 rounded-lg bg-blue-50">Aktif</span>
                     </div>
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-3 text-sm font-medium text-gray-600">
-                            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-                            <span>Email Terverifikasi</span>
+
+                    <div class="space-y-3 text-xs font-body">
+                        <div
+                            class="flex items-center justify-between p-3 border rounded-md bg-surface-100 border-border-200">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-primary-600"></span>
+                                <span class="font-semibold text-ink-900">Enkripsi Kata Sandi</span>
+                            </div>
+                            <span
+                                class="inline-flex items-center px-2 py-0.5 text-[11px] font-semibold text-primary-700 bg-primary-100 rounded-full">
+                                BCRYPT Active
+                            </span>
                         </div>
-                        <span
-                            class="text-xs italic font-bold text-gray-400">{{ auth()->user()->email_verified_at ? 'Ya' : 'Belum' }}</span>
+
+                        <div
+                            class="flex items-center justify-between p-3 border rounded-md bg-surface-100 border-border-200">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-primary-600"></span>
+                                <span class="font-semibold text-ink-900">Verifikasi Email</span>
+                            </div>
+                            <span class="font-mono text-[11px] font-semibold text-ink-700">
+                                {{ auth()->user()->email_verified_at ? 'Terverifikasi' : 'Belum' }}
+                            </span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="mt-8">
-                    <p class="text-[11px] text-gray-400 font-medium leading-relaxed">
-                        Terakhir login: {{ now()->diffForHumans() }} (GMT+7)
-                    </p>
+                <div class="pt-4 mt-6 border-t border-border-200 font-mono text-[11px] text-ink-400">
+                    Aktivitas Sesi: {{ now()->diffForHumans() }} (WIB)
                 </div>
             </div>
 
         </div>
 
-        <div class="grid grid-cols-2 gap-4 mt-8 md:grid-cols-4">
+        <!-- Quick Nav Buttons Grid -->
+        <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
             <a href="{{ route('profile.edit') }}"
-                class="p-4 text-center transition bg-white border border-gray-100 rounded-3xl hover:border-blue-500 hover:shadow-md group">
+                class="p-4 text-center transition-colors border rounded-lg shadow-sm bg-surface-0 border-border-200 hover:border-primary-600 group">
                 <p
-                    class="text-xs font-black tracking-widest text-gray-400 uppercase transition group-hover:text-blue-600">
-                    Manage</p>
-                <p class="mt-1 text-sm font-bold text-gray-900">Tenant</p>
+                    class="font-heading text-[11px] font-semibold text-ink-400 group-hover:text-primary-600 uppercase tracking-wider">
+                    Kelola
+                </p>
+                <p class="mt-1 text-sm font-semibold font-heading text-ink-900">Tenant & Outlet</p>
             </a>
-            <div class="p-4 text-center border border-gray-100 cursor-not-allowed bg-gray-50/50 rounded-3xl">
-                <p class="text-xs font-black tracking-widest text-gray-300 uppercase">Logs</p>
-                <p class="mt-1 text-sm font-bold text-gray-300">Aktivitas</p>
+
+            <div
+                class="p-4 text-center border rounded-lg cursor-not-allowed bg-surface-100 border-border-200 opacity-60">
+                <p class="font-heading text-[11px] font-semibold text-ink-400 uppercase tracking-wider">Log Sesi</p>
+                <p class="mt-1 text-sm font-semibold font-heading text-ink-400">Aktivitas Kasir</p>
             </div>
         </div>
+
     </div>
 </x-app-layout>

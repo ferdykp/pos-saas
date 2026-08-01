@@ -1,146 +1,170 @@
 <x-app-layout>
-    <div class="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8" x-data="{ showDeleteModal: false, deleteUrl: '', tenantName: '' }">
+    @section('title', 'Manajemen Tenant SaaS')
 
+    <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-desktop" x-data="{ showDeleteModal: false, deleteUrl: '', tenantName: '' }">
+
+        <!-- Banner Flash Status/Notification -->
         @if (session('status'))
             <div
-                class="flex items-center gap-2 p-4 mb-6 text-sm text-blue-800 border border-blue-100 bg-blue-50 rounded-xl">
-                <svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                        clip-rule="evenodd" />
-                </svg>
-                {{ session('status') }}
+                class="flex items-center gap-3 p-4 mb-6 text-sm font-medium border-l-4 rounded-md shadow-sm bg-primary-50 border-primary-600 text-ink-900">
+                <i class="text-base fa-solid fa-circle-check text-primary-600"></i>
+                <span>{{ session('status') }}</span>
             </div>
         @endif
 
+        <!-- Header Halaman & Tombol Tambah Tenant -->
         <div
-            class="flex flex-col items-start justify-between gap-4 pb-6 mb-8 border-b border-gray-100 sm:flex-row sm:items-center">
+            class="flex flex-col justify-between gap-4 pb-6 mb-8 border-b sm:flex-row sm:items-center border-border-200">
             <div>
-                <h1 class="text-3xl font-bold tracking-tight text-gray-900">Manajemen Tenant (Toko/Bisnis)</h1>
-                <p class="mt-1.5 text-sm text-gray-500">Kelola bisnis Anda atau buat cabang baru untuk operasional POS
-                    Kasir.</p>
+                <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
+                    Manajemen Tenant (Cabang & Toko)
+                </h1>
+                <p class="mt-1 text-xs font-body md:text-sm text-ink-700">
+                    Kelola outlet/cabang bisnis mitra atau buat tenant baru dalam ekosistem GrowPOS.
+                </p>
             </div>
 
+            <!-- Button Primary: Height 44px, radius-md (10px), Emerald Green -->
             <a href="{{ route('tenants.create') }}"
-                class="inline-flex justify-center items-center py-2.5 px-4 text-sm font-semibold text-white bg-blue-600 rounded-xl shadow-sm transition-all hover:bg-blue-700 active:scale-95">
-                <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Tambah Tenant Baru
+                class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body md:text-sm shrink-0">
+                <i class="text-xs fa-solid fa-plus"></i>
+                <span>Tambah Tenant Baru</span>
             </a>
         </div>
 
-        <div class="grid grid-cols-1 gap-5 mb-8 sm:grid-cols-3">
-            <div class="p-6 bg-white border border-gray-100 shadow-sm rounded-2xl">
-                <p class="text-xs font-semibold tracking-wider text-gray-400 uppercase">Total Tenant Bisnis</p>
-                <p class="mt-2 text-3xl font-bold text-gray-900">{{ $tenants->count() }}</p>
+        <!-- 3 Cards Metric Statistik -->
+        <div class="grid grid-cols-1 gap-4 mb-8 sm:grid-cols-3 md:gap-6">
+            <div class="p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
+                <p class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Total Tenant Mitra</p>
+                <p class="mt-2 font-mono text-2xl font-semibold md:text-3xl text-ink-900">{{ $tenants->count() }}</p>
             </div>
-            <div class="p-6 bg-white border border-gray-100 shadow-sm rounded-2xl">
-                <p class="text-xs font-semibold tracking-wider text-gray-400 uppercase">Total Pengguna Aktif</p>
-                <p class="mt-2 text-3xl font-bold text-blue-600">{{ \App\Models\User::count() }}</p>
+
+            <div class="p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
+                <p class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Pengguna / Staf Aktif
+                </p>
+                <p class="mt-2 font-mono text-2xl font-semibold md:text-3xl text-primary-600">
+                    {{ \App\Models\User::count() }}</p>
             </div>
-            <div class="p-6 bg-white border border-gray-100 shadow-sm rounded-2xl">
-                <p class="text-xs font-semibold tracking-wider text-gray-400 uppercase">Pertumbuhan Mitra</p>
-                <p class="mt-2 text-3xl font-bold text-green-600">
-                    {{ $tenants->where('created_at', '>=', now()->startOfMonth())->count() }}</p>
+
+            <div class="p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
+                <p class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Pertumbuhan Bulan Ini
+                </p>
+                <p class="mt-2 font-mono text-2xl font-semibold md:text-3xl text-accent-500">
+                    +{{ $tenants->where('created_at', '>=', now()->startOfMonth())->count() }}
+                </p>
             </div>
         </div>
 
-        <div class="bg-white border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] rounded-2xl overflow-hidden">
-            <div class="w-full overflow-x-auto">
+        <!-- Table Container (Spesifikasi: Row Height 48px, bg surface-100 header) -->
+        <div class="overflow-hidden border rounded-lg shadow-sm bg-surface-0 border-border-200">
+            <div class="w-full overflow-x-auto custom-scrollbar">
                 <table class="w-full text-left border-collapse whitespace-nowrap">
                     <thead>
                         <tr
-                            class="text-xs font-bold tracking-wider text-gray-400 uppercase border-b border-gray-100 bg-gray-50/70">
-                            <th class="px-6 py-4">Nama Perusahaan / Toko</th>
-                            <th class="px-6 py-4">Tipe Bisnis</th>
-                            <th class="px-6 py-4 text-center">Jumlah Pegawai</th>
-                            <th class="px-6 py-4 text-center">Status Aktif</th>
-                            <th class="px-6 py-4 text-center">Aksi</th>
+                            class="h-12 text-xs font-semibold tracking-wider uppercase border-b bg-surface-100 border-border-200 font-heading text-ink-700">
+                            <th class="px-5 py-3">Nama Toko / Mitra</th>
+                            <th class="px-5 py-3">Tipe Bisnis</th>
+                            <th class="px-5 py-3 text-center">Jumlah Staf</th>
+                            <th class="px-5 py-3 text-center">Status Sesi</th>
+                            <th class="px-5 py-3 text-center">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="text-sm font-medium text-gray-600 divide-y divide-gray-50">
+                    <tbody class="text-xs divide-y font-body md:text-sm text-ink-900 divide-border-200">
                         @forelse($tenants as $tenant)
                             <tr
-                                class="transition-colors {{ auth()->user()->tenant_id == $tenant->id ? 'bg-blue-50/30' : 'hover:bg-gray-50/50' }}">
-                                <td class="px-6 py-4">
+                                class="h-12 transition-colors {{ auth()->user()->tenant_id == $tenant->id ? 'bg-primary-50/40' : 'hover:bg-surface-100/50' }}">
+
+                                <!-- Brand / Logo & Detail -->
+                                <td class="px-5 py-3">
                                     <div class="flex items-center gap-3">
                                         @if ($tenant->img_logo)
                                             <img src="{{ asset('storage/' . $tenant->img_logo) }}"
-                                                class="object-cover w-8 h-8 border border-gray-100 rounded-lg">
+                                                class="object-cover border rounded-md w-9 h-9 border-border-200 shrink-0">
                                         @else
                                             <div
-                                                class="flex items-center justify-center w-8 h-8 text-xs font-bold text-blue-600 uppercase border border-blue-100 rounded-lg bg-blue-50">
+                                                class="flex items-center justify-center text-xs font-bold uppercase border rounded-md w-9 h-9 font-heading text-primary-700 border-primary-100 bg-primary-50 shrink-0">
                                                 {{ substr($tenant->name, 0, 2) }}
                                             </div>
                                         @endif
-                                        <div>
-                                            <span class="block font-bold text-gray-900">{{ $tenant->name }}</span>
-                                            <span class="text-[11px] text-gray-400 font-normal">ID: {{ $tenant->id }}
-                                                • {{ $tenant->email }}</span>
+                                        <div class="min-w-0">
+                                            <span
+                                                class="block font-semibold leading-tight truncate text-ink-900">{{ $tenant->name }}</span>
+                                            <span
+                                                class="font-mono text-[11px] text-ink-400 font-normal truncate block mt-0.5">
+                                                ID: {{ $tenant->id }} • {{ $tenant->email }}
+                                            </span>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 text-xs font-semibold text-gray-600">
-                                    {{ $tenant->business_type ?? 'Belum Diatur' }}
+
+                                <!-- Tipe Bisnis -->
+                                <td class="px-5 py-3 font-medium text-ink-700">
+                                    {{ $tenant->business_type ?? 'Lainnya' }}
                                 </td>
-                                <td class="px-6 py-4 text-center">
-                                    <span class="px-2.5 py-1 text-xs font-bold text-gray-700 bg-gray-100 rounded-full">
-                                        {{ $tenant->users_count ?? $tenant->users()->count() }} Staf
+
+                                <!-- Jumlah Staf -->
+                                <td class="px-5 py-3 text-center">
+                                    <span
+                                        class="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold text-ink-700 bg-surface-100 border border-border-200 rounded-full">
+                                        {{ $tenant->users_count ?? $tenant->users()->count() }} Orang
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 text-center">
+
+                                <!-- Status Sesi Aktif -->
+                                <td class="px-5 py-3 text-center">
                                     @if (auth()->user()->tenant_id == $tenant->id)
                                         <span
-                                            class="inline-flex py-1 px-2.5 text-xs font-black text-blue-700 bg-blue-100 rounded-md uppercase border border-blue-200">
-                                            ✓ Sedang Digunakan
+                                            class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[11px] font-semibold text-primary-700 bg-primary-100 rounded-full">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-primary-600 animate-pulse"></span>
+                                            Aktif Digunakan
                                         </span>
                                     @else
                                         <span
-                                            class="inline-flex py-1 px-2.5 text-xs font-bold text-gray-400 bg-gray-50 rounded-md uppercase">
+                                            class="inline-flex items-center px-2.5 py-0.5 text-[11px] font-semibold text-ink-400 bg-surface-100 rounded-full">
                                             Standby
                                         </span>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 text-center">
+
+                                <!-- Action Buttons -->
+                                <td class="px-5 py-3 text-center">
                                     <div class="flex items-center justify-center gap-2">
                                         @if (auth()->user()->tenant_id != $tenant->id)
                                             <form action="{{ route('tenants.switch', ['tenant' => $tenant->id]) }}"
                                                 method="POST">
                                                 @csrf
                                                 <button type="submit"
-                                                    class="inline-flex py-1.5 px-3 text-xs font-bold text-blue-600 bg-blue-50 rounded-lg transition-colors hover:bg-blue-100">
-                                                    Gunakan Toko
+                                                    class="h-8 px-3 text-xs font-semibold transition-colors rounded-md text-primary-700 bg-primary-100 hover:bg-primary-600 hover:text-white">
+                                                    Ganti Toko
                                                 </button>
                                             </form>
                                         @endif
 
                                         <a href="{{ route('tenants.edit', $tenant->id) }}"
-                                            class="inline-flex p-1.5 text-gray-500 bg-gray-50 rounded-lg hover:text-amber-600 hover:bg-amber-50 transition-colors">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11 20H8v-3l9.414-9.414z" />
-                                            </svg>
+                                            class="p-2 transition-colors rounded-md text-ink-700 hover:text-accent-700 bg-surface-100 hover:bg-accent-100"
+                                            title="Edit Information">
+                                            <i class="text-xs fa-solid fa-pen-to-square"></i>
                                         </a>
 
                                         <button type="button"
                                             @click="showDeleteModal = true; deleteUrl = '{{ route('tenants.destroy', $tenant->id) }}'; tenantName = '{{ $tenant->name }}'"
-                                            class="inline-flex p-1.5 text-gray-500 bg-gray-50 rounded-lg hover:text-red-600 hover:bg-red-50 transition-colors">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
+                                            class="p-2 transition-colors rounded-md text-ink-700 hover:text-semantic-danger bg-surface-100 hover:bg-red-50"
+                                            title="Hapus Tenant">
+                                            <i class="text-xs fa-solid fa-trash-can"></i>
                                         </button>
                                     </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-6 py-12 italic text-center text-gray-400">
-                                    Belum ada tenant yang terdaftar.
+                                <td colspan="5" class="px-6 py-12 text-center">
+                                    <div class="flex flex-col items-center justify-center">
+                                        <i class="mb-2 text-3xl fa-solid fa-store-slash text-ink-400"></i>
+                                        <p class="text-sm font-semibold font-body text-ink-900">Belum ada tenant
+                                            terdaftar</p>
+                                        <p class="font-body text-xs text-ink-700 mt-0.5">Mulai dengan menambahkan outlet
+                                            atau bisnis pertama Anda.</p>
+                                    </div>
                                 </td>
                             </tr>
                         @endforelse
@@ -149,41 +173,42 @@
             </div>
         </div>
 
-        <div x-show="showDeleteModal" x-transition:enter="transition ease-out duration-300"
+        <!-- Modal Delete Confirmation (Spesifikasi GrowPOS Modal: Max-W 480px / max-w-modal-sm, Backdrop Blur) -->
+        <div x-show="showDeleteModal" x-transition:enter="transition ease-out duration-200"
             x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-            x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100"
+            x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"
-            class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-gray-900/40 backdrop-blur-sm"
-            x-cloak>
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-900/40 backdrop-blur-sm" x-cloak>
 
-            <div class="w-full max-w-md p-6 bg-white shadow-xl rounded-2xl" @click.away="showDeleteModal = false">
-                <div class="flex items-center justify-center w-12 h-12 mx-auto bg-red-50 rounded-xl">
-                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
+            <div class="w-full p-6 border rounded-lg shadow-lg max-w-modal-sm bg-surface-0 border-border-200"
+                @click.away="showDeleteModal = false">
+
+                <div
+                    class="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-red-50 text-semantic-danger">
+                    <i class="text-xl fa-solid fa-triangle-exclamation"></i>
                 </div>
 
-                <div class="mt-4 text-center">
-                    <h3 class="text-lg font-bold text-gray-900">Hapus Cabang Bisnis?</h3>
-                    <p class="mt-2 text-sm text-gray-500">
-                        Apakah Anda yakin ingin menghapus <span class="font-bold text-gray-900"
-                            x-text="tenantName"></span>? Seluruh data produk, kategori, dan transaksi transaksi yang
-                        terikat pada toko ini akan dihapus permanen.
+                <div class="mb-6 text-center">
+                    <h3 class="text-lg font-semibold font-heading text-ink-900">Hapus Cabang Bisnis?</h3>
+                    <p class="mt-2 text-xs leading-relaxed font-body text-ink-700">
+                        Apakah Anda yakin ingin menghapus <span class="font-semibold text-ink-900"
+                            x-text="tenantName"></span>? Seluruh data produk, kategori, dan histori transaksi toko ini
+                        akan terhapus secara permanen.
                     </p>
                 </div>
 
-                <div class="flex gap-3 mt-6">
+                <div class="flex items-center gap-3">
                     <button type="button" @click="showDeleteModal = false"
-                        class="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-500 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors">
+                        class="flex-1 px-4 text-xs font-semibold transition-colors rounded-md h-11 bg-surface-100 hover:bg-border-200 text-ink-900 font-body">
                         Batal
                     </button>
+
                     <form :action="deleteUrl" method="POST" class="flex-1">
                         @csrf
                         @method('DELETE')
                         <button type="submit"
-                            class="w-full px-4 py-2.5 text-sm font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700 shadow-md shadow-red-100 transition-colors">
-                            Ya, Hapus Permanen
+                            class="w-full px-4 text-xs font-semibold text-white transition-colors rounded-md h-11 bg-semantic-danger hover:bg-red-700 font-body">
+                            Ya, Hapus
                         </button>
                     </form>
                 </div>

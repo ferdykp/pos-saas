@@ -1,58 +1,73 @@
 <x-app-layout>
-    <div class="max-w-4xl px-4 pb-12 mx-auto sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div class="mb-8">
+    @section('title', 'Tambah Produk Baru')
+
+    <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-modal-lg">
+
+        <!-- Header & Navigation -->
+        <div class="mb-6">
             <a href="{{ route('products.index') }}"
-                class="flex items-center mb-4 text-sm font-bold text-blue-600 hover:underline">
-                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-width="2" d="M15 19l-7-7 7-7" />
-                </svg>
-                Kembali ke Daftar
+                class="inline-flex items-center gap-2 mb-2 text-xs font-semibold font-body text-primary-600 hover:text-primary-700">
+                <i class="text-xs fa-solid fa-arrow-left"></i>
+                <span>Kembali ke Inventaris Produk</span>
             </a>
-            <h1 class="text-3xl font-black tracking-tight text-gray-900">Tambah Produk Baru</h1>
+            <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
+                Tambah Produk Baru
+            </h1>
+            <p class="mt-1 text-xs font-body md:text-sm text-ink-700">
+                Lengkapi rincian informasi barang, SKU, harga modal & jual, serta pengaturan stok.
+            </p>
         </div>
 
-        <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
+        <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
             @csrf
 
-            <!-- Section 1: Info Produk -->
-            <div class="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
-                <h3 class="flex items-center mb-6 text-lg font-bold text-gray-900">
-                    <span
-                        class="flex items-center justify-center w-8 h-8 mr-3 text-sm text-blue-600 rounded-lg bg-blue-50">01</span>
-                    Informasi Produk
-                </h3>
+            <!-- Section 1: Informasi Dasar Produk -->
+            <div class="p-6 border rounded-lg shadow-sm bg-surface-0 border-border-200">
+                <div class="flex items-center gap-2.5 pb-4 mb-6 border-b border-border-200">
+                    <div
+                        class="flex items-center justify-center text-xs font-bold rounded-md w-7 h-7 bg-primary-50 text-primary-600 font-heading">
+                        01
+                    </div>
+                    <h3 class="text-base font-semibold font-heading text-ink-900">Informasi Utama Produk</h3>
+                </div>
 
-                <!-- Foto Produk -->
-                <div class="flex flex-col items-center justify-center w-full mb-6">
+                <!-- Upload Image Zone -->
+                <div class="mb-6">
+                    <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Foto Produk
+                        (Opsional)</label>
                     <label id="preview-container"
-                        class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-100 border-dashed rounded-[2rem] cursor-pointer bg-gray-50 hover:bg-gray-100 transition-all overflow-hidden relative">
-                        <div id="upload-placeholder" class="flex flex-col items-center justify-center pt-5 pb-6">
-                            <svg class="w-10 h-10 mb-3 text-gray-400" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                            </svg>
-                            <p class="mb-2 text-sm font-bold text-gray-500">Klik atau drag foto produk</p>
+                        class="relative flex flex-col items-center justify-center w-full overflow-hidden transition-colors border-2 border-dashed rounded-md cursor-pointer h-44 border-border-200 bg-surface-100/50 hover:bg-surface-100">
+
+                        <div id="upload-placeholder" class="flex flex-col items-center justify-center p-4 text-center">
+                            <i class="mb-2 text-2xl fa-solid fa-cloud-arrow-up text-ink-400"></i>
+                            <p class="text-xs font-semibold font-body text-ink-900">Klik atau drag foto produk ke sini
+                            </p>
+                            <p class="font-body text-[11px] text-ink-400 mt-0.5">Format PNG, JPG max 2MB</p>
                         </div>
+
                         <img id="image-preview" class="absolute inset-0 hidden object-cover w-full h-full" />
                         <input type="file" name="image" id="image-input" class="hidden" accept="image/*"
                             onchange="previewImage(this)" />
                     </label>
                 </div>
 
-                <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <!-- Inputs Grid -->
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div class="md:col-span-2">
-                        <label class="block mb-2 text-sm font-bold text-gray-700">Nama Produk</label>
+                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
+                            Nama Produk <span class="text-semantic-danger">*</span>
+                        </label>
                         <input type="text" name="product_name" id="product_name"
-                            placeholder="Misal: Kopi Susu Gula Aren" required
-                            class="w-full px-4 py-3 border-gray-100 rounded-2xl bg-gray-50 focus:ring-blue-500">
+                            placeholder="Contoh: Kopi Susu Aren 250ml" required
+                            class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 placeholder-ink-400 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100">
                     </div>
 
                     <div>
-                        <label class="block mb-2 text-sm font-bold text-gray-700">Kategori</label>
+                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
+                            Kategori <span class="text-semantic-danger">*</span>
+                        </label>
                         <select name="category_id" id="category_id" required
-                            class="w-full px-4 py-3 border-gray-100 rounded-2xl bg-gray-50 focus:ring-blue-500">
+                            class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100">
                             <option value="">Pilih Kategori</option>
                             @foreach ($categories as $category)
                                 <option value="{{ $category->id }}">{{ $category->name }}</option>
@@ -61,101 +76,120 @@
                     </div>
 
                     <div>
-                        <label class="block mb-2 text-sm font-bold text-gray-700">Tipe</label>
+                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Tipe Produk</label>
                         <select name="type" id="type_select"
-                            class="w-full px-4 py-3 border-gray-100 rounded-2xl bg-gray-50 focus:ring-blue-500">
-                            <option value="product">Barang (Fisik)</option>
-                            <option value="service">Jasa (Non-Stok)</option>
+                            class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
+                            <option value="product">Barang Fisik (Stok Dihitung)</option>
+                            <option value="service">Jasa / Layanan (Non-Stok)</option>
                         </select>
                     </div>
 
-                    <div>
-                        <label class="block mb-2 text-sm font-bold text-gray-700">SKU</label>
+                    <div class="md:col-span-2">
+                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Kode SKU /
+                            Barcode</label>
                         <div class="relative">
                             <input type="text" name="sku" id="sku_input" required
-                                class="w-full px-4 py-3 border-gray-100 rounded-2xl bg-gray-50 focus:ring-blue-500">
+                                class="w-full pl-3 pr-24 font-mono text-xs font-semibold transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                             <button type="button" onclick="generateSKU()"
-                                class="absolute px-3 py-1 text-[10px] font-bold text-blue-600 bg-blue-100 rounded-lg right-2 top-2">GENERATE</button>
+                                class="absolute right-1.5 top-1.5 h-8 px-3 text-[11px] font-body font-semibold text-primary-600 bg-primary-50 hover:bg-primary-100 rounded-sm transition-colors">
+                                Generate
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Section 2: Harga & Stok -->
-            <div class="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
-                <h3 class="flex items-center mb-6 text-lg font-bold text-gray-900">
-                    <span
-                        class="flex items-center justify-center w-8 h-8 mr-3 text-sm text-green-600 rounded-lg bg-green-50">02</span>
-                    Harga & <span id="section_title">Inventaris</span>
-                </h3>
+            <!-- Section 2: Pricing & Stock Control -->
+            <div class="p-6 border rounded-lg shadow-sm bg-surface-0 border-border-200">
+                <div class="flex items-center gap-2.5 pb-4 mb-6 border-b border-border-200">
+                    <div
+                        class="flex items-center justify-center text-xs font-bold rounded-md w-7 h-7 bg-primary-50 text-primary-600 font-heading">
+                        02
+                    </div>
+                    <h3 class="text-base font-semibold font-heading text-ink-900">
+                        Harga & <span id="section_title">Inventaris Stok</span>
+                    </h3>
+                </div>
 
-                <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
-                        <label class="block mb-2 text-sm font-bold text-gray-700">Harga Modal</label>
+                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Harga Modal
+                            (HPP)</label>
                         <input type="text" id="display_cost_price" placeholder="Rp 0"
-                            class="w-full px-4 py-3 font-bold text-right border-gray-100 rounded-2xl bg-gray-50">
+                            class="w-full px-3 font-mono text-xs font-semibold text-right transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                         <input type="hidden" name="cost_price" id="cost_price" value="0">
                     </div>
 
                     <div>
-                        <label class="block mb-2 text-sm font-bold text-gray-700">Harga Jual</label>
+                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
+                            Harga Jual <span class="text-semantic-danger">*</span>
+                        </label>
                         <input type="text" id="display_sell_price" placeholder="Rp 0" required
-                            class="w-full px-4 py-3 font-black text-right text-blue-600 border-blue-100 rounded-2xl bg-blue-50/50">
+                            class="w-full px-3 font-mono text-xs font-bold text-right transition-all border rounded-sm outline-none h-11 text-primary-600 bg-primary-50/40 border-primary-200 focus:border-primary-600">
                         <input type="hidden" name="sell_price" id="sell_price" value="0">
                     </div>
 
-                    <!-- Toggle Lacak Stok -->
+                    <!-- Manage Stock Toggle Box -->
                     <div id="manage_stock_container"
-                        class="p-4 mb-4 border border-gray-100 md:col-span-2 bg-gray-50 rounded-2xl">
+                        class="p-4 border rounded-md md:col-span-2 bg-surface-100 border-border-200">
                         <div class="flex items-center justify-between">
                             <div>
-                                <h4 class="text-sm font-bold text-gray-700">Lacak Stok Produk</h4>
-                                <p class="text-[10px] text-gray-400">Matikan jika produk ini dibuat by-order (seperti
-                                    kopi cup).</p>
+                                <h4 class="text-xs font-semibold font-heading text-ink-900">Lacak Ketersediaan Stok</h4>
+                                <p class="font-body text-[11px] text-ink-400 mt-0.5">Nonaktifkan jika barang diproduksi
+                                    langsung saat ada pesanan.</p>
                             </div>
-                            <label class="relative inline-flex items-center cursor-pointer">
+                            <label class="relative inline-flex items-center cursor-pointer shrink-0">
                                 <input type="checkbox" name="manage_stock" id="manage_stock" value="1" checked
                                     class="sr-only peer">
                                 <div
-                                    class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
+                                    class="w-11 h-6 bg-border-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border-200 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600">
                                 </div>
                             </label>
                         </div>
                     </div>
 
-                    <div id="inventory_fields" class="grid grid-cols-1 gap-6 md:col-span-2 md:grid-cols-2">
+                    <!-- Inventory Stock Fields -->
+                    <div id="inventory_fields" class="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-2">
                         <div>
-                            <label class="block mb-2 text-sm font-bold text-gray-700">Stok Awal</label>
+                            <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Jumlah Stok
+                                Awal</label>
                             <input type="number" name="stock" id="stock_input" value="0"
-                                class="w-full px-4 py-3 border-gray-100 rounded-2xl bg-gray-50">
+                                class="w-full px-3 font-mono text-xs font-semibold transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                         </div>
                         <div>
-                            <label class="block mb-2 text-sm font-bold text-gray-700">Stok Minimum</label>
+                            <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Batas Minimum
+                                Warning</label>
                             <input type="number" name="min_stock" id="min_stock_input" value="5"
-                                class="w-full px-4 py-3 border-gray-100 rounded-2xl bg-gray-50">
+                                class="w-full px-3 font-mono text-xs font-semibold transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Footer Simpan -->
+            <!-- Submit Section -->
             <div
-                class="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm flex justify-between items-center">
-                <div class="flex items-center">
+                class="flex items-center justify-between p-4 border rounded-lg shadow-sm bg-surface-0 border-border-200">
+                <label class="flex items-center gap-2 cursor-pointer select-none">
                     <input type="checkbox" name="is_active" id="is_active" checked value="1"
-                        class="mr-2 text-blue-600 rounded">
-                    <label for="is_active" class="text-sm font-bold text-gray-700 cursor-pointer">Produk Langsung
-                        Aktif</label>
+                        class="w-4 h-4 rounded text-primary-600 border-border-200 focus:ring-primary-600">
+                    <span class="text-xs font-semibold font-body text-ink-900">Langsung Aktifkan di POS</span>
+                </label>
+
+                <div class="flex items-center gap-2">
+                    <a href="{{ route('products.index') }}"
+                        class="inline-flex items-center justify-center px-5 text-xs font-semibold transition-colors rounded-md h-11 bg-surface-100 hover:bg-border-200 text-ink-900 font-body">
+                        Batal
+                    </a>
+                    <button type="submit"
+                        class="inline-flex items-center justify-center px-6 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body md:text-sm">
+                        Simpan Produk
+                    </button>
                 </div>
-                <button type="submit"
-                    class="px-10 py-4 font-black text-white bg-blue-600 shadow-xl rounded-2xl hover:bg-blue-700">Simpan
-                    Produk</button>
             </div>
         </form>
     </div>
 
     <script>
-        // 1. Preview Gambar
         function previewImage(input) {
             const preview = document.getElementById('image-preview');
             const placeholder = document.getElementById('upload-placeholder');
@@ -170,17 +204,15 @@
             }
         }
 
-        // 2. Generate SKU
         function generateSKU() {
             const name = document.getElementById('product_name').value;
             const cat = document.getElementById('category_id').value;
-            if (!name) return alert('Isi nama produk dulu');
+            if (!name) return alert('Ketik nama produk terlebih dahulu');
             const res =
-                `${name.substring(0,3).toUpperCase()}-${cat.padStart(2,'0')}-${Math.floor(1000+Math.random()*9000)}`;
+                `${name.substring(0,3).toUpperCase()}-${(cat || '0').padStart(2,'0')}-${Math.floor(1000+Math.random()*9000)}`;
             document.getElementById('sku_input').value = res;
         }
 
-        // 3. Gabungan Logika Toggle & Mata Uang
         document.addEventListener('DOMContentLoaded', function() {
             const typeSelect = document.getElementById('type_select');
             const manageStock = document.getElementById('manage_stock');
@@ -190,18 +222,15 @@
             const stockInput = document.getElementById('stock_input');
             const minStockInput = document.getElementById('min_stock_input');
 
-            // Fungsi Toggle Utama
             function updateUI() {
                 if (typeSelect.value === 'service') {
-                    // Jika JASA
-                    sectionTitle.innerText = 'Layanan';
+                    sectionTitle.innerText = 'Layanan Jasa';
                     manageStockContainer.classList.add('hidden');
                     inventoryFields.classList.add('hidden');
                     stockInput.value = 0;
                     minStockInput.value = 0;
                 } else {
-                    // Jika BARANG
-                    sectionTitle.innerText = 'Inventaris';
+                    sectionTitle.innerText = 'Inventaris Stok';
                     manageStockContainer.classList.remove('hidden');
 
                     if (manageStock.checked) {
@@ -214,11 +243,9 @@
                 }
             }
 
-            // Event Listeners
             typeSelect.addEventListener('change', updateUI);
             manageStock.addEventListener('change', updateUI);
 
-            // Format Mata Uang
             const formatRupiah = (angka) => {
                 let number_string = angka.replace(/[^0-9]/g, '');
                 let sisa = number_string.length % 3;
@@ -240,7 +267,6 @@
                 });
             });
 
-            // Jalankan saat pertama load
             updateUI();
         });
     </script>

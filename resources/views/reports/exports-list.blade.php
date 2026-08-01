@@ -1,123 +1,155 @@
 <x-app-layout>
-    <div class="min-h-screen p-6 mx-auto max-w-7xl bg-gray-50">
+    @section('title', 'Laci Unduhan Laporan')
 
-        <div class="flex items-center justify-between mb-6">
+    <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-desktop">
+
+        <!-- Header Halaman -->
+        <div class="flex items-center justify-between pb-6 mb-8 border-b border-border-200">
             <div>
-                <h1 class="text-2xl font-black tracking-tight text-gray-900">Laci Unduhan Laporan</h1>
-                <p class="text-xs font-medium text-gray-400">Daftar laporan Excel yang diproses otomatis oleh sistem di
-                    latar belakang.</p>
+                <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
+                    Laci Unduhan Laporan
+                </h1>
+                <p class="mt-1 text-xs font-body md:text-sm text-ink-700">
+                    Daftar berkas laporan Excel yang diproses otomatis oleh sistem di latar belakang.
+                </p>
             </div>
             <a href="{{ route('reports.index') }}"
-                class="px-4 py-2 text-xs font-bold text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50">
-                <i class="mr-1 fa-solid fa-arrow-left"></i> Kembali ke Laporan
+                class="inline-flex items-center h-10 gap-2 px-4 text-xs font-semibold transition-colors border rounded-md shadow-sm bg-surface-0 border-border-200 hover:bg-surface-100 text-ink-900 font-body">
+                <i class="text-xs fa-solid fa-arrow-left"></i>
+                <span>Kembali ke Laporan</span>
             </a>
         </div>
 
-        <div class="overflow-hidden bg-white border border-gray-100 shadow-sm rounded-2xl">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="text-xs font-black text-gray-400 uppercase border-b border-gray-100 bg-gray-50">
-                        <th class="p-4">Jenis Laporan</th>
-                        <th class="p-4">Periode Data</th>
-                        <th class="p-4">Tanggal Permintaan</th>
-                        <th class="p-4 text-center">Status Pemrosesan</th>
-                        <th class="p-4 text-right">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="text-sm divide-y divide-gray-50" id="exports-table-body">
-                    @forelse($exports as $export)
-                        <tr data-id="{{ $export->id }}">
-                            <td class="p-4 font-bold text-gray-900">
-                                <i class="mr-2 text-emerald-600 fa-solid fa-file-excel"></i>{{ $export->report_type }}
-                            </td>
-                            <td class="p-4 text-xs font-medium text-gray-500">
-                                {{ \Carbon\Carbon::parse($export->start_date)->format('d M Y') }} s/d
-                                {{ \Carbon\Carbon::parse($export->end_date)->format('d M Y') }}
-                            </td>
-                            <td class="p-4 text-xs text-gray-400">
-                                {{ $export->created_at->translatedFormat('d M Y, H:i') }}
-                            </td>
-                            <td class="p-4 text-center status-badge-area">
-                                @if ($export->status === 'pending')
-                                    <span
-                                        class="px-3 py-1 text-[10px] font-black uppercase rounded-full bg-amber-50 text-amber-600 animate-pulse">Antrean</span>
-                                @elseif($export->status === 'processing')
-                                    <span
-                                        class="px-3 py-1 text-[10px] font-black uppercase rounded-full bg-blue-50 text-blue-600 animate-pulse">Dianalisis
-                                        AI</span>
-                                @elseif($export->status === 'completed')
-                                    <span
-                                        class="px-3 py-1 text-[10px] font-black uppercase rounded-full bg-emerald-50 text-emerald-600">Selesai</span>
-                                @else
-                                    <span
-                                        class="px-3 py-1 text-[10px] font-black uppercase rounded-full bg-rose-50 text-rose-600">Gagal</span>
-                                @endif
-                            </td>
-                            <td class="p-4 text-right action-button-area">
-                                @if ($export->status === 'completed')
-                                    <a href="{{ route('reports.download-file', $export->id) }}"
-                                        class="px-4 py-1.5 text-xs font-black text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors">
-                                        <i class="mr-1 fa-solid fa-download"></i> Unduh Berkas
-                                    </a>
-                                @else
-                                    <button disabled
-                                        class="px-4 py-1.5 text-xs font-black text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
-                                        Belum Siap
-                                    </button>
-                                @endif
-                            </td>
+        <!-- Table Container (Row Height 48px, bg surface-100 Header) -->
+        <div class="mb-6 overflow-hidden border rounded-lg shadow-sm bg-surface-0 border-border-200">
+            <div class="w-full overflow-x-auto custom-scrollbar">
+                <table class="w-full text-left border-collapse whitespace-nowrap">
+                    <thead>
+                        <tr
+                            class="h-12 text-xs font-semibold tracking-wider uppercase border-b bg-surface-100 border-border-200 font-heading text-ink-700">
+                            <th class="px-5 py-3">Jenis Laporan</th>
+                            <th class="px-5 py-3">Periode Data</th>
+                            <th class="px-5 py-3">Tanggal Permintaan</th>
+                            <th class="px-5 py-3 text-center">Status Pemrosesan</th>
+                            <th class="px-5 py-3 text-center">Aksi Berkas</th>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="py-12 text-xs italic text-center text-gray-400">Belum ada riwayat
-                                permintaan ekspor laporan.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class="text-xs divide-y font-body md:text-sm text-ink-900 divide-border-200"
+                        id="exports-table-body">
+                        @forelse($exports as $export)
+                            <tr class="h-12 transition-colors hover:bg-surface-100/60" data-id="{{ $export->id }}">
+
+                                <!-- File Name Type -->
+                                <td class="px-5 py-3 font-semibold text-ink-900">
+                                    <div class="flex items-center gap-2.5">
+                                        <i class="text-base fa-solid fa-file-excel text-emerald-600"></i>
+                                        <span>{{ $export->report_type }}</span>
+                                    </div>
+                                </td>
+
+                                <!-- Period -->
+                                <td class="px-5 py-3 font-mono text-xs text-ink-700">
+                                    {{ \Carbon\Carbon::parse($export->start_date)->format('d M Y') }} s/d
+                                    {{ \Carbon\Carbon::parse($export->end_date)->format('d M Y') }}
+                                </td>
+
+                                <!-- Created At -->
+                                <td class="px-5 py-3 font-mono text-xs text-ink-400">
+                                    {{ $export->created_at->translatedFormat('d M Y, H:i') }} WIB
+                                </td>
+
+                                <!-- Status Badge (Pill Shape: radius-full) -->
+                                <td class="px-5 py-3 text-center status-badge-area">
+                                    @if ($export->status === 'pending')
+                                        <span
+                                            class="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold text-accent-700 bg-accent-100 rounded-full">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-accent-500 animate-pulse"></span>
+                                            Antrean
+                                        </span>
+                                    @elseif($export->status === 'processing')
+                                        <span
+                                            class="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold text-primary-700 bg-primary-100 rounded-full">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-primary-600 animate-pulse"></span>
+                                            Sedang Diproses
+                                        </span>
+                                    @elseif($export->status === 'completed')
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold text-primary-700 bg-primary-100 rounded-full">
+                                            Selesai
+                                        </span>
+                                    @else
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold text-semantic-danger bg-red-50 rounded-full">
+                                            Gagal
+                                        </span>
+                                    @endif
+                                </td>
+
+                                <!-- Download Button Action -->
+                                <td class="px-5 py-3 text-center action-button-area">
+                                    @if ($export->status === 'completed')
+                                        <a href="{{ route('reports.download-file', $export->id) }}"
+                                            class="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-md transition-colors">
+                                            <i class="text-xs fa-solid fa-download"></i>
+                                            <span>Unduh Excel</span>
+                                        </a>
+                                    @else
+                                        <button disabled
+                                            class="h-8 px-3 text-xs font-semibold border rounded-md cursor-not-allowed text-ink-400 bg-surface-100 border-border-200">
+                                            Belum Siap
+                                        </button>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="py-12 text-xs italic text-center font-body text-ink-400">
+                                    Belum ada riwayat permintaan ekspor berkas laporan.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <div class="mt-4">
+
+        <div>
             {{ $exports->links() }}
         </div>
     </div>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // Jalankan pengecekan otomatis setiap 3000 ms (3 detik)
             const checkInterval = setInterval(function() {
-                // Hanya jalankan pengecekan jika masih ada badge 'pending' atau 'processing' di halaman
                 const activeJobs = document.querySelectorAll('.animate-pulse');
                 if (activeJobs.length === 0) {
-                    clearInterval(checkInterval); // Berhenti jika semua laporan sudah 'Selesai' / 'Gagal'
+                    clearInterval(checkInterval);
                     return;
                 }
 
-                // Ambil status terbaru via AJAX Fetch API
                 fetch("{{ route('reports.exports-status-json') }}")
                     .then(response => response.json())
                     .then(data => {
                         data.forEach(item => {
-                            // Cari baris tabel berdasarkan data-id
                             const row = document.querySelector(`tr[data-id="${item.id}"]`);
                             if (row) {
                                 const badgeArea = row.querySelector('.status-badge-area');
                                 const buttonArea = row.querySelector('.action-button-area');
 
-                                // Jika status berubah menjadi completed di database, update tampilan HTML-nya langsung
                                 if (item.status === 'completed' && !buttonArea.querySelector(
                                         'a')) {
                                     badgeArea.innerHTML =
-                                        `<span class="px-3 py-1 text-[10px] font-black uppercase rounded-full bg-emerald-50 text-emerald-600">Selesai</span>`;
+                                        `<span class="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold text-primary-700 bg-primary-100 rounded-full">Selesai</span>`;
                                     buttonArea.innerHTML =
-                                        `<a href="${item.download_url}" class="px-4 py-1.5 text-xs font-black text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors"><i class="mr-1 fa-solid fa-download"></i> Unduh Berkas</a>`;
+                                        `<a href="${item.download_url}" class="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-md transition-colors"><i class="text-xs fa-solid fa-download"></i> Unduh Excel</a>`;
                                 } else if (item.status === 'processing') {
                                     badgeArea.innerHTML =
-                                        `<span class="px-3 py-1 text-[10px] font-black uppercase rounded-full bg-blue-50 text-blue-600 animate-pulse">Dianalisis AI</span>`;
+                                        `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold text-primary-700 bg-primary-100 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-primary-600 animate-pulse"></span> Sedang Diproses</span>`;
                                 } else if (item.status === 'failed') {
                                     badgeArea.innerHTML =
-                                        `<span class="px-3 py-1 text-[10px] font-black uppercase rounded-full bg-rose-50 text-rose-600">Gagal</span>`;
+                                        `<span class="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold text-semantic-danger bg-red-50 rounded-full">Gagal</span>`;
                                     buttonArea.innerHTML =
-                                        `<button disabled class="px-4 py-1.5 text-xs font-black text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">Gagal</button>`;
+                                        `<button disabled class="h-8 px-3 text-xs font-semibold rounded-md cursor-not-allowed text-ink-400 bg-surface-100">Gagal</button>`;
                                 }
                             }
                         });

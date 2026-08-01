@@ -1,248 +1,309 @@
 <x-app-layout>
-    <div class="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8" x-data="{
-        showFilterDropdown: false,
-        showExportDropdown: false
-    }">
+    @section('title', 'Manajemen Shift Kasir')
 
+    <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-desktop" x-data="{ showExportDropdown: false }">
+
+        <!-- Header Halaman & Action Buttons -->
         <div
-            class="flex flex-col items-start justify-between gap-4 pb-6 mb-8 border-b border-gray-100 sm:flex-row sm:items-center">
+            class="flex flex-col justify-between gap-4 pb-6 mb-8 border-b sm:flex-row sm:items-center border-border-200">
             <div>
-                <h1 class="text-3xl font-bold tracking-tight text-gray-900">Manajemen Shift</h1>
-                <p class="mt-1.5 text-sm text-gray-500">Pantau perputaran kas, performa staf, dan riwayat operasional
-                    toko Anda.</p>
+                <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
+                    Manajemen Shift Kasir
+                </h1>
+                <p class="mt-1 text-xs font-body md:text-sm text-ink-700">
+                    Pantau perputaran modal kasir, performa jam operasional staf, dan rekonsiliasi uang laci fisik.
+                </p>
             </div>
 
-            <div class="flex flex-wrap items-center w-full gap-3 sm:w-auto">
+            <div class="flex flex-wrap items-center w-full sm:w-auto gap-2.5">
+                <!-- Export Data Button (Button Outline) -->
                 <button @click="showExportDropdown = !showExportDropdown"
-                    class="inline-flex relative justify-center items-center py-2.5 px-4 text-sm font-semibold text-gray-700 bg-white rounded-xl border border-gray-200 transition-all hover:bg-gray-50 active:scale-95">
-                    <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                        stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4 4m4 4V4" />
-                    </svg>
-                    Ekspor Data
+                    class="inline-flex items-center justify-center gap-2 px-4 text-xs font-semibold transition-colors border rounded-md shadow-sm h-11 bg-surface-0 border-border-200 hover:bg-surface-100 text-ink-900 font-body md:text-sm">
+                    <i class="text-xs fa-solid fa-file-export text-ink-400"></i>
+                    <span>Ekspor Laporan</span>
                 </button>
 
                 @php
                     $activeShift = $shifts->where('status', 'open')->first();
                 @endphp
 
+                <!-- Active Shift Action Switcher -->
                 @if ($activeShift)
                     <a href="{{ route('pos.index') }}"
-                        class="inline-flex justify-center items-center py-2.5 px-4 text-sm font-semibold text-white bg-red-600 rounded-xl shadow-sm transition-all hover:bg-red-700 active:scale-95">
-                        <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                            stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Tutup Shift Aktif (Ke POS)
+                        class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-semantic-danger hover:bg-red-700 font-body md:text-sm">
+                        <i class="text-xs fa-solid fa-power-off"></i>
+                        <span>Tutup Shift Aktif (POS)</span>
                     </a>
                 @else
                     <a href="{{ route('pos.index') }}"
-                        class="inline-flex justify-center items-center py-2.5 px-4 text-sm font-semibold text-white bg-blue-600 rounded-xl shadow-sm hover:bg-blue-700 transition-all active:scale-95">
-                        <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                            stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Mulai Shift Baru (Buka Kasir)
+                        class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body md:text-sm">
+                        <i class="text-xs fa-solid fa-cash-register"></i>
+                        <span>Buka Shift Baru</span>
                     </a>
                 @endif
             </div>
         </div>
 
-        <div class="grid grid-cols-1 gap-5 mb-8 sm:grid-cols-2 lg:grid-cols-4">
-            <div class="relative p-6 overflow-hidden bg-white border border-gray-100 shadow-sm rounded-2xl">
-                @if ($activeShift)
-                    <div
-                        class="absolute top-0 right-0 p-4 text-xs font-bold tracking-wider text-green-700 uppercase bg-green-50 rounded-bl-xl">
-                        Aktif
+        <!-- 4 Metric Cards Summary (GrowPOS Palette & IBM Plex Mono) -->
+        <div class="grid grid-cols-1 gap-4 mb-8 sm:grid-cols-2 lg:grid-cols-4 md:gap-6">
+
+            <!-- Card 1: Status Shift Berjalan -->
+            <div
+                class="relative flex flex-col justify-between p-5 overflow-hidden border rounded-lg shadow-sm bg-surface-0 border-border-200">
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Shift
+                            Berjalan</span>
+                        @if ($activeShift)
+                            <span
+                                class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-primary-100 text-primary-700">
+                                <span class="w-1.5 h-1.5 rounded-full bg-primary-600 animate-pulse"></span>
+                                Aktif
+                            </span>
+                        @else
+                            <span
+                                class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-surface-100 text-ink-400">
+                                Kosong
+                            </span>
+                        @endif
                     </div>
-                    <p class="text-xs font-semibold tracking-wider text-gray-400 uppercase">Shift Berjalan</p>
-                    <p class="mt-2 text-lg font-bold text-gray-900">{{ $activeShift->user->name ?? 'Kasir' }}</p>
-                    <p class="mt-1 text-xs text-gray-500">Mulai:
-                        {{ \Carbon\Carbon::parse($activeShift->start_time)->format('H:i') }} WIB</p>
-                @else
-                    <div
-                        class="absolute top-0 right-0 p-4 text-xs font-bold tracking-wider text-gray-500 uppercase bg-gray-50 rounded-bl-xl">
-                        Kosong
-                    </div>
-                    <p class="text-xs font-semibold tracking-wider text-gray-400 uppercase">Shift Berjalan</p>
-                    <p class="mt-2 text-lg italic font-bold text-gray-400">Tidak ada aktif</p>
-                    <p class="mt-1 text-xs text-gray-400">—</p>
-                @endif
+
+                    @if ($activeShift)
+                        <p class="text-base font-semibold truncate font-heading text-ink-900">
+                            {{ $activeShift->user->name ?? 'Kasir Store' }}
+                        </p>
+                        <p class="mt-1 text-xs font-body text-ink-700">
+                            Mulai: <span
+                                class="font-mono font-medium">{{ \Carbon\Carbon::parse($activeShift->start_time)->format('H:i') }}
+                                WIB</span>
+                        </p>
+                    @else
+                        <p class="text-sm italic font-medium font-body text-ink-400">Tidak ada shift aktif</p>
+                        <p class="mt-1 text-xs font-body text-ink-400">—</p>
+                    @endif
+                </div>
             </div>
 
-            <div class="p-6 bg-white border border-gray-100 shadow-sm rounded-2xl">
-                <div class="flex items-center justify-between">
-                    <p class="text-xs font-semibold tracking-wider text-gray-400 uppercase">Total Kas Awal</p>
-                    <div class="p-2 text-blue-600 rounded-lg bg-blue-50">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+            <!-- Card 2: Total Kas Awal -->
+            <div class="flex flex-col justify-between p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Total Modal Kas
+                        Awal</span>
+                    <div
+                        class="flex items-center justify-center w-8 h-8 rounded-md bg-primary-50 text-primary-600 shrink-0">
+                        <i class="text-xs fa-solid fa-wallet"></i>
                     </div>
                 </div>
-                <p class="mt-2 text-2xl font-bold text-gray-900">Rp
-                    {{ number_format($shifts->sum('cash_start'), 0, ',', '.') }}</p>
-                <p class="mt-1 text-xs text-gray-400">Akumulasi modal awal riwayat</p>
+                <div>
+                    <p class="font-mono text-xl font-semibold md:text-2xl text-ink-900">
+                        Rp {{ number_format($shifts->sum('cash_start'), 0, ',', '.') }}
+                    </p>
+                    <p class="font-body text-[11px] text-ink-400 mt-1">Akumulasi modal awal tunai</p>
+                </div>
             </div>
 
+            <!-- Card 3: Penjualan Tunai Laci -->
             @php
                 $totalCashSales = $shifts->sum(function ($s) {
                     return $s->cash_expected - $s->cash_start;
                 });
             @endphp
-            <div class="p-6 bg-white border border-gray-100 shadow-sm rounded-2xl">
-                <div class="flex items-center justify-between">
-                    <p class="text-xs font-semibold tracking-wider text-gray-400 uppercase">Penjualan Tunai</p>
-                    <div class="p-2 text-green-600 rounded-lg bg-green-50">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M9 11l3-3m0 0l3 3m-3-3v8m0-13a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+            <div class="flex flex-col justify-between p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Penjualan
+                        Tunai</span>
+                    <div
+                        class="flex items-center justify-center w-8 h-8 rounded-md bg-primary-100 text-primary-700 shrink-0">
+                        <i class="text-xs fa-solid fa-money-bill-trend-up"></i>
                     </div>
                 </div>
-                <p class="mt-2 text-2xl font-bold text-green-600">Rp {{ number_format($totalCashSales, 0, ',', '.') }}
-                </p>
-                <p class="mt-1 text-xs text-gray-400">Total omset bersih laci tunai</p>
+                <div>
+                    <p class="font-mono text-xl font-semibold md:text-2xl text-primary-600">
+                        Rp {{ number_format($totalCashSales, 0, ',', '.') }}
+                    </p>
+                    <p class="font-body text-[11px] text-ink-400 mt-1">Omzet masuk ke laci uang</p>
+                </div>
             </div>
 
+            <!-- Card 4: Total Selisih Laci Kasir -->
             @php
                 $totalDifference = $shifts->where('status', 'closed')->sum('cash_difference');
             @endphp
-            <div class="p-6 bg-white border border-gray-100 shadow-sm rounded-2xl">
-                <div class="flex items-center justify-between">
-                    <p class="text-xs font-semibold tracking-wider text-gray-400 uppercase">Total Selisih Laci</p>
+            <div class="flex flex-col justify-between p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Selisih Laci
+                        Fisik</span>
                     <div
-                        class="p-2 {{ $totalDifference < 0 ? 'text-red-600 bg-red-50' : 'text-indigo-600 bg-indigo-50' }} rounded-lg">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 002-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                        </svg>
+                        class="w-8 h-8 rounded-md {{ $totalDifference < 0 ? 'bg-red-50 text-semantic-danger' : 'bg-accent-100 text-accent-700' }} flex items-center justify-center shrink-0">
+                        <i class="text-xs fa-solid fa-scale-balanced"></i>
                     </div>
                 </div>
-                <p
-                    class="mt-2 text-2xl font-bold {{ $totalDifference < 0 ? 'text-red-600' : ($totalDifference > 0 ? 'text-amber-500' : 'text-gray-900') }}">
-                    {{ $totalDifference > 0 ? '+' : '' }}Rp {{ number_format($totalDifference, 0, ',', '.') }}
-                </p>
-                <p class="mt-1 text-xs text-gray-400">Evaluasi kecocokan fisik vs sistem</p>
+                <div>
+                    <p
+                        class="font-mono text-xl md:text-2xl font-semibold {{ $totalDifference < 0 ? 'text-semantic-danger' : ($totalDifference > 0 ? 'text-accent-700' : 'text-ink-900') }}">
+                        {{ $totalDifference > 0 ? '+' : '' }}Rp {{ number_format($totalDifference, 0, ',', '.') }}
+                    </p>
+                    <p class="font-body text-[11px] text-ink-400 mt-1">Kecocokan fisik vs sistem</p>
+                </div>
             </div>
         </div>
 
-        <div class="bg-white border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] rounded-2xl overflow-hidden">
+        <!-- Main Table Box (Spesifikasi: Row Height 48px, bg surface-100 Header) -->
+        <div class="mb-6 overflow-hidden border rounded-lg shadow-sm bg-surface-0 border-border-200">
 
+            <!-- Filter Bar Form (Search & Date Filters) -->
             <form method="GET" action="{{ url()->current() }}"
-                class="flex flex-col items-center justify-between gap-4 p-5 border-b border-gray-100 md:flex-row">
-                <div class="relative w-full md:w-80">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
-                        <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                            stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                    </span>
+                class="flex flex-col items-stretch justify-between gap-3 p-4 border-b md:flex-row md:items-center border-border-200 bg-surface-100/40">
+
+                <!-- Search Cashier Name Field -->
+                <div class="relative flex-1 max-w-md">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-ink-400">
+                        <i class="text-xs fa-solid fa-magnifying-glass"></i>
+                    </div>
                     <input type="text" name="search" value="{{ request('search') }}"
-                        placeholder="Cari nama kasir..."
-                        class="py-2.5 pr-4 pl-10 w-full text-sm bg-gray-50 border border-gray-200 rounded-xl transition-all focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder-gray-400">
+                        placeholder="Cari nama staf kasir..."
+                        class="w-full pr-4 text-xs transition-all border rounded-sm outline-none h-11 pl-9 font-body text-ink-900 placeholder-ink-400 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100">
                 </div>
 
-                <div class="flex items-center w-full gap-3 md:w-auto">
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <!-- Status Filter Dropdown -->
                     <select name="status" onchange="this.form.submit()"
-                        class="py-2.5 px-4 text-sm bg-gray-50 border border-gray-200 rounded-xl transition-all focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-gray-600 font-medium">
-                        <option value="">Semua Status</option>
-                        <option value="open" {{ request('status') == 'open' ? 'selected' : '' }}>Aktif/Berjalan
+                        class="px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
+                        <option value="">Semua Status Shift</option>
+                        <option value="open" {{ request('status') == 'open' ? 'selected' : '' }}>Aktif (Berjalan)
                         </option>
-                        <option value="closed" {{ request('status') == 'closed' ? 'selected' : '' }}>Selesai/Ditutup
+                        <option value="closed" {{ request('status') == 'closed' ? 'selected' : '' }}>Selesai (Ditutup)
                         </option>
                     </select>
 
-                    <input type="date" name="date" value="{{ request('date') }}"
-                        onchange="this.form.submit()"
-                        class="py-2.5 px-4 text-sm bg-gray-50 border border-gray-200 rounded-xl transition-all focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-gray-600 font-medium">
+                    <!-- Date Filter Picker -->
+                    <input type="date" name="date" value="{{ request('date') }}" onchange="this.form.submit()"
+                        class="px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
 
                     @if (request()->filled('search') || request()->filled('status') || request()->filled('date'))
                         <a href="{{ url()->current() }}"
-                            class="text-xs font-semibold text-red-500 hover:underline">Reset</a>
+                            class="inline-flex items-center px-3 text-xs font-semibold transition-colors rounded-sm h-11 font-body text-semantic-danger hover:bg-red-50">
+                            Reset
+                        </a>
                     @endif
                 </div>
             </form>
 
-            <div class="w-full overflow-x-auto">
+            <!-- Table Data View -->
+            <div class="w-full overflow-x-auto custom-scrollbar">
                 <table class="w-full text-left border-collapse whitespace-nowrap">
                     <thead>
                         <tr
-                            class="text-xs font-bold tracking-wider text-gray-400 uppercase border-b border-gray-100 bg-gray-50/70">
-                            <th class="px-6 py-4">Nama Kasir</th>
-                            <th class="px-6 py-4">Waktu Mulai</th>
-                            <th class="px-6 py-4">Waktu Selesai</th>
-                            <th class="px-6 py-4 text-right">Kas Awal</th>
-                            <th class="px-6 py-4 text-right">Kas Akhir (Sistem/Fisik)</th>
-                            <th class="px-6 py-4 text-center">Status</th>
-                            <th class="px-6 py-4 text-center">Catatan</th>
+                            class="h-12 text-xs font-semibold tracking-wider uppercase border-b bg-surface-100 border-border-200 font-heading text-ink-700">
+                            <th class="px-5 py-3">Nama Kasir</th>
+                            <th class="px-5 py-3">Waktu Mulai</th>
+                            <th class="px-5 py-3">Waktu Selesai</th>
+                            <th class="px-5 py-3 text-right">Modal Kas Awal</th>
+                            <th class="px-5 py-3 text-right">Kas Akhir (Fisik / Sistem)</th>
+                            <th class="px-5 py-3 text-center">Status Sesi</th>
+                            <th class="px-5 py-3 text-left">Catatan Selisih</th>
                         </tr>
                     </thead>
-                    <tbody class="text-sm font-medium text-gray-600 divide-y divide-gray-50">
+                    <tbody class="text-xs divide-y font-body md:text-sm text-ink-900 divide-border-200">
                         @forelse($shifts as $shift)
-                            <tr class="transition-colors hover:bg-gray-50/50">
-                                <td class="px-6 py-4">
+                            <tr class="h-12 transition-colors hover:bg-surface-100/60">
+
+                                <!-- Operator Staff Avatar & Name -->
+                                <td class="px-5 py-3">
                                     <div class="flex items-center gap-3">
                                         <div
-                                            class="flex items-center justify-center w-8 h-8 text-xs font-bold text-blue-600 uppercase rounded-full bg-blue-50">
+                                            class="flex items-center justify-center w-8 h-8 text-xs font-bold rounded-full bg-primary-100 text-primary-700 font-heading shrink-0">
                                             {{ substr($shift->user->name ?? 'KS', 0, 2) }}
                                         </div>
-                                        <span
-                                            class="font-semibold text-gray-900">{{ $shift->user->name ?? 'User Dihapus' }}</span>
+                                        <span class="font-semibold text-ink-900 truncate max-w-[140px]">
+                                            {{ $shift->user->name ?? 'User Dihapus' }}
+                                        </span>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 text-gray-500">
+
+                                <!-- Start Time -->
+                                <td class="px-5 py-3 font-mono text-xs text-ink-700">
                                     {{ \Carbon\Carbon::parse($shift->start_time)->format('d M Y, H:i') }}
                                 </td>
-                                <td class="px-6 py-4 text-gray-500">
+
+                                <!-- End Time -->
+                                <td class="px-5 py-3 font-mono text-xs text-ink-700">
                                     {{ $shift->end_time ? \Carbon\Carbon::parse($shift->end_time)->format('d M Y, H:i') : '—' }}
                                 </td>
-                                <td class="px-6 py-4 font-semibold text-right text-gray-900">
+
+                                <!-- Cash Start -->
+                                <td class="px-5 py-3 font-mono font-medium text-right text-ink-900">
                                     Rp {{ number_format($shift->cash_start, 0, ',', '.') }}
                                 </td>
-                                <td class="px-6 py-4 text-right">
+
+                                <!-- Cash Actual vs Expected & Variance Indicator -->
+                                <td class="px-5 py-3 text-right">
                                     @if ($shift->status === 'open')
-                                        <span class="italic text-gray-400">Berjalan...</span>
+                                        <span class="text-xs italic font-body text-ink-400">Sedang Berjalan...</span>
                                     @else
-                                        <div class="font-semibold text-gray-900">
+                                        <div class="font-mono font-semibold text-ink-900">
                                             Rp {{ number_format($shift->cash_actual, 0, ',', '.') }}
                                         </div>
-                                        <span class="block text-xs font-normal text-gray-400">Sistem: Rp
-                                            {{ number_format($shift->cash_expected, 0, ',', '.') }}</span>
+                                        <span class="block font-mono text-[11px] text-ink-400 font-normal">
+                                            Sistem: Rp {{ number_format($shift->cash_expected, 0, ',', '.') }}
+                                        </span>
 
                                         @if ($shift->cash_difference < 0)
-                                            <span class="block text-xs font-normal text-red-500">(Selisih -Rp
-                                                {{ number_format(abs($shift->cash_difference), 0, ',', '.') }})</span>
+                                            <span
+                                                class="block font-mono text-[11px] font-semibold text-semantic-danger">
+                                                (Selisih -Rp
+                                                {{ number_format(abs($shift->cash_difference), 0, ',', '.') }})
+                                            </span>
                                         @elseif($shift->cash_difference > 0)
-                                            <span class="block text-xs font-normal text-amber-500">(Surplus +Rp
-                                                {{ number_format($shift->cash_difference, 0, ',', '.') }})</span>
+                                            <span class="block font-mono text-[11px] font-semibold text-accent-700">
+                                                (Surplus +Rp {{ number_format($shift->cash_difference, 0, ',', '.') }})
+                                            </span>
                                         @else
-                                            <span class="block text-xs font-normal text-green-500">(Cocok)</span>
+                                            <span class="block font-body text-[11px] font-semibold text-primary-600">
+                                                (Cocok 100%)
+                                            </span>
                                         @endif
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 text-center">
+
+                                <!-- Active Status Badge (Pill Shape: radius-full) -->
+                                <td class="px-5 py-3 text-center">
                                     @if ($shift->status === 'open')
                                         <span
-                                            class="inline-flex py-1 px-2.5 text-xs font-bold text-green-700 bg-green-50 rounded-md uppercase animate-pulse">Aktif</span>
+                                            class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[11px] font-semibold text-primary-700 bg-primary-100 rounded-full">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-primary-600 animate-pulse"></span>
+                                            Berjalan
+                                        </span>
                                     @else
                                         <span
-                                            class="inline-flex py-1 px-2.5 text-xs font-bold text-gray-500 bg-gray-100 rounded-md uppercase">Ditutup</span>
+                                            class="inline-flex items-center px-2.5 py-0.5 text-[11px] font-semibold text-ink-400 bg-surface-100 border border-border-200 rounded-full">
+                                            Ditutup
+                                        </span>
                                     @endif
                                 </td>
-                                <td class="max-w-xs px-6 py-4 text-xs italic text-gray-400 truncate"
+
+                                <!-- Notes Column -->
+                                <td class="px-5 py-3 text-left max-w-[180px] truncate font-body text-xs text-ink-700"
                                     title="{{ $shift->notes }}">
                                     {{ $shift->notes ?? '—' }}
                                 </td>
                             </tr>
                         @empty
+                            <!-- Friendly Empty State -->
                             <tr>
-                                <td colspan="7" class="px-6 py-10 italic text-center text-gray-400">
-                                    Tidak ada data riwayat shift ditemukan.
+                                <td colspan="7" class="px-6 py-12 text-center">
+                                    <div class="flex flex-col items-center justify-center">
+                                        <div
+                                            class="flex items-center justify-center w-12 h-12 mb-2 rounded-full bg-primary-50 text-primary-600">
+                                            <i class="text-xl fa-solid fa-user-clock"></i>
+                                        </div>
+                                        <p class="text-sm font-semibold font-heading text-ink-900">Belum ada riwayat
+                                            shift</p>
+                                        <p class="font-body text-xs text-ink-700 mt-0.5 max-w-xs">
+                                            Sesi operasional kasir baru akan dicatat setiap kali staf membuka shift di
+                                            POS Terminal.
+                                        </p>
+                                    </div>
                                 </td>
                             </tr>
                         @endforelse
@@ -250,13 +311,14 @@
                 </table>
             </div>
 
+            <!-- Footer Pagination -->
             @if ($shifts->hasPages())
-                <div class="p-5 bg-white border-t border-gray-100">
+                <div class="p-4 border-t bg-surface-0 border-border-200">
                     {{ $shifts->appends(request()->query())->links() }}
                 </div>
             @else
-                <div class="p-5 text-xs font-semibold text-gray-400 border-t border-gray-100">
-                    Menampilkan {{ $shifts->count() }} total entri shift milik toko Anda.
+                <div class="p-4 text-xs font-medium border-t font-body text-ink-400 border-border-200">
+                    Menampilkan {{ $shifts->count() }} entri riwayat shift operasional toko Anda.
                 </div>
             @endif
 

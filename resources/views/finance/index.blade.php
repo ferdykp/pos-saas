@@ -1,104 +1,163 @@
 <x-app-layout>
-    <div class="container grid px-6 mx-auto mt-8">
-        <h2 class="my-6 text-2xl font-semibold text-gray-700">
-            Keuangan & Dompet Toko
-        </h2>
+    @section('title', 'Keuangan & Dompet Toko')
 
-        <!-- GRID KARTU INFORMASI SALDO -->
-        <div class="grid gap-6 mb-8 md:grid-cols-3">
-            <!-- Kartu 1: Saldo Utama (Bisa Ditarik) -->
-            <div class="flex items-center p-4 bg-white border border-gray-100 shadow-sm rounded-2xl">
-                <div class="p-3 mr-4 text-emerald-500 bg-emerald-50 rounded-xl">
-                    <i class="text-xl fa-solid fa-wallet"></i>
-                </div>
+    <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-desktop">
+
+        <!-- Header Halaman -->
+        <div class="pb-6 mb-8 border-b border-border-200">
+            <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
+                Keuangan & Dompet Toko
+            </h1>
+            <p class="mt-1 text-xs font-body md:text-sm text-ink-700">
+                Kelola saldo dompet digital toko, pengaturan rekening bank penampung, dan pengajuan penarikan dana
+                (payout).
+            </p>
+        </div>
+
+        <!-- Grid 3 Kartu Ringkasan Saldo & Rekening -->
+        <div class="grid grid-cols-1 gap-4 mb-8 md:grid-cols-3 md:gap-6">
+
+            <!-- Kartu 1: Saldo Utama (Dapat Ditarik) -->
+            <div
+                class="flex items-center justify-between p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
                 <div>
-                    <p class="mb-2 text-sm font-medium text-gray-600">Saldo yang Dapat Ditarik</p>
-                    <p class="text-xl font-bold text-gray-800">Rp {{ number_format($wallet->balance ?? 0, 0, ',', '.') }}
+                    <span class="block text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Saldo yang
+                        Dapat Ditarik</span>
+                    <p class="mt-2 font-mono text-2xl font-semibold md:text-3xl text-primary-600">
+                        Rp {{ number_format($wallet->balance ?? 0, 0, ',', '.') }}
                     </p>
+                </div>
+                <div
+                    class="flex items-center justify-center text-lg rounded-md w-11 h-11 bg-primary-50 text-primary-600 shrink-0">
+                    <i class="fa-solid fa-wallet"></i>
                 </div>
             </div>
 
-            <!-- Kartu 2: Rekening Terdaftar -->
-            <div class="flex items-center justify-between p-4 bg-white border border-gray-100 shadow-sm rounded-2xl">
-                <div class="flex items-center">
-                    <div class="p-3 mr-4 text-blue-500 bg-blue-50 rounded-xl">
-                        <i class="text-xl fa-solid fa-bank"></i>
-                    </div>
-                    <div>
-                        <p class="mb-1 text-sm font-medium text-gray-600">Rekening Tujuan</p>
-                        @if (isset($wallet->account_number) && $wallet->account_number != '')
-                            <p class="text-sm font-bold text-gray-800">{{ $wallet->bank_name }} -
-                                {{ $wallet->account_number }}</p>
-                            <p class="text-xs text-gray-500">a.n. {{ $wallet->account_name }}</p>
-                        @else
-                            <p class="text-sm italic font-medium text-amber-600">Belum diatur</p>
-                        @endif
-                    </div>
+            <!-- Kartu 2: Rekening Bank Terdaftar -->
+            <div
+                class="flex items-center justify-between p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
+                <div class="min-w-0 pr-3">
+                    <span
+                        class="block mb-1 text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Rekening
+                        Bank Tujuan</span>
+                    @if (isset($wallet->account_number) && $wallet->account_number != '')
+                        <p class="font-mono text-xs font-semibold truncate md:text-sm text-ink-900">
+                            {{ $wallet->bank_name }} • {{ $wallet->account_number }}
+                        </p>
+                        <p class="font-body text-[11px] text-ink-400 mt-0.5 truncate">
+                            a.n. {{ $wallet->account_name }}
+                        </p>
+                    @else
+                        <p class="text-xs italic font-semibold font-body text-accent-700">
+                            Belum diatur
+                        </p>
+                    @endif
                 </div>
                 <button onclick="openBankSettingsModal()"
-                    class="px-2 py-1 ml-2 text-xs font-semibold text-blue-600 underline transition rounded-md hover:text-blue-800 bg-blue-50">
-                    <i class="fa-solid fa-pen-to-square"></i> Atur
+                    class="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold text-primary-700 bg-primary-50 hover:bg-primary-100 rounded-md transition-colors shrink-0">
+                    <i class="fa-solid fa-pen-to-square text-[11px]"></i>
+                    <span>Atur</span>
                 </button>
             </div>
 
-            <!-- Kartu 3: Tombol Aksi Tarik Dana -->
-            <div class="flex items-center justify-center p-4 bg-white border border-gray-100 shadow-sm rounded-2xl">
+            <!-- Kartu 3: Tombol Aksi Tarik Saldo -->
+            <div
+                class="flex items-center justify-center p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
                 <button onclick="openWithdrawModal()"
-                    class="w-full py-3 px-4 font-medium text-white bg-emerald-600 rounded-xl hover:bg-emerald-700 transition duration-150 shadow-md shadow-emerald-100 {{ ($wallet->balance ?? 0) <= 0 || !isset($wallet->account_number) ? 'opacity-50 cursor-not-allowed' : '' }}"
+                    class="w-full h-11 inline-flex items-center justify-center gap-2 px-5 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 text-white font-body font-semibold text-xs md:text-sm rounded-md shadow-sm transition-colors {{ ($wallet->balance ?? 0) <= 0 || !isset($wallet->account_number) ? 'opacity-50 cursor-not-allowed' : '' }}"
                     {{ ($wallet->balance ?? 0) <= 0 || !isset($wallet->account_number) ? 'disabled' : '' }}>
-                    <i class="mr-2 fa-solid fa-money-bill-transfer"></i> Tarik Saldo Ke Bank
+                    <i class="text-xs fa-solid fa-money-bill-transfer"></i>
+                    <span>Tarik Saldo ke Bank</span>
                 </button>
             </div>
         </div>
 
-        <!-- TABEL RIWAYAT PENARIKAN DANA -->
-        <div class="w-full mb-8 overflow-hidden bg-white border border-gray-100 shadow-sm rounded-2xl">
-            <div class="flex items-center justify-between p-5 border-b border-gray-50">
-                <h3 class="font-bold text-gray-700">Riwayat Pengajuan Penarikan</h3>
+        <!-- Tabel Riwayat Pengajuan Penarikan Dana -->
+        <div class="mb-8 overflow-hidden border rounded-lg shadow-sm bg-surface-0 border-border-200">
+            <div class="p-4 border-b bg-surface-100 border-border-200">
+                <h3 class="text-sm font-semibold font-heading md:text-base text-ink-900">
+                    Riwayat Pengajuan Penarikan Dana
+                </h3>
             </div>
-            <div class="w-full overflow-x-auto">
-                <table class="w-full whitespace-no-wrap">
+
+            <div class="w-full overflow-x-auto custom-scrollbar">
+                <table class="w-full text-left border-collapse whitespace-nowrap">
                     <thead>
                         <tr
-                            class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b bg-gray-50">
-                            <th class="px-4 py-3">No. Referensi</th>
-                            <th class="px-4 py-3">Tanggal</th>
-                            <th class="px-4 py-3">Tujuan Bank</th>
-                            <th class="px-4 py-3">Nominal</th>
-                            <th class="px-4 py-3">Status</th>
+                            class="h-10 text-xs font-semibold tracking-wider uppercase border-b bg-surface-100 border-border-200 font-heading text-ink-700">
+                            <th class="px-5 py-2.5">No. Referensi</th>
+                            <th class="px-5 py-2.5">Tanggal Permintaan</th>
+                            <th class="px-5 py-2.5">Tujuan Bank & Rekening</th>
+                            <th class="px-5 py-2.5 text-right">Nominal Penarikan</th>
+                            <th class="px-5 py-2.5 text-center">Status Pemrosesan</th>
                         </tr>
                     </thead>
-                    <tbody class="text-sm text-gray-700 bg-white divide-y divide-gray-50">
+                    <tbody class="text-xs divide-y font-body md:text-sm text-ink-900 divide-border-200">
                         @forelse($withdrawals as $wdr)
-                            <tr>
-                                <td class="px-4 py-3 font-medium">{{ $wdr->reference_number }}</td>
-                                <td class="px-4 py-3 text-xs text-gray-500">
-                                    {{ \Carbon\Carbon::parse($wdr->created_at)->format('d M Y H:i') }}</td>
-                                <td class="px-4 py-3">
-                                    <span class="font-semibold">{{ $wdr->bank_name }}</span><br>
-                                    <span class="text-xs text-gray-500">{{ $wdr->account_number }} (a.n
-                                        {{ $wdr->account_name }})</span>
+                            <tr class="h-12 transition-colors hover:bg-surface-100/60">
+                                <!-- Ref No -->
+                                <td class="px-5 py-3 font-mono text-xs font-semibold text-ink-900">
+                                    {{ $wdr->reference_number }}
                                 </td>
-                                <td class="px-4 py-3 font-semibold text-gray-900">Rp
-                                    {{ number_format($wdr->amount, 0, ',', '.') }}</td>
-                                <td class="px-4 py-3 text-xs">
+
+                                <!-- Date -->
+                                <td class="px-5 py-3 font-mono text-xs text-ink-400">
+                                    {{ \Carbon\Carbon::parse($wdr->created_at)->format('d M Y, H:i') }} WIB
+                                </td>
+
+                                <!-- Bank Info -->
+                                <td class="px-5 py-3">
+                                    <div class="flex flex-col gap-0.5">
+                                        <span class="font-semibold text-ink-900">{{ $wdr->bank_name }}</span>
+                                        <span class="font-mono text-[11px] text-ink-400">
+                                            {{ $wdr->account_number }} (a.n {{ $wdr->account_name }})
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <!-- Amount -->
+                                <td class="px-5 py-3 font-mono font-semibold text-right text-primary-600">
+                                    Rp {{ number_format($wdr->amount, 0, ',', '.') }}
+                                </td>
+
+                                <!-- Status Badge (Pill Shape: radius-full) -->
+                                <td class="px-5 py-3 text-center">
                                     @if ($wdr->status === 'pending')
                                         <span
-                                            class="px-2 py-1 font-semibold leading-tight rounded-full text-amber-700 bg-amber-50">Menunggu
-                                            Transfer</span>
+                                            class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-semibold text-accent-700 bg-accent-100 rounded-full">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-accent-500 animate-pulse"></span>
+                                            Menunggu Transfer
+                                        </span>
                                     @elseif($wdr->status === 'approved')
                                         <span
-                                            class="px-2 py-1 font-semibold leading-tight rounded-full text-emerald-700 bg-emerald-50">Selesai/Ditransfer</span>
+                                            class="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold text-primary-700 bg-primary-100 rounded-full">
+                                            Selesai / Ditransfer
+                                        </span>
                                     @else
                                         <span
-                                            class="px-2 py-1 font-semibold leading-tight rounded-full text-rose-700 bg-rose-50">Ditolak</span>
+                                            class="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold text-semantic-danger bg-red-50 rounded-full">
+                                            Ditolak
+                                        </span>
                                     @endif
                                 </td>
                             </tr>
                         @empty
+                            <!-- Empty State -->
                             <tr>
-                                <td colspan="5" class="px-4 py-10 italic text-center text-gray-400">Belum ada riwayat
-                                    penarikan dana.</td>
+                                <td colspan="5" class="px-6 py-12 text-center">
+                                    <div class="flex flex-col items-center justify-center">
+                                        <div
+                                            class="flex items-center justify-center w-12 h-12 mb-2 rounded-full bg-primary-50 text-primary-600">
+                                            <i class="text-xl fa-solid fa-receipt"></i>
+                                        </div>
+                                        <p class="text-sm font-semibold font-heading text-ink-900">Belum ada riwayat
+                                            penarikan dana</p>
+                                        <p class="font-body text-xs text-ink-700 mt-0.5 max-w-xs">
+                                            Semua aktivitas penarikan saldo toko ke rekening bank penampung akan
+                                            tercatat di sini.
+                                        </p>
+                                    </div>
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -107,119 +166,150 @@
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- MODAL 1: FORMULIR TARIK SALDO              -->
-    <!-- ========================================== -->
+    <!-- Modal 1: Form Penarikan Dana (Max-Width 480px / max-w-modal-sm) -->
     <div id="withdrawModal"
-        class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black bg-opacity-50 backdrop-blur-sm">
-        <div class="w-full max-w-md p-6 mx-4 bg-white shadow-xl rounded-2xl">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-bold text-gray-800"><i
-                        class="mr-2 fa-solid fa-paper-plane text-emerald-500"></i> Form Penarikan Dana</h3>
-                <button onclick="closeWithdrawModal()"
-                    class="text-xl text-gray-400 hover:text-gray-600">&times;</button>
+        class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 bg-ink-900/40 backdrop-blur-[2px]">
+        <div class="w-full p-6 border rounded-lg shadow-lg bg-surface-0 max-w-modal-sm border-border-200">
+
+            <div class="flex items-center justify-between pb-3 mb-4 border-b border-border-200">
+                <h3 class="text-lg font-semibold font-heading text-ink-900">Form Penarikan Dana</h3>
+                <button type="button" onclick="closeWithdrawModal()" class="p-1 text-ink-400 hover:text-ink-900">
+                    <i class="text-base fa-solid fa-xmark"></i>
+                </button>
             </div>
 
             @if (!isset($wallet->account_number) || $wallet->account_number == '')
-                <div class="p-4 mb-4 text-sm bg-amber-50 rounded-xl text-amber-800">
-                    <i class="mr-1 fa-solid fa-triangle-exclamation"></i> Anda belum mengatur nomor rekening bank.
-                    Silakan lengkapi informasi rekening Anda terlebih dahulu.
+                <div class="p-3 mb-4 bg-red-50 border border-red-100 rounded-md flex items-start gap-2.5">
+                    <i class="fa-solid fa-triangle-exclamation text-semantic-danger text-sm mt-0.5 shrink-0"></i>
+                    <p class="text-xs leading-relaxed font-body text-semantic-danger">
+                        Anda belum mengatur nomor rekening bank penampung. Silakan lengkapi informasi rekening Anda
+                        terlebih dahulu.
+                    </p>
                 </div>
                 <button onclick="closeWithdrawModal(); openBankSettingsModal();"
-                    class="w-full py-3 font-medium text-white transition bg-blue-600 rounded-xl hover:bg-blue-700">Atur
-                    Rekening Sekarang</button>
+                    class="w-full text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 font-body">
+                    Atur Rekening Sekarang
+                </button>
             @else
-                <form id="withdrawForm">
+                <form id="withdrawForm" class="space-y-4">
                     @csrf
-                    <div class="p-3 mb-4 space-y-1 text-xs text-gray-600 border border-gray-100 bg-gray-50 rounded-xl">
-                        <p><span class="font-semibold">Transfer Ke:</span> {{ $wallet->bank_name }}</p>
-                        <p><span class="font-semibold">No. Rekening:</span> {{ $wallet->account_number }}</p>
-                        <p><span class="font-semibold">Nama Pemilik:</span> {{ $wallet->account_name }}</p>
-                        <p class="font-bold text-emerald-600"><span class="font-normal text-gray-600">Maksimal
-                                Penarikan:</span> Rp {{ number_format($wallet->balance, 0, ',', '.') }}</p>
+
+                    <div class="p-3 space-y-1 text-xs border rounded-md bg-surface-100 border-border-200 font-body">
+                        <div class="flex justify-between">
+                            <span class="text-ink-700">Bank Tujuan:</span>
+                            <span class="font-semibold text-ink-900">{{ $wallet->bank_name }}</span>
+                        </div>
+                        <div class="flex justify-between font-mono">
+                            <span class="text-ink-700 font-body">No. Rekening:</span>
+                            <span class="font-semibold text-ink-900">{{ $wallet->account_number }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-ink-700">Nama Pemilik:</span>
+                            <span class="font-semibold text-ink-900">{{ $wallet->account_name }}</span>
+                        </div>
+                        <div class="flex justify-between pt-1 font-mono border-t border-border-200">
+                            <span class="text-ink-700 font-body">Maksimal Penarikan:</span>
+                            <span class="font-bold text-primary-600">Rp
+                                {{ number_format($wallet->balance, 0, ',', '.') }}</span>
+                        </div>
                     </div>
 
-                    <div class="mb-5">
-                        <label class="block mb-2 text-sm font-medium text-gray-700">Jumlah Penarikan (Rp)</label>
+                    <div>
+                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
+                            Jumlah Penarikan (Rp) <span class="text-semantic-danger">*</span>
+                        </label>
                         <input type="text" id="inputAmount" onkeyup="formatCurrency(this)" required
-                            class="w-full px-4 py-3 text-lg font-semibold text-gray-800 border border-gray-200 bg-gray-50 rounded-xl focus:outline-none focus:border-emerald-500"
-                            placeholder="Contoh: 50.000">
+                            placeholder="Contoh: 50.000"
+                            class="w-full px-3 font-mono text-base font-bold transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100">
                     </div>
 
-                    <div class="flex gap-3">
+                    <div class="flex items-center gap-3 pt-3">
                         <button type="button" onclick="closeWithdrawModal()"
-                            class="w-1/2 py-3 font-medium text-gray-600 transition bg-gray-100 hover:bg-gray-200 rounded-xl">Batal</button>
+                            class="flex-1 text-xs font-semibold transition-colors rounded-md h-11 bg-surface-100 hover:bg-border-200 text-ink-900 font-body">
+                            Batal
+                        </button>
                         <button type="submit" id="btnSubmitWithdraw"
-                            class="w-1/2 py-3 font-medium text-white transition shadow-md bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-emerald-100">Kirim
-                            Pengajuan</button>
+                            class="flex-1 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body">
+                            Kirim Pengajuan
+                        </button>
                     </div>
                 </form>
             @endif
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- MODAL 2: FORMULIR PENGATURAN BANK (BARU)   -->
-    <!-- ========================================== -->
+    <!-- Modal 2: Pengaturan Rekening Bank (Max-Width 480px / max-w-modal-sm) -->
     <div id="bankSettingsModal"
-        class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black bg-opacity-50 backdrop-blur-sm">
-        <div class="w-full max-w-md p-6 mx-4 bg-white shadow-xl rounded-2xl">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-bold text-gray-800"><i class="mr-2 text-blue-500 fa-solid fa-university"></i>
-                    Pengaturan Rekening Bank</h3>
-                <button onclick="closeBankSettingsModal()"
-                    class="text-xl text-gray-400 hover:text-gray-600">&times;</button>
+        class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 bg-ink-900/40 backdrop-blur-[2px]">
+        <div class="w-full p-6 border rounded-lg shadow-lg bg-surface-0 max-w-modal-sm border-border-200">
+
+            <div class="flex items-center justify-between pb-3 mb-4 border-b border-border-200">
+                <h3 class="text-lg font-semibold font-heading text-ink-900">Pengaturan Rekening Bank</h3>
+                <button type="button" onclick="closeBankSettingsModal()"
+                    class="p-1 text-ink-400 hover:text-ink-900">
+                    <i class="text-base fa-solid fa-xmark"></i>
+                </button>
             </div>
 
-            <form id="bankSettingsForm">
+            <form id="bankSettingsForm" class="space-y-4">
                 @csrf
-                <div class="mb-4">
-                    <label class="block mb-1 text-sm font-medium text-gray-700">Nama Bank</label>
+
+                <div>
+                    <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
+                        Nama Bank <span class="text-semantic-danger">*</span>
+                    </label>
                     <select id="bank_name" required
-                        class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 text-gray-800">
+                        class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                         <option value="" disabled selected>-- Pilih Bank --</option>
-                        <option value="BCA" {{ ($wallet->bank_name ?? '') == 'BCA' ? 'selected' : '' }}>Bank Central
-                            Asia (BCA)</option>
+                        <option value="BCA" {{ ($wallet->bank_name ?? '') == 'BCA' ? 'selected' : '' }}>Bank
+                            Central Asia (BCA)</option>
                         <option value="Mandiri" {{ ($wallet->bank_name ?? '') == 'Mandiri' ? 'selected' : '' }}>Bank
                             Mandiri</option>
                         <option value="BRI" {{ ($wallet->bank_name ?? '') == 'BRI' ? 'selected' : '' }}>Bank Rakyat
                             Indonesia (BRI)</option>
                         <option value="BNI" {{ ($wallet->bank_name ?? '') == 'BNI' ? 'selected' : '' }}>Bank Negara
                             Indonesia (BNI)</option>
-                        <option value="BSI" {{ ($wallet->bank_name ?? '') == 'BSI' ? 'selected' : '' }}>Bank Syariah
-                            Indonesia (BSI)</option>
+                        <option value="BSI" {{ ($wallet->bank_name ?? '') == 'BSI' ? 'selected' : '' }}>Bank
+                            Syariah Indonesia (BSI)</option>
                         <option value="CIMB Niaga" {{ ($wallet->bank_name ?? '') == 'CIMB Niaga' ? 'selected' : '' }}>
                             CIMB Niaga</option>
                     </select>
                 </div>
 
-                <div class="mb-4">
-                    <label class="block mb-1 text-sm font-medium text-gray-700">Nomor Rekening</label>
+                <div>
+                    <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
+                        Nomor Rekening <span class="text-semantic-danger">*</span>
+                    </label>
                     <input type="text" id="account_number" required value="{{ $wallet->account_number ?? '' }}"
-                        class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 text-gray-800"
-                        placeholder="Masukkan nomor rekening tanpa spasi/strip">
+                        placeholder="Masukkan nomor rekening tanpa spasi/strip"
+                        class="w-full px-3 font-mono text-xs transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                 </div>
 
-                <div class="mb-5">
-                    <label class="block mb-1 text-sm font-medium text-gray-700">Nama Pemilik Rekening</label>
+                <div>
+                    <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
+                        Nama Pemilik Rekening <span class="text-semantic-danger">*</span>
+                    </label>
                     <input type="text" id="account_name" required value="{{ $wallet->account_name ?? '' }}"
-                        class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 text-gray-800"
-                        placeholder="Nama lengkap sesuai buku tabungan">
+                        placeholder="Nama lengkap sesuai buku tabungan"
+                        class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                 </div>
 
-                <div class="flex gap-3">
+                <div class="flex items-center gap-3 pt-3">
                     <button type="button" onclick="closeBankSettingsModal()"
-                        class="w-1/2 py-3 font-medium text-gray-600 transition bg-gray-100 hover:bg-gray-200 rounded-xl">Batal</button>
+                        class="flex-1 text-xs font-semibold transition-colors rounded-md h-11 bg-surface-100 hover:bg-border-200 text-ink-900 font-body">
+                        Batal
+                    </button>
                     <button type="submit" id="btnSaveBank"
-                        class="w-1/2 py-3 font-medium text-white transition bg-blue-600 shadow-md hover:bg-blue-700 rounded-xl shadow-blue-100">Simpan
-                        Rekening</button>
+                        class="flex-1 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body">
+                        Simpan Rekening
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 
+    <!-- Script Handling Modals & AJAX Actions -->
     <script>
-        // FUNGSI KONTROL MODAL UTAMA
         function openWithdrawModal() {
             document.getElementById('withdrawModal').classList.remove('hidden');
         }
@@ -242,7 +332,7 @@
             input.value = value !== "" ? new Intl.NumberFormat('id-ID').format(value) : "";
         }
 
-        // AJAX SUBMIT 1: PENGATURAN BANK
+        // AJAX Submit 1: Pengaturan Rekening Bank
         document.getElementById('bankSettingsForm').onsubmit = async function(e) {
             e.preventDefault();
             const btn = document.getElementById('btnSaveBank');
@@ -282,7 +372,7 @@
             }
         };
 
-        // AJAX SUBMIT 2: PENARIKAN DANA
+        // AJAX Submit 2: Penarikan Dana
         if (document.getElementById('withdrawForm')) {
             document.getElementById('withdrawForm').onsubmit = async function(e) {
                 e.preventDefault();

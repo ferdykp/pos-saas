@@ -3,31 +3,31 @@
     <div class="grid min-h-screen grid-cols-1 overflow-hidden md:grid-cols-2">
 
         {{-- Bagian Kiri (Hijau/Branding) --}}
-        <div class="w-full px-8 py-12 bg-[#16805F] flex flex-col justify-between md:px-16">
+        <div class="flex flex-col justify-between w-full px-8 py-12 bg-primary-600 md:px-16">
             <div class="flex-grow space-y-8">
                 {{-- Logo --}}
                 <a href="/" class="inline-block transition duration-500 scale-100 hover:scale-105">
                     <div class="flex items-center gap-3">
                         <img src="{{ asset('img/growpos-white.png') }}" class="w-16 h-auto" alt="GrowPOS Logo">
-                        <span class="text-3xl font-bold text-white">GrowPOS</span>
+                        <span class="text-4xl font-bold text-white">GrowPOS</span>
                     </div>
                 </a>
 
                 {{-- Headline --}}
-                <h1 class="text-4xl font-extrabold leading-tight text-white lg:text-5xl">
+                <h1 class="font-bold leading-tight text-white text-display lg:text-5xl">
                     Berdayakan UMKM Anda menuju pertumbuhan digital.
                 </h1>
 
                 {{-- Sub-headline --}}
-                <p class="max-w-xl text-lg text-white/90">
+                <p class="max-w-xl font-normal text-md text-white/90">
                     Solusi kasir pintar yang didesain khusus untuk lanskap bisnis Indonesia yang dinamis dan berkembang.
                 </p>
             </div>
 
             {{-- Testimonial Card --}}
-            <div class="max-w-md p-6 mt-12 border shadow-lg rounded-2xl border-white/20 bg-white/10 backdrop-blur-sm">
-                <div class="flex gap-1 mb-4 text-xl text-amber-400">★ ★ ★ ★ ★</div>
-                <blockquote class="mb-4 text-lg italic leading-relaxed text-white">
+            <div class="max-w-md p-6 mt-12 border rounded-lg shadow-lg border-white/20 bg-white/10 backdrop-blur-sm">
+                <div class="flex gap-1 mb-4 text-xl text-accent-500">★ ★ ★ ★ ★</div>
+                <blockquote class="mb-4 italic leading-relaxed text-white text-body-lg">
                     "GrowPOS membantu pencatatan stok kami menjadi jauh lebih akurat dan profesional. Transaksi jadi
                     lebih cepat!"
                 </blockquote>
@@ -38,32 +38,32 @@
         </div>
 
         {{-- Bagian Kanan (Form Login) --}}
-        <div class="flex flex-col justify-center w-full px-8 py-12 bg-white md:px-12 lg:px-20">
+        <div class="flex flex-col justify-center w-full px-8 py-12 bg-surface-0 md:px-12 lg:px-20">
 
             {{-- Session Status (Pesan Sukses/Error dari Laravel) --}}
             <x-auth-session-status class="mb-6" :status="session('status')" />
 
             <div class="mb-10 space-y-3">
-                <h2 class="text-4xl font-bold text-gray-900">Selamat Datang</h2>
-                <p class="text-lg text-gray-600">Silakan masuk ke akun Anda untuk melanjutkan.</p>
+                <h2 class="text-display text-ink-900">Selamat Datang</h2>
+                <p class="text-body-lg text-ink-700">Silakan masuk ke akun Anda untuk melanjutkan.</p>
             </div>
 
             {{-- Tombol Google --}}
             <a href="#" class="block mb-6">
                 <div
-                    class="border-2 border-[#218665]/30 hover:bg-[#5FBC97]/10 transition duration-300 bg-[#218665]/5 py-3.5 space-x-3 rounded-xl items-center flex justify-center w-full">
+                    class="border-2 border-primary-600/30 hover:bg-primary-500/10 transition duration-300 bg-primary-600/5 py-3.5 space-x-3 rounded-md items-center flex justify-center w-full">
                     <img src="https://authjs.dev/img/providers/google.svg" alt="Google" class="w-5 h-5">
-                    <span class="text-base font-semibold text-[#16805F]">Masuk dengan Google</span>
+                    <span class="font-semibold text-body-base text-primary-600">Masuk dengan Google</span>
                 </div>
             </a>
 
             {{-- Pembatas (Or Email) --}}
             <div class="relative flex items-center justify-center w-full mb-8">
-                <div class="flex-grow border-t border-slate-200"></div>
-                <span class="flex-shrink mx-4 text-xs font-semibold tracking-wider uppercase text-slate-400">
+                <div class="flex-grow border-t border-border-200"></div>
+                <span class="flex-shrink mx-4 font-semibold tracking-wider uppercase text-body-sm text-ink-400">
                     atau email
                 </span>
-                <div class="flex-grow border-t border-slate-200"></div>
+                <div class="flex-grow border-t border-border-200"></div>
             </div>
 
             {{-- Reusable Alpine.js Store untuk Form --}}
@@ -79,9 +79,9 @@
                     <!-- Email Address -->
                     <div>
                         <x-input-label for="email" value="Alamat Email"
-                            class="mb-1.5 ml-1 text-sm font-medium text-gray-700" />
+                            class="mb-1.5 ml-1 text-body-base font-medium text-ink-700" />
                         <x-text-input id="email"
-                            class="block w-full px-4 py-3 transition-all border-gray-200 bg-gray-50 focus:border-[#5FBC97] focus:ring-[#5FBC97] focus:bg-white rounded-xl"
+                            class="block w-full px-4 py-3 transition-all rounded-md border-border-200 bg-surface-100 focus:border-primary-500 focus:ring-primary-500 focus:bg-surface-0"
                             type="email" name="email" :value="old('email')" required autofocus
                             placeholder="nama@bisnis.com" />
                         <x-input-error :messages="$errors->get('email')" class="mt-2" />
@@ -91,22 +91,21 @@
                     <div>
                         <div class="flex items-center justify-between mb-1.5 ml-1">
                             <x-input-label for="password" value="Kata Sandi"
-                                class="text-sm font-medium text-gray-700" />
+                                class="font-medium text-body-base text-ink-700" />
                             @if (Route::has('password.request'))
-                                {{-- Ganti 'text-brand' dengan warna hex jika belum dikonfigurasi di tailwind.config.js --}}
-                                <a class="text-sm font-bold text-[#16805F] hover:text-[#00513A]"
+                                <a class="font-bold text-body-base text-primary-600 hover:text-primary-900"
                                     href="{{ route('password.request') }}">Lupa Sandi?</a>
                             @endif
                         </div>
 
                         <div class="relative">
                             <x-text-input id="password"
-                                class="block w-full px-4 py-3 pr-12 transition-all border-gray-200 bg-gray-50 focus:border-[#5FBC97] focus:ring-[#5FBC97] focus:bg-white rounded-xl"
+                                class="block w-full px-4 py-3 pr-12 transition-all rounded-md border-border-200 bg-surface-100 focus:border-primary-500 focus:ring-primary-500 focus:bg-surface-0"
                                 ::type="showPassword ? 'text' : 'password'" name="password" required placeholder="••••••••" />
 
                             <!-- Tombol Mata (Show/Hide) -->
                             <button type="button"
-                                class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-[#16805F]"
+                                class="absolute inset-y-0 right-0 flex items-center pr-4 text-ink-400 hover:text-primary-600"
                                 @click="showPassword = !showPassword" tabindex="-1">
 
                                 {{-- Icon Mata (Heroicons) --}}
@@ -128,7 +127,7 @@
                         </div>
 
                         <!-- Peringatan Caps Lock -->
-                        <div x-show="capsLockOn" class="flex items-center mt-2.5 ml-1 text-sm text-amber-600"
+                        <div x-show="capsLockOn" class="flex items-center mt-2.5 ml-1 text-body-base text-accent-700"
                             style="display: none;">
                             <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -143,11 +142,11 @@
                     <!-- Remember Me -->
                     <div class="flex items-center justify-between ml-1">
                         <div class="flex items-center">
-                            {{-- Ganti 'text-brand' dan 'focus:ring-...' dengan warna hex jika belum dikonfigurasi --}}
                             <input id="remember_me" type="checkbox"
-                                class="w-4 h-4 border-gray-300 rounded text-[#16805F] focus:ring-[#5FBC97]"
+                                class="w-4 h-4 rounded border-border-200 text-primary-600 focus:ring-primary-500"
                                 name="remember">
-                            <label for="remember_me" class="text-sm font-medium text-gray-600 select-none ms-2.5">
+                            <label for="remember_me"
+                                class="text-body-base font-medium text-ink-700 select-none ms-2.5">
                                 Ingat saya di perangkat ini
                             </label>
                         </div>
@@ -156,7 +155,7 @@
                     <!-- Submit Button -->
                     <div class="pt-4">
                         <button type="submit" ::disabled="isSubmitting"
-                            class="w-full flex justify-center items-center py-4 bg-[#00513A] hover:bg-[#006C4E] text-white font-bold rounded-2xl text-lg shadow-md hover:shadow-lg transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed">
+                            class="w-full flex justify-center items-center py-4 bg-primary-900 hover:bg-primary-700 text-white font-bold rounded-lg text-body-lg shadow-md hover:shadow-lg transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed">
 
                             <!-- Spinner Animasi Loading -->
                             <svg x-show="isSubmitting" class="w-5 h-5 mr-3 animate-spin text-white/80"
@@ -177,19 +176,19 @@
 
             {{-- Footer (Daftar & Security) --}}
             <div class="mt-16 text-center">
-                <p class="text-base font-medium text-gray-600">
+                <p class="font-medium text-body-base text-ink-700">
                     Belum punya akun?
                     <a href="{{ route('register') }}"
-                        class="font-bold text-[#16805F] hover:underline decoration-2 underline-offset-4">
+                        class="font-bold text-primary-600 hover:underline decoration-2 underline-offset-4">
                         Daftar Gratis
                     </a>
                 </p>
-                <div class="flex items-center justify-center gap-2.5 pt-6 text-gray-400">
+                <div class="flex items-center justify-center gap-2.5 pt-6 text-ink-400">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                     </svg>
-                    <p class="text-sm">Koneksi Aman dan Terenkripsi Standar Industri</p>
+                    <p class="text-body-sm">Koneksi Aman dan Terenkripsi Standar Industri</p>
                 </div>
             </div>
         </div>

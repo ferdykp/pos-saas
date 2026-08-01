@@ -1,73 +1,134 @@
 <x-app-layout>
-    <div class="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
-        <div class="flex flex-col justify-between gap-4 mb-8 md:flex-row md:items-center">
+    @section('title', 'Riwayat Transaksi')
+
+    <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-desktop">
+
+        <!-- Header Page Section -->
+        <div
+            class="flex flex-col justify-between gap-4 pb-6 mb-8 border-b sm:flex-row sm:items-center border-border-200">
             <div>
-                <h1 class="text-3xl font-black tracking-tight text-gray-900">Riwayat Transaksi</h1>
-                <p class="font-medium text-gray-500">Pantau semua penjualan dan status pembayaran kasir Anda.</p>
+                <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
+                    Riwayat Transaksi
+                </h1>
+                <p class="mt-1 text-xs font-body md:text-sm text-ink-700">
+                    Pantau semua catatan penjualan, status pembayaran, dan riwayat struk belanja pelanggan.
+                </p>
             </div>
+
             <a href="{{ route('pos.index') }}"
-                class="px-6 py-3 font-bold text-center text-white transition bg-blue-600 shadow-xl rounded-2xl shadow-blue-100 hover:bg-blue-700 active:scale-95">
-                + Transaksi Baru (POS)
+                class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body md:text-sm shrink-0">
+                <i class="text-xs fa-solid fa-plus"></i>
+                <span>Transaksi Baru (POS)</span>
             </a>
         </div>
 
-        <div class="overflow-hidden bg-white border border-gray-100 shadow-sm rounded-[2.5rem]">
-            <table class="w-full text-left">
-                <thead class="border-b border-gray-100 bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-4 text-xs font-black tracking-widest text-gray-400 uppercase">Invoice</th>
-                        <th class="px-6 py-4 text-xs font-black tracking-widest text-gray-400 uppercase">Pelanggan</th>
-                        <th class="px-6 py-4 text-xs font-black tracking-widest text-center text-gray-400 uppercase">
-                            Status</th>
-                        <th class="px-6 py-4 text-xs font-black tracking-widest text-right text-gray-400 uppercase">
-                            Total</th>
-                        <th class="px-6 py-4 text-xs font-black tracking-widest text-right text-gray-400 uppercase">Aksi
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-50">
-                    @forelse($orders as $o)
-                        <tr class="transition-colors hover:bg-gray-50/50">
-                            <td class="px-6 py-4">
-                                <p class="text-sm font-bold text-gray-900">{{ $o->invoice_number }}</p>
-                                <p class="text-[10px] font-medium text-gray-400">
-                                    {{ $o->created_at->format('d M Y, H:i') }}</p>
-                            </td>
-                            <td class="px-6 py-4">
-                                <p class="text-sm font-bold text-gray-900">{{ $o->customer->name ?? 'Guest' }}</p>
-                                <p class="text-[10px] font-medium text-gray-400">Oleh: {{ $o->user->name }}</p>
-                            </td>
-                            <td class="px-6 py-4 text-center">
-                                @if ($o->payment_status === 'paid')
-                                    <span
-                                        class="px-3 py-1 text-[10px] font-black text-green-600 bg-green-100 rounded-lg uppercase">Lunas</span>
-                                @else
-                                    <span
-                                        class="px-3 py-1 text-[10px] font-black text-amber-600 bg-amber-100 rounded-lg uppercase">Bon
-                                        (Hutang)
+        <!-- Table Container (Spesifikasi GrowPOS: Row Height 48px) -->
+        <div class="mb-6 overflow-hidden border rounded-lg shadow-sm bg-surface-0 border-border-200">
+            <div class="w-full overflow-x-auto custom-scrollbar">
+                <table class="w-full text-left border-collapse whitespace-nowrap">
+                    <thead>
+                        <tr
+                            class="h-12 text-xs font-semibold tracking-wider uppercase border-b bg-surface-100 border-border-200 font-heading text-ink-700">
+                            <th class="px-5 py-3">No. Invoice & Tanggal</th>
+                            <th class="px-5 py-3">Pelanggan & Kasir</th>
+                            <th class="px-5 py-3 text-center">Status Pembayaran</th>
+                            <th class="px-5 py-3 text-right">Total Transaksi</th>
+                            <th class="px-5 py-3 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-xs divide-y font-body md:text-sm text-ink-900 divide-border-200">
+                        @forelse($orders as $o)
+                            <tr class="h-12 transition-colors hover:bg-surface-100/60">
+
+                                <!-- Invoice Number & Date -->
+                                <td class="px-5 py-3">
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="flex items-center justify-center w-8 h-8 border rounded-md bg-primary-50 text-primary-600 border-primary-100 shrink-0">
+                                            <i class="text-xs fa-solid fa-receipt"></i>
+                                        </div>
+                                        <div>
+                                            <span class="block font-mono font-semibold leading-tight text-ink-900">
+                                                {{ $o->invoice_number }}
+                                            </span>
+                                            <span class="text-[11px] font-normal text-ink-400 mt-0.5 block">
+                                                {{ $o->created_at->format('d M Y, H:i') }} WIB
+                                            </span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- Customer & Operator -->
+                                <td class="px-5 py-3">
+                                    <div>
+                                        <span class="block font-semibold leading-tight text-ink-900">
+                                            {{ $o->customer->name ?? 'Pelanggan Umum (Guest)' }}
+                                        </span>
+                                        <span class="text-[11px] font-normal text-ink-400 mt-0.5 block">
+                                            Kasir: {{ $o->user->name ?? 'Sistem' }}
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <!-- Payment Status Pill Badge -->
+                                <td class="px-5 py-3 text-center">
+                                    @if ($o->payment_status === 'paid')
+                                        <span
+                                            class="inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-semibold text-primary-700 bg-primary-100 rounded-full">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-primary-600"></span>
+                                            Lunas
+                                        </span>
+                                    @else
+                                        <span
+                                            class="inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-semibold text-accent-700 bg-accent-100 rounded-full">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-accent-500"></span>
+                                            Bon (Hutang)
+                                        </span>
+                                    @endif
+                                </td>
+
+                                <!-- Grand Total (Monospace Price) -->
+                                <td class="px-5 py-3 text-right">
+                                    <span class="font-mono text-sm font-semibold text-ink-900">
+                                        Rp {{ number_format($o->grand_total, 0, ',', '.') }}
                                     </span>
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 font-black text-right text-gray-900">
-                                Rp {{ number_format($o->grand_total, 0, ',', '.') }}
-                            </td>
-                            <td class="px-6 py-4 text-right">
-                                <div class="flex justify-end gap-2">
-                                    <a href="{{ route('orders.show', $o->id) }}"
-                                        class="text-[10px] font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-md uppercase hover:bg-blue-100 transition">Detail
-                                        & Struk</a>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="px-6 py-12 italic text-center text-gray-400">Belum ada transaksi
-                                hari ini.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                                </td>
+
+                                <!-- Action Buttons -->
+                                <td class="px-5 py-3 text-center">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <a href="{{ route('orders.show', $o->id) }}"
+                                            class="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold text-primary-700 bg-primary-50 hover:bg-primary-600 hover:text-white rounded-md transition-colors">
+                                            <i class="text-xs fa-solid fa-file-invoice"></i>
+                                            <span>Detail & Struk</span>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="px-6 py-12 text-center">
+                                    <div class="flex flex-col items-center justify-center">
+                                        <div
+                                            class="flex items-center justify-center w-12 h-12 mb-2 rounded-full bg-primary-50 text-primary-600">
+                                            <i class="text-xl fa-solid fa-receipt"></i>
+                                        </div>
+                                        <p class="text-sm font-semibold font-heading text-ink-900">Belum ada transaksi
+                                            recorded</p>
+                                        <p class="font-body text-xs text-ink-700 mt-0.5">Semua transaksi kasir baru akan
+                                            muncul di sini.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <div class="mt-6">{{ $orders->links() }}</div>
+
+        <!-- Pagination Bar -->
+        <div>
+            {{ $orders->links() }}
+        </div>
     </div>
 </x-app-layout>

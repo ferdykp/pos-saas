@@ -1,85 +1,180 @@
 <x-app-layout>
-    {{-- <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8"> --}}
-    <div class="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
+    @section('title', 'Kategori Produk')
 
-        <div class="mb-8">
-            <h1 class="text-3xl font-black tracking-tight text-gray-900">Kategori Produk</h1>
-            <p class="font-medium text-gray-500">Kelola grup produk untuk memudahkan pencarian di kasir.</p>
+    <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-desktop" x-data="{ showDeleteModal: false, deleteUrl: '', categoryName: '' }">
+
+        <!-- Header Halaman -->
+        <div class="pb-6 mb-8 border-b border-border-200">
+            <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
+                Kategori Produk
+            </h1>
+            <p class="mt-1 text-xs font-body md:text-sm text-ink-700">
+                Kelola pengelompokan menu & item barang untuk mempercepat navigasi pencarian di POS Terminal.
+            </p>
         </div>
 
-        <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
+        <!-- 2 Column Grid Layout -->
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+
+            <!-- Column 1: Form Tambah Kategori Sidebar -->
             <div class="lg:col-span-1">
-                <div class="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm sticky top-6">
-                    <h3 class="mb-6 text-lg font-bold text-gray-900">Tambah Kategori</h3>
+                <div class="sticky p-6 border rounded-lg shadow-sm bg-surface-0 border-border-200 top-6">
+                    <div class="flex items-center gap-2.5 pb-4 mb-4 border-b border-border-200">
+                        <div
+                            class="flex items-center justify-center w-8 h-8 text-xs font-bold rounded-md bg-primary-50 text-primary-600 font-heading">
+                            <i class="text-xs fa-solid fa-folder-plus"></i>
+                        </div>
+                        <h3 class="text-base font-semibold font-heading text-ink-900">Tambah Kategori</h3>
+                    </div>
+
                     <form action="{{ route('categories.store') }}" method="POST" class="space-y-4">
                         @csrf
                         <div>
-                            <label class="block mb-2 text-sm font-bold text-gray-700">Nama Kategori</label>
-                            <input type="text" name="name" placeholder="Contoh: Minuman Dingin" required
-                                class="w-full px-4 py-3 transition border-gray-100 rounded-2xl bg-gray-50 focus:border-blue-500 focus:ring-blue-500">
+                            <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
+                                Nama Kategori <span class="text-semantic-danger">*</span>
+                            </label>
+                            <input type="text" name="name" placeholder="Contoh: Minuman Dingin, Espresso" required
+                                class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 placeholder-ink-400 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100">
                         </div>
+
                         <button type="submit"
-                            class="w-full py-4 font-black text-white transition bg-blue-600 shadow-lg rounded-2xl shadow-blue-100 hover:bg-blue-700 active:scale-95">
-                            Simpan Kategori
+                            class="inline-flex items-center justify-center w-full gap-2 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body">
+                            <i class="text-xs fa-solid fa-check"></i>
+                            <span>Simpan Kategori</span>
                         </button>
                     </form>
                 </div>
             </div>
 
+            <!-- Column 2: Data Table Kategori -->
             <div class="lg:col-span-2">
-                <div class="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden">
-                    <table class="w-full text-left">
-                        <thead class="border-b border-gray-100 bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-4 text-xs font-black tracking-widest text-gray-400 uppercase">Nama
-                                    Kategori</th>
-                                <th
-                                    class="px-6 py-4 text-xs font-black tracking-widest text-center text-gray-400 uppercase">
-                                    Jumlah Produk</th>
-                                <th
-                                    class="px-6 py-4 text-xs font-black tracking-widest text-right text-gray-400 uppercase">
-                                    Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-50">
-                            @forelse($categories as $category)
-                                <tr class="transition hover:bg-gray-50/50">
-                                    <td class="px-6 py-4">
-                                        <p class="text-sm font-bold text-gray-900">{{ $category->name }}</p>
-                                        <p class="text-[10px] text-gray-400 font-mono">{{ $category->slug }}</p>
-                                    </td>
-                                    <td class="px-6 py-4 text-center">
-                                        <span class="px-3 py-1 text-xs font-bold text-blue-600 rounded-lg bg-blue-50">
-                                            {{ $category->products_count }} Item
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-right">
-                                        <form action="{{ route('categories.destroy', $category) }}" method="POST"
-                                            onsubmit="return confirm('Hapus kategori ini?')">
-                                            @csrf @method('DELETE')
-                                            <button class="p-2 text-gray-400 transition hover:text-red-500">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-width="2"
-                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                </svg>
+                <div class="mb-4 overflow-hidden border rounded-lg shadow-sm bg-surface-0 border-border-200">
+                    <div class="w-full overflow-x-auto custom-scrollbar">
+                        <table class="w-full text-left border-collapse whitespace-nowrap">
+                            <thead>
+                                <tr
+                                    class="h-12 text-xs font-semibold tracking-wider uppercase border-b bg-surface-100 border-border-200 font-heading text-ink-700">
+                                    <th class="px-5 py-3">Nama Kategori & Slug</th>
+                                    <th class="px-5 py-3 text-center">Jumlah Produk</th>
+                                    <th class="px-5 py-3 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-xs divide-y font-body md:text-sm text-ink-900 divide-border-200">
+                                @forelse($categories as $category)
+                                    <tr class="h-12 transition-colors hover:bg-surface-100/60">
+
+                                        <!-- Name & Slug -->
+                                        <td class="px-5 py-3">
+                                            <div class="flex items-center gap-3">
+                                                <div
+                                                    class="flex items-center justify-center w-8 h-8 rounded-md bg-primary-100 text-primary-700 shrink-0">
+                                                    <i class="text-xs fa-solid fa-layer-group"></i>
+                                                </div>
+                                                <div class="min-w-0">
+                                                    <span
+                                                        class="block font-semibold leading-tight truncate text-ink-900">
+                                                        {{ $category->name }}
+                                                    </span>
+                                                    <span
+                                                        class="font-mono text-[11px] font-normal text-ink-400 mt-0.5 block truncate">
+                                                        /{{ $category->slug }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        <!-- Items Counter Badge (Pill Shape: radius-full) -->
+                                        <td class="px-5 py-3 text-center">
+                                            <span
+                                                class="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold text-primary-700 bg-primary-100 rounded-full">
+                                                {{ $category->products_count }} Item
+                                            </span>
+                                        </td>
+
+                                        <!-- Action Column -->
+                                        <td class="px-5 py-3 text-center">
+                                            <button type="button"
+                                                @click="showDeleteModal = true; deleteUrl = '{{ route('categories.destroy', $category) }}'; categoryName = '{{ addslashes($category->name) }}'"
+                                                class="p-2 transition-colors rounded-md text-ink-700 hover:text-semantic-danger bg-surface-100 hover:bg-red-50"
+                                                title="Hapus Kategori">
+                                                <i class="text-xs fa-solid fa-trash-can"></i>
                                             </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="3" class="px-6 py-12 text-sm italic text-center text-gray-400">Belum
-                                        ada kategori.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <!-- Empty State -->
+                                    <tr>
+                                        <td colspan="3" class="px-6 py-12 text-center">
+                                            <div class="flex flex-col items-center justify-center">
+                                                <div
+                                                    class="flex items-center justify-center w-12 h-12 mb-2 rounded-full bg-primary-50 text-primary-600">
+                                                    <i class="text-xl fa-solid fa-folder-open"></i>
+                                                </div>
+                                                <p class="text-sm font-semibold font-heading text-ink-900">Belum ada
+                                                    kategori produk</p>
+                                                <p class="font-body text-xs text-ink-700 mt-0.5 max-w-xs">
+                                                    Gunakan form di sebelah kiri untuk mendaftarkan grup kategori
+                                                    pertama Anda.
+                                                </p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <div class="px-4 mt-4">
-                    {{ $categories->links() }}
+
+                <!-- Pagination Bar -->
+                @if ($categories->hasPages())
+                    <div class="px-1">
+                        {{ $categories->links() }}
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        <!-- Modal Confirm Hapus Kategori -->
+        <div x-show="showDeleteModal" x-cloak x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-900/40 backdrop-blur-[2px]">
+
+            <div class="w-full p-6 border rounded-lg shadow-lg max-w-modal-sm bg-surface-0 border-border-200"
+                @click.away="showDeleteModal = false">
+
+                <div
+                    class="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-red-50 text-semantic-danger">
+                    <i class="text-xl fa-solid fa-folder-minus"></i>
+                </div>
+
+                <div class="mb-6 text-center">
+                    <h3 class="text-lg font-semibold font-heading text-ink-900">Hapus Kategori Ini?</h3>
+                    <p class="mt-2 text-xs leading-relaxed font-body text-ink-700">
+                        Apakah Anda yakin ingin menghapus kategori <span class="font-semibold text-ink-900"
+                            x-text="categoryName"></span>? Produk yang terhubung dengan kategori ini tidak akan
+                        terhapus.
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button type="button" @click="showDeleteModal = false"
+                        class="flex-1 text-xs font-semibold transition-colors rounded-md h-11 bg-surface-100 hover:bg-border-200 text-ink-900 font-body">
+                        Batal
+                    </button>
+
+                    <form :action="deleteUrl" method="POST" class="flex-1">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit"
+                            class="w-full text-xs font-semibold text-white transition-colors rounded-md h-11 bg-semantic-danger hover:bg-red-700 font-body">
+                            Ya, Hapus
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
+
     </div>
 </x-app-layout>

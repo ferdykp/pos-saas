@@ -1,177 +1,150 @@
 <x-app-layout>
-    <div class="max-w-xl px-4 py-12 mx-auto no-print-area">
-        <div class="flex justify-between mb-6">
-            <a href="{{ route('pos.index') }}"
-                class="flex items-center text-sm font-bold text-gray-500 transition hover:text-gray-900">
-                <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                </svg>
-                Kembali ke POS
+    @section('title', 'Detail Struk Transaksi')
+
+    <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-modal-lg">
+
+        <!-- Navigation Top Bar -->
+        <div class="flex items-center justify-between mb-6 no-print-area">
+            <a href="{{ route('orders.index') }}"
+                class="inline-flex items-center gap-2 text-xs font-semibold transition-colors font-body text-ink-700 hover:text-primary-600">
+                <i class="text-xs fa-solid fa-arrow-left"></i>
+                <span>Kembali ke Riwayat Transaksi</span>
             </a>
 
             <button id="btnPrintReceipt"
-                class="px-6 py-2 text-xs font-black text-white transition bg-blue-600 shadow-lg rounded-xl hover:bg-blue-700">
-                <i class="mr-2 fa-solid fa-print"></i> CETAK STRUK
+                class="inline-flex items-center h-10 gap-2 px-5 text-xs font-semibold text-white transition-colors rounded-md shadow-sm bg-primary-600 hover:bg-primary-700 font-body">
+                <i class="fa-solid fa-print"></i>
+                <span>Cetak Struk Belanja</span>
             </button>
         </div>
-    </div>
 
-    <div id="receipt" class="mx-auto bg-white shadow-2xl print:shadow-none print:m-0 print:w-full">
-        <div class="receipt-content p-8 print:p-2 w-full max-w-[400px] mx-auto">
+        <!-- Digital Receipt Card Simulation -->
+        <div id="receipt"
+            class="mx-auto bg-surface-0 border border-border-200 rounded-lg shadow-sm p-6 md:p-8 max-w-[420px]">
 
+            <!-- Store Brand Header -->
             <div class="mb-6 text-center">
-                <h2 class="text-2xl font-black tracking-tighter uppercase print:text-lg">
-                    {{ auth()->user()->tenant->name ?? 'Toko Saya' }}
+                <h2 class="text-xl font-bold tracking-tight uppercase font-heading text-ink-900">
+                    {{ auth()->user()->tenant->name ?? 'GROWPOS STORE' }}
                 </h2>
-                <p class="text-[10px] font-bold text-gray-500 leading-tight uppercase">
-                    {{ auth()->user()->tenant->address ?? 'Alamat Belum Diatur' }}<br>
+                <p class="font-body text-[11px] text-ink-700 mt-1 leading-snug">
+                    {{ auth()->user()->tenant->address ?? 'Alamat Operasional Toko' }}<br>
                     Telp/WA: {{ auth()->user()->tenant->phone ?? '-' }}
                 </p>
             </div>
 
-            <div class="my-4 border-b border-black border-dashed opacity-20 print:opacity-100"></div>
+            <div class="my-4 border-b border-dashed border-border-200"></div>
 
-            <div class="space-y-1 text-[11px] font-mono uppercase">
+            <!-- Receipt Meta Info -->
+            <div class="space-y-1.5 font-mono text-xs text-ink-900">
                 <div class="flex justify-between">
-                    <span>Invoice:</span>
-                    <span class="font-bold">{{ $order->invoice_number }}</span>
+                    <span class="text-ink-400">No. Invoice:</span>
+                    <span class="font-semibold text-ink-900">{{ $order->invoice_number }}</span>
                 </div>
                 <div class="flex justify-between">
-                    <span>Tanggal:</span>
-                    <span>{{ $order->created_at->format('d/m/y H:i') }}</span>
+                    <span class="text-ink-400">Waktu:</span>
+                    <span>{{ $order->created_at->format('d/m/Y H:i') }} WIB</span>
                 </div>
-                <div class="flex justify-between pt-2 mt-2 text-gray-600 border-t border-black border-dashed">
-                    <span>Kasir:</span>
+                <div class="flex justify-between">
+                    <span class="text-ink-400">Kasir:</span>
                     <span>{{ auth()->user()->name }}</span>
                 </div>
                 <div class="flex justify-between">
-                    <span>Pelanggan:</span>
-                    <span class="ml-4 truncate">{{ $order->customer->name ?? 'Umum' }}</span>
+                    <span class="text-ink-400">Pelanggan:</span>
+                    <span class="font-semibold text-ink-900">{{ $order->customer->name ?? 'Pelanggan Umum' }}</span>
                 </div>
             </div>
 
-            <div class="my-4 border-b border-black border-dashed opacity-20 print:opacity-100"></div>
+            <div class="my-4 border-b border-dashed border-border-200"></div>
 
-            <div class="space-y-3 font-mono text-xs">
+            <!-- Purchased Item Details -->
+            <div class="space-y-2.5 font-mono text-xs">
                 @foreach ($order->items as $item)
                     <div>
-                        <div class="flex justify-between leading-tight">
-                            <span class="uppercase">{{ $item->product_name }}</span>
-                            <span class="font-bold">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</span>
+                        <div class="flex justify-between font-semibold leading-tight text-ink-900">
+                            <span class="pr-2 uppercase truncate">{{ $item->product_name }}</span>
+                            <span>Rp {{ number_format($item->subtotal, 0, ',', '.') }}</span>
                         </div>
-                        <div class="text-[10px] text-gray-500 italic">
-                            {{ $item->quantity }} x {{ number_format($item->price, 0, ',', '.') }}
+                        <div class="text-[11px] text-ink-400 mt-0.5">
+                            {{ $item->quantity }}x @ Rp {{ number_format($item->price, 0, ',', '.') }}
                         </div>
                     </div>
                 @endforeach
             </div>
 
-            <div class="my-4 border-b border-black border-dashed opacity-20 print:opacity-100"></div>
+            <div class="my-4 border-b border-dashed border-border-200"></div>
 
-            <div class="space-y-1 font-mono text-xs">
-                <div class="flex justify-between text-gray-600">
+            <!-- Totals & Payment Calculations -->
+            <div class="space-y-1.5 font-mono text-xs text-ink-900">
+                <div class="flex justify-between text-ink-700">
                     <span>Subtotal</span>
                     <span>Rp {{ number_format($order->subtotal, 0, ',', '.') }}</span>
                 </div>
                 @if ($order->discount > 0)
-                    <div class="flex justify-between text-gray-600">
+                    <div class="flex justify-between text-semantic-danger">
                         <span>Diskon</span>
                         <span>-Rp {{ number_format($order->discount, 0, ',', '.') }}</span>
                     </div>
                 @endif
                 @if ($order->tax > 0)
-                    <div class="flex justify-between text-gray-600">
-                        <span>Pajak</span>
+                    <div class="flex justify-between text-ink-700">
+                        <span>Pajak Outlet</span>
                         <span>+Rp {{ number_format($order->tax, 0, ',', '.') }}</span>
                     </div>
                 @endif
 
                 <div
-                    class="flex justify-between pt-2 mt-2 text-base font-black uppercase border-t border-black border-double">
-                    <span>Total</span>
+                    class="flex justify-between pt-2 mt-2 text-sm font-bold border-t border-double border-border-200 text-primary-600">
+                    <span>TOTAL</span>
                     <span>Rp {{ number_format($order->grand_total, 0, ',', '.') }}</span>
                 </div>
 
-                <div class="flex justify-between pt-2">
+                <div class="flex justify-between pt-2 text-ink-700">
                     <span>Bayar ({{ strtoupper($order->payment_method) }})</span>
                     <span>Rp {{ number_format($order->paid_amount, 0, ',', '.') }}</span>
                 </div>
-                <div class="flex justify-between">
+                <div class="flex justify-between text-ink-700">
                     <span>Kembali</span>
                     <span>Rp {{ number_format($order->change_amount, 0, ',', '.') }}</span>
                 </div>
             </div>
 
-            <div class="mt-8 text-center">
-                <div class="inline-block px-4 py-1 border border-black mb-4 font-black text-[10px] uppercase">
-                    {{ $order->payment_status === 'paid' ? 'LUNAS' : 'PIUTANG' }}
-                </div>
-                <p class="text-[10px] font-bold uppercase tracking-tight">
-                    Terima Kasih Atas Kunjungan Anda!<br>
+            <!-- Status Badge & Thank You Note -->
+            <div class="mt-6 text-center">
+                @if ($order->payment_status === 'paid')
+                    <span
+                        class="inline-flex items-center px-3 py-1 mb-3 text-xs font-bold rounded-full font-heading bg-primary-100 text-primary-700">
+                        ✓ LUNAS
+                    </span>
+                @else
+                    <span
+                        class="inline-flex items-center px-3 py-1 mb-3 text-xs font-bold rounded-full font-heading bg-accent-100 text-accent-700">
+                        ! PIUTANG / BON
+                    </span>
+                @endif
+
+                <p class="font-body text-[11px] text-ink-700 leading-tight">
+                    Terima kasih atas kunjungan Anda!<br>
                     Barang yang sudah dibeli tidak dapat ditukar/dikembalikan.
                 </p>
-                <div class="mt-4 text-[9px] text-gray-400 font-mono italic">
-                    Powered by {{ config('app.name') }}
+                <div class="mt-3 font-mono text-[10px] text-ink-400">
+                    Powered by GrowPOS SaaS
                 </div>
             </div>
         </div>
+
+        <!-- WhatsApp Share CTA Action -->
+        <div class="max-w-[420px] mx-auto mt-4 no-print-area">
+            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $order->customer->phone ?? '') }}?text=Terima%20kasih%20sudah%20berbelanja%20di%20{{ urlencode(auth()->user()->tenant->name ?? 'Toko Kami') }}!%20Berikut%20rincian%20struk%20Anda:%20{{ urlencode(route('orders.show', $order->id)) }}"
+                target="_blank"
+                class="inline-flex items-center justify-center w-full gap-2 px-5 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-semantic-success hover:bg-emerald-600 font-body">
+                <i class="text-base fa-brands fa-whatsapp"></i>
+                <span>Kirim Struk Digital ke WhatsApp</span>
+            </a>
+        </div>
     </div>
 
-    <div class="max-w-xl px-4 py-6 mx-auto no-print-area">
-        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $order->customer->phone ?? '') }}?text=Terima%20kasih%20sudah%20berbelanja!%20Ini%20struk%20Anda:%20{{ urlencode(route('orders.show', $order->id)) }}"
-            target="_blank"
-            class="flex items-center justify-center w-full py-4 font-black text-white transition bg-green-500 shadow-xl rounded-2xl hover:bg-green-600 active:scale-95">
-            <i class="mr-2 text-xl fa-brands fa-whatsapp"></i>
-            KIRIM STRUK KE WHATSAPP
-        </a>
-    </div>
-
-    <style>
-        /* Sembunyikan elemen tertentu saat print */
-        @media print {
-            .no-print-area {
-                display: none !important;
-            }
-
-            body,
-            html {
-                background: white;
-                margin: 0;
-                padding: 0;
-            }
-
-            #receipt {
-                width: 100% !important;
-                max-width: 100% !important;
-                padding: 0 !important;
-                margin: 0 !important;
-                box-shadow: none !important;
-                border: none !important;
-            }
-
-            .receipt-content {
-                width: 100% !important;
-                max-width: 100% !important;
-                padding: 0px 10px !important;
-            }
-
-            .font-mono {
-                font-family: 'Courier New', Courier, monospace !important;
-            }
-        }
-
-        /* Tampilan di Layar agar mirip struk fisik */
-        #receipt {
-            max-width: 400px;
-            border-radius: 10px;
-            border: 1px solid #e5e7eb;
-        }
-    </style>
-
-    <!-- Iframe Tersembunyi -->
-    {{-- <iframe id="printFrame" style="position: absolute; width: 0; height: 0; border: 0; opacity: 0;"></iframe> --}}
-    <iframe id="printFrame" style="display:none;"></iframe>
-
+    <iframe id="printFrame" class="hidden"></iframe>
 
     <script>
         const btnPrint = document.getElementById('btnPrintReceipt');
@@ -179,18 +152,15 @@
         btnPrint.onclick = function() {
             const url = "{{ route('orders.print', $order->id) }}";
 
-            // 1. Ubah tombol ke mode loading sebentar
             btnPrint.disabled = true;
-            btnPrint.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> MENYIAPKAN...';
+            btnPrint.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Menyiapkan...';
 
-            // 2. Buka jendela pop-up kecil di latar belakang
             const printWindow = window.open(url, '_blank', 'width=400,height=600,top=100,left=100');
 
-            // 3. Kembalikan tombol ke normal setelah 2 detik
             setTimeout(() => {
                 btnPrint.disabled = false;
-                btnPrint.innerHTML = '<i class="mr-2 fa-solid fa-print"></i> CETAK STRUK';
-            }, 2000);
+                btnPrint.innerHTML = '<i class="fa-solid fa-print"></i> Cetak Struk Belanja';
+            }, 1800);
         };
     </script>
 </x-app-layout>

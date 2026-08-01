@@ -1,117 +1,361 @@
 <x-app-layout>
-    <div class="max-w-5xl px-4 py-8 mx-auto sm:px-6 lg:px-8">
+    @section('title', 'Smart AI Business Advisor & Assistant')
 
-        <div class="flex flex-col gap-4 mb-8 sm:flex-row sm:items-center sm:justify-between">
-            <div class="flex items-center space-x-4">
+    <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-desktop" x-data="aiChatHandler()">
+
+        <!-- Header Halaman -->
+        <div
+            class="flex flex-col justify-between gap-4 pb-4 mb-6 border-b sm:flex-row sm:items-center border-border-200">
+            <div class="flex items-center gap-3">
                 <div
-                    class="p-3 text-white shadow-xl bg-gradient-to-tr from-blue-600 to-purple-600 rounded-2xl shadow-blue-100">
-                    <i class="text-xl fa-solid fa-robot"></i>
+                    class="flex items-center justify-center w-10 h-10 text-lg text-white rounded-md shadow-sm bg-primary-600 shrink-0">
+                    <i class="fa-solid fa-brain"></i>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-black tracking-tight text-gray-900">Smart AI Business Advisor</h1>
-                    <p class="text-xs font-medium text-gray-400">Analisis kecerdasan buatan multi-metrik berdasarkan data
-                        riil 30 hari terakhir.</p>
+                    <h1 class="text-xl font-bold leading-tight font-heading md:text-2xl text-ink-900">
+                        Smart AI Advisor & Assistant
+                    </h1>
+                    <p class="font-body text-xs text-ink-700 mt-0.5">
+                        Analisis otomatis performa outlet & asisten percakapan interaktif berbasis data riil 30 hari
+                        terakhir.
+                    </p>
                 </div>
             </div>
-            <div>
+
+            <div class="flex items-center gap-2 shrink-0">
                 <span
-                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-green-700 bg-green-50 border border-green-100 rounded-xl">
-                    <span class="w-2 h-2 bg-green-500 rounded-full animate-ping"></span>
+                    class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary-100 text-primary-700">
+                    <span class="w-2 h-2 rounded-full bg-primary-600 animate-pulse"></span>
                     AI Engine Active
                 </span>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 gap-4 mb-8 sm:grid-cols-2 lg:grid-cols-4">
-
-            <div class="p-5 bg-white border border-gray-100 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.015)]">
-                <div class="flex items-center justify-between mb-3">
-                    <span class="text-xs font-bold tracking-wider text-gray-400 uppercase">Omset / Hari</span>
-                    <div class="p-2 text-xs text-blue-600 bg-blue-50 rounded-xl"><i class="fa-solid fa-chart-line"></i>
-                    </div>
+        <!-- Metric Stat Banner -->
+        <div class="grid grid-cols-2 gap-3 mb-6 lg:grid-cols-4">
+            <div
+                class="bg-surface-0 p-3.5 rounded-lg border border-border-200 shadow-sm flex items-center justify-between">
+                <div>
+                    <span
+                        class="font-body text-[11px] font-semibold text-ink-700 uppercase tracking-wider block">Rata-rata
+                        Omzet / Hari</span>
+                    <p class="mt-1 font-mono text-base font-semibold md:text-lg text-primary-600">
+                        Rp {{ number_format($rataRataOmsetHarian, 0, ',', '.') }}
+                    </p>
                 </div>
-                <h3 class="text-lg font-black text-gray-900">
-                    Rp {{ number_format($rataRataOmsetHarian, 0, ',', '.') }}
-                </h3>
-                <p class="mt-1 text-[11px] text-gray-400 font-medium">Rataan pendapatan harian</p>
+                <div
+                    class="flex items-center justify-center w-8 h-8 text-xs rounded-md bg-primary-50 text-primary-600 shrink-0">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
             </div>
 
-            <div class="p-5 bg-white border border-gray-100 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.015)]">
-                <div class="flex items-center justify-between mb-3">
-                    <span class="text-xs font-bold tracking-wider text-gray-400 uppercase">Hari Teramai</span>
-                    <div class="p-2 text-xs text-purple-600 bg-purple-50 rounded-xl"><i
-                            class="fa-solid fa-calendar-day"></i></div>
+            <div
+                class="bg-surface-0 p-3.5 rounded-lg border border-border-200 shadow-sm flex items-center justify-between">
+                <div>
+                    <span class="font-body text-[11px] font-semibold text-ink-700 uppercase tracking-wider block">Hari
+                        Teramai</span>
+                    <p class="mt-1 text-sm font-semibold font-heading md:text-base text-accent-700">
+                        {{ $hariTeramaiIndo }}
+                    </p>
                 </div>
-                <h3 class="text-lg font-black text-purple-700">
-                    {{ $hariTeramaiIndo }}
-                </h3>
-                <p class="mt-1 text-[11px] text-gray-400 font-medium">Puncak traffic transaksi</p>
+                <div
+                    class="flex items-center justify-center w-8 h-8 text-xs rounded-md bg-accent-100 text-accent-700 shrink-0">
+                    <i class="fa-solid fa-calendar-day"></i>
+                </div>
             </div>
 
-            <div class="p-5 bg-white border border-gray-100 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.015)]">
-                <div class="flex items-center justify-between mb-3">
-                    <span class="text-xs font-bold tracking-wider text-gray-400 uppercase">Avg Basket Size</span>
-                    <div class="p-2 text-xs text-emerald-600 bg-emerald-50 rounded-xl"><i
-                            class="fa-solid fa-basket-shopping"></i></div>
+            <div
+                class="bg-surface-0 p-3.5 rounded-lg border border-border-200 shadow-sm flex items-center justify-between">
+                <div>
+                    <span class="font-body text-[11px] font-semibold text-ink-700 uppercase tracking-wider block">Avg
+                        Basket Size</span>
+                    <p class="mt-1 font-mono text-base font-semibold md:text-lg text-ink-900">
+                        Rp {{ number_format($rataRataNilaiPerNota, 0, ',', '.') }}
+                    </p>
                 </div>
-                <h3 class="text-lg font-black text-gray-900">
-                    Rp {{ number_format($rataRataNilaiPerNota, 0, ',', '.') }}
-                </h3>
-                <p class="mt-1 text-[11px] text-gray-400 font-medium">Rata-rata belanja per nota</p>
+                <div
+                    class="flex items-center justify-center w-8 h-8 text-xs rounded-md bg-primary-100 text-primary-700 shrink-0">
+                    <i class="fa-solid fa-basket-shopping"></i>
+                </div>
             </div>
 
-            <div class="p-5 bg-white border border-gray-100 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.015)]">
-                <div class="flex items-center justify-between mb-3">
-                    <span class="text-xs font-bold tracking-wider text-gray-400 uppercase">Produk Juara</span>
-                    <div class="p-2 text-xs text-amber-600 bg-amber-50 rounded-xl"><i class="fa-solid fa-crown"></i>
-                    </div>
+            <div
+                class="bg-surface-0 p-3.5 rounded-lg border border-border-200 shadow-sm flex items-center justify-between">
+                <div class="min-w-0 pr-2">
+                    <span class="font-body text-[11px] font-semibold text-ink-700 uppercase tracking-wider block">Produk
+                        Juara</span>
+                    <p class="mt-1 text-xs font-semibold truncate font-heading md:text-sm text-accent-700"
+                        title="{{ $produkJuara }}">
+                        {{ $produkJuara }}
+                    </p>
                 </div>
-                <h3 class="text-sm font-black truncate text-amber-700" title="{{ $produkJuara }}">
-                    {{ $produkJuara }}
-                </h3>
-                <p class="mt-1 text-[11px] text-gray-400 font-medium">Item paling sering dibeli</p>
+                <div
+                    class="flex items-center justify-center w-8 h-8 text-xs rounded-md bg-accent-100 text-accent-700 shrink-0">
+                    <i class="fa-solid fa-crown"></i>
+                </div>
             </div>
         </div>
 
-        <div
-            class="bg-white border border-gray-100 shadow-[0_15px_50px_rgb(0,0,0,0.02)] rounded-[2.5rem] overflow-hidden">
-            <div class="h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-600"></div>
+        <!-- Split Screen Layout -->
+        <div class="grid items-start grid-cols-1 gap-6 lg:grid-cols-12">
 
-            <div class="p-8 sm:p-10">
-                <div class="flex items-center gap-2 pb-4 mb-6 border-b border-gray-50">
-                    <span class="relative flex w-2 h-2">
-                        <span
-                            class="absolute inline-flex w-full h-full bg-blue-400 rounded-full opacity-75 animate-ping"></span>
-                        <span class="relative inline-flex w-2 h-2 bg-blue-500 rounded-full"></span>
-                    </span>
-                    <h2 class="text-xs font-extrabold tracking-widest text-blue-600 uppercase">Executive AI Report</h2>
+            <!-- Left Panel: AI Executive Analysis Report -->
+            <div
+                class="flex flex-col overflow-hidden border rounded-lg shadow-sm lg:col-span-7 bg-surface-0 border-border-200">
+                <div class="h-1 bg-primary-600"></div>
+
+                <div class="flex-1 p-5 md:p-6">
+                    <div class="flex items-center justify-between pb-3 mb-4 border-b border-border-200">
+                        <div class="flex items-center gap-2">
+                            <i class="text-sm fa-solid fa-file-contract text-primary-600"></i>
+                            <h2 class="text-xs font-bold tracking-wider uppercase font-heading text-ink-900">
+                                Executive AI Business Report
+                            </h2>
+                        </div>
+                        <span class="font-mono text-[11px] text-ink-400">Diperbarui Hari Ini</span>
+                    </div>
+
+                    <div
+                        class="font-body text-xs md:text-sm text-ink-900 leading-relaxed prose prose-emerald max-w-none
+                                prose-headings:font-heading prose-headings:font-bold prose-headings:text-ink-900
+                                prose-h3:text-sm prose-h3:mt-4 prose-h3:mb-2 prose-h3:text-primary-700
+                                prose-p:text-ink-700 prose-p:mb-3 prose-p:text-xs md:prose-p:text-sm
+                                prose-strong:text-ink-900 prose-strong:font-semibold
+                                prose-ul:list-disc prose-ul:pl-4 prose-ul:my-2
+                                prose-table:w-full prose-table:my-3 prose-table:border-collapse
+                                prose-th:bg-surface-100 prose-th:px-3 prose-th:py-2 prose-th:text-left prose-th:text-[11px] prose-th:font-heading prose-th:text-ink-700 prose-th:uppercase
+                                prose-td:px-3 prose-td:py-2 prose-td:border-b prose-td:border-border-200 prose-td:text-xs">
+
+                        {!! $aiAnalysis !!}
+
+                    </div>
                 </div>
 
-                <div
-                    class="max-w-none text-gray-600 leading-relaxed text-sm prose prose-blue 
-                            prose-headings:text-gray-900 prose-headings:font-black prose-headings:tracking-tight
-                            prose-h3:text-base prose-h3:mt-8 prose-h3:mb-3 prose-h3:flex prose-h3:items-center prose-h3:gap-2
-                            prose-p:mb-4 prose-p:leading-relaxed prose-p:text-gray-500
-                            prose-strong:text-gray-900 prose-strong:font-bold
-                            prose-ul:list-disc prose-ul:pl-5 prose-ul:my-4 prose-li:my-1.5
-                            
-                            /* Custom Table Styling (Lebih Clean & Spacing Lega) */
-                            prose-table:w-full prose-table:my-6 prose-table:border-hidden
-                            prose-th:bg-gray-50/70 prose-th:px-5 prose-th:py-3.5 prose-th:text-left prose-th:text-xs prose-th:font-bold prose-th:text-gray-500 prose-th:uppercase prose-th:tracking-wider prose-th:first:rounded-l-2xl prose-th:last:rounded-r-2xl
-                            prose-td:px-5 prose-td:py-4 prose-td:text-gray-600 prose-td:border-b prose-td:border-gray-50 prose-td:text-xs">
-
-                    {!! $aiAnalysis !!}
-
-                </div>
-
-                <div class="pt-6 mt-10 text-center border-t border-gray-50">
-                    <p class="text-[10px] font-medium text-gray-400 flex items-center justify-center gap-1">
-                        <i class="fa-solid fa-shield-halved"></i> Data ini bersifat rahasia dan dienkripsi khusus untuk
-                        keamanan bisnis tenant.
+                <div class="px-5 py-3 text-center border-t bg-surface-100/60 border-border-200">
+                    <p class="font-body text-[11px] text-ink-400 flex items-center justify-center gap-1.5">
+                        <i class="text-xs fa-solid fa-shield-halved"></i>
+                        <span>Rekomendasi dianalisis secara rahasia berdasarkan transaksi fisik toko Anda.</span>
                     </p>
                 </div>
+            </div>
+
+            <!-- Right Panel: Interactive AI Chat Engine -->
+            <div
+                class="lg:col-span-5 bg-surface-0 border border-border-200 rounded-lg shadow-sm flex flex-col h-[680px] sticky top-6">
+
+                <!-- Chat Header -->
+                <div class="flex items-center justify-between p-4 border-b bg-surface-100 border-border-200">
+                    <div class="flex items-center gap-2.5">
+                        <div
+                            class="flex items-center justify-center w-8 h-8 text-xs font-bold text-white rounded-full bg-primary-600">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xs font-semibold leading-tight font-heading md:text-sm text-ink-900">
+                                Tanya GrowPOS AI
+                            </h3>
+                            <span class="font-body text-[10px] text-primary-600 font-medium block">
+                                Online • Asisten Bisnis Toko Real-time
+                            </span>
+                        </div>
+                    </div>
+
+                    <button type="button" @click="clearChat()"
+                        class="p-1.5 text-ink-400 hover:text-ink-900 text-xs rounded-md transition-colors"
+                        title="Reset Percakapan">
+                        <i class="fa-solid fa-rotate-right"></i>
+                    </button>
+                </div>
+
+                <!-- Quick Prompts -->
+                <div
+                    class="p-3 bg-surface-0 border-b border-border-200 overflow-x-auto custom-scrollbar flex items-center gap-1.5 shrink-0 whitespace-nowrap">
+                    <button type="button" @click="sendQuickPrompt('Bagaimana cara meningkatkan omzet toko saya?')"
+                        class="px-2.5 py-1 bg-surface-100 hover:bg-primary-50 hover:text-primary-700 border border-border-200 rounded-full font-body text-[11px] text-ink-700 transition-colors">
+                        💡 Cara naikkan omzet
+                    </button>
+                    <button type="button" @click="sendQuickPrompt('Menu mana yang sebaiknya didiskon?')"
+                        class="px-2.5 py-1 bg-surface-100 hover:bg-primary-50 hover:text-primary-700 border border-border-200 rounded-full font-body text-[11px] text-ink-700 transition-colors">
+                        🏷️ Rekomendasi Promo
+                    </button>
+                    <button type="button" @click="sendQuickPrompt('Apa bahan baku yang stoknya sedang kritis?')"
+                        class="px-2.5 py-1 bg-surface-100 hover:bg-primary-50 hover:text-primary-700 border border-border-200 rounded-full font-body text-[11px] text-ink-700 transition-colors">
+                        📦 Analisis Restock
+                    </button>
+                </div>
+
+                <!-- Chat Stream Message Area -->
+                <div class="flex-1 p-4 overflow-y-auto custom-scrollbar space-y-3.5" id="chatStream">
+
+                    <!-- Welcome Message (Fit Content) -->
+                    <div class="flex items-start gap-2.5 max-w-[85%]">
+                        <div
+                            class="w-6 h-6 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center text-[10px] shrink-0 mt-0.5">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <div
+                            class="inline-block p-3 border rounded-lg rounded-tl-none bg-surface-100 border-border-200">
+                            <p class="text-xs leading-relaxed font-body text-ink-900">
+                                Halo Boss! Saya Asisten AI GrowPOS. Ada yang ingin ditanyakan terkait strategi
+                                penjualan, menu terlaris, atau saran efisiensi toko Anda?
+                            </p>
+                            <span class="font-mono text-[9px] text-ink-400 mt-1 block">Baru Saja</span>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Chat Items (Menggunakan w-fit agar bubble mengikuti isi teks) -->
+                    <template x-for="(msg, index) in messages" :key="index">
+                        <div class="flex items-start gap-2.5"
+                            :class="msg.sender === 'user' ? 'justify-end' : 'justify-start'">
+
+                            <template x-if="msg.sender === 'ai'">
+                                <div
+                                    class="w-6 h-6 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center text-[10px] shrink-0 mt-0.5">
+                                    <i class="fa-solid fa-robot"></i>
+                                </div>
+                            </template>
+
+                            <div class="p-3 rounded-lg border text-xs font-body leading-relaxed max-w-[80%] w-fit break-words"
+                                :class="msg.sender === 'user' ?
+                                    'bg-primary-600 text-white border-primary-600 rounded-tr-none' :
+                                    'bg-surface-100 text-ink-900 border-border-200 rounded-tl-none'">
+                                <p x-text="msg.text" class="whitespace-pre-line"></p>
+                                <span class="font-mono text-[9px] mt-1 block"
+                                    :class="msg.sender === 'user' ? 'text-white/70 text-right' : 'text-ink-400'"
+                                    x-text="msg.time"></span>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Loading Indicator -->
+                    <div x-show="isLoading" class="flex items-center gap-2.5">
+                        <div
+                            class="w-6 h-6 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center text-[10px] shrink-0">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <div
+                            class="bg-surface-100 p-2.5 rounded-lg border border-border-200 flex items-center gap-1.5 w-fit">
+                            <span class="w-1.5 h-1.5 bg-primary-600 rounded-full animate-bounce"></span>
+                            <span
+                                class="w-1.5 h-1.5 bg-primary-600 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+                            <span
+                                class="w-1.5 h-1.5 bg-primary-600 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Input Area -->
+                <div class="p-3 border-t bg-surface-100/50 border-border-200">
+                    <form @submit.prevent="sendMessage()" class="flex items-center gap-2">
+                        <input type="text" x-model="inputQuery" placeholder="Ketik pertanyaan strategi bisnis..."
+                            class="flex-1 px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 placeholder-ink-400 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100">
+
+                        <button type="submit" :disabled="!inputQuery.trim() || isLoading"
+                            class="flex items-center justify-center text-white transition-colors rounded-md h-11 w-11 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 shrink-0">
+                            <i class="text-xs fa-solid fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+
             </div>
         </div>
 
     </div>
+
+    <!-- JavaScript Handling AI Chat -->
+    <script>
+        function aiChatHandler() {
+            return {
+                inputQuery: '',
+                isLoading: false,
+                messages: [],
+
+                sendQuickPrompt(promptText) {
+                    this.inputQuery = promptText;
+                    this.sendMessage();
+                },
+
+                async sendMessage() {
+                    if (!this.inputQuery.trim() || this.isLoading) return;
+
+                    const userText = this.inputQuery.trim();
+                    const now = new Date().toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+
+                    this.messages.push({
+                        sender: 'user',
+                        text: userText,
+                        time: now
+                    });
+                    this.inputQuery = '';
+                    this.isLoading = true;
+                    this.scrollToBottom();
+
+                    try {
+                        const response = await fetch("{{ route('reports.ai-chat') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                message: userText
+                            })
+                        });
+
+                        const data = await response.json();
+
+                        if (response.ok && data.reply) {
+                            this.messages.push({
+                                sender: 'ai',
+                                text: data.reply,
+                                time: new Date().toLocaleTimeString([], {
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                })
+                            });
+                        } else {
+                            this.messages.push({
+                                sender: 'ai',
+                                text: data.message || 'Maaf, terjadi kesalahan respon dari sistem AI.',
+                                time: new Date().toLocaleTimeString([], {
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                })
+                            });
+                        }
+                    } catch (error) {
+                        console.error("AI Chat Error:", error);
+                        this.messages.push({
+                            sender: 'ai',
+                            text: 'Gagal terhubung ke server AI. Pastikan koneksi internet aktif.',
+                            time: new Date().toLocaleTimeString([], {
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            })
+                        });
+                    } finally {
+                        this.isLoading = false;
+                        this.scrollToBottom();
+                    }
+                },
+
+                clearChat() {
+                    this.messages = [];
+                },
+
+                scrollToBottom() {
+                    this.$nextTick(() => {
+                        const container = document.getElementById('chatStream');
+                        if (container) {
+                            container.scrollTop = container.scrollHeight;
+                        }
+                    });
+                }
+            }
+        }
+    </script>
 </x-app-layout>

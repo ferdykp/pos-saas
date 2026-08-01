@@ -1,117 +1,161 @@
 <x-app-layout>
-    <div class="min-h-screen p-6 mx-auto max-w-7xl bg-gray-50">
+    @section('title', 'Laporan Operasional Toko')
 
-        <div class="flex flex-col items-start justify-between gap-4 mb-8 md:flex-row md:items-center">
+    <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-desktop">
+
+        <!-- Header Halaman & Form Filter Tanggal -->
+        <div
+            class="flex flex-col justify-between gap-4 pb-6 mb-8 border-b lg:flex-row lg:items-center border-border-200">
             <div>
-                <h1 class="text-3xl font-black tracking-tight text-gray-900">Laporan Operasional</h1>
-                <p class="text-sm font-medium text-gray-500">Pantau seluruh performa penjualan dan laci kasir Anda di
-                    sini.</p>
+                <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
+                    Laporan Operasional
+                </h1>
+                <p class="mt-1 text-xs font-body md:text-sm text-ink-700">
+                    Pantau seluruh performa omzet penjualan, komisi platform, dan audit laci kasir secara langsung.
+                </p>
             </div>
 
             <form method="GET" action="{{ route('reports.index') }}"
-                class="flex flex-wrap items-center gap-3 p-3 bg-white border border-gray-100 shadow-sm rounded-2xl">
-                <div>
+                class="flex flex-wrap items-center gap-2.5 p-2 bg-surface-0 border border-border-200 rounded-md shadow-sm">
+                <div class="flex items-center gap-2">
                     <input type="date" name="start_date" value="{{ $startDate }}"
-                        class="px-4 py-2 text-sm font-bold border-none bg-gray-50 rounded-xl focus:ring-2 focus:ring-blue-500">
-                </div>
-                <span class="text-xs font-bold text-gray-400 uppercase">s/d</span>
-                <div>
+                        class="h-10 px-3 text-xs border rounded-sm outline-none font-body text-ink-900 bg-surface-100 border-border-200 focus:border-primary-600">
+                    <span class="text-xs font-semibold uppercase font-body text-ink-400">s/d</span>
                     <input type="date" name="end_date" value="{{ $endDate }}"
-                        class="px-4 py-2 text-sm font-bold border-none bg-gray-50 rounded-xl focus:ring-2 focus:ring-blue-500">
+                        class="h-10 px-3 text-xs border rounded-sm outline-none font-body text-ink-900 bg-surface-100 border-border-200 focus:border-primary-600">
                 </div>
+
                 <button type="submit"
-                    class="px-5 py-2 text-sm font-black text-white transition-colors bg-blue-600 rounded-xl hover:bg-blue-700">
-                    <i class="mr-1 fa-solid fa-filter"></i> Filter
+                    class="h-10 px-4 inline-flex items-center gap-1.5 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 text-white font-body font-semibold text-xs rounded-sm transition-colors">
+                    <i class="text-xs fa-solid fa-filter"></i>
+                    <span>Filter</span>
                 </button>
+
                 <a href="{{ route('reports.exports-list') }}"
-                    class="px-4 py-2 text-xs font-bold text-blue-600 transition-colors bg-blue-50 hover:bg-blue-100 rounded-xl">
-                    <i class="mr-1 fa-solid fa-folder-open"></i> Lihat Laci Unduhan
+                    class="h-10 px-3 inline-flex items-center gap-1.5 bg-surface-100 hover:bg-border-200 text-ink-900 font-body font-semibold text-xs rounded-sm transition-colors">
+                    <i class="text-xs fa-solid fa-folder-open"></i>
+                    <span>Laci Unduhan</span>
                 </a>
 
                 <a href="{{ route('reports.export-excel', ['start_date' => $startDate, 'end_date' => $endDate]) }}"
-                    class="px-5 py-2 text-sm font-black text-white transition-colors bg-emerald-600 rounded-xl hover:bg-emerald-700">
-                    <i class="mr-1 fa-solid fa-file-excel"></i> Export Excel
+                    class="h-10 px-4 inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-body font-semibold text-xs rounded-sm shadow-sm transition-colors">
+                    <i class="text-xs fa-solid fa-file-excel"></i>
+                    <span>Export Excel</span>
                 </a>
             </form>
         </div>
 
-        <div class="grid grid-cols-1 gap-5 mb-8 sm:grid-cols-2 lg:grid-cols-4">
-            <div class="p-6 bg-white border border-gray-100 shadow-sm rounded-[2rem]">
-                <div class="flex items-center justify-between mb-4">
-                    <span class="text-xs font-black tracking-wider text-gray-400 uppercase">Pendapatan Toko</span>
-                    <div class="flex items-center justify-center w-10 h-10 text-emerald-600 bg-emerald-50 rounded-xl">
-                        <i class="fa-solid fa-wallet"></i>
-                    </div>
-                </div>
-                {{-- Menghitung pendapatan bersih setelah dikurangi komisi QRIS 1.5% --}}
-                @php
-                    $totalQrisOmzet = 0;
-                    foreach ($paymentMethods as $pm) {
-                        if ($pm->payment_method !== 'cash') {
-                            $totalQrisOmzet += $pm->total_amount;
-                        }
+        <!-- 4 Stat Summary Cards (GrowPOS Design Tokens) -->
+        <div class="grid grid-cols-1 gap-4 mb-8 sm:grid-cols-2 lg:grid-cols-4 md:gap-6">
+
+            <!-- Card 1: Pendapatan Bersih -->
+            @php
+                $totalQrisOmzet = 0;
+                foreach ($paymentMethods as $pm) {
+                    if ($pm->payment_method !== 'cash') {
+                        $totalQrisOmzet += $pm->total_amount;
                     }
-                    $totalPlatformFee = ($totalQrisOmzet * 1.5) / 100;
-                    $storeNetIncome = ($salesSummary->total_net ?? 0) - $totalPlatformFee;
-                @endphp
-                <h3 class="text-2xl font-black text-emerald-600">Rp {{ number_format($storeNetIncome, 0, ',', '.') }}
-                </h3>
-                <p class="mt-1 text-xs font-medium text-gray-400">Bersih (Sudah dipotong komisi platform)</p>
-            </div>
-
-            <div class="p-6 bg-white border border-gray-100 shadow-sm rounded-[2rem]">
-                <div class="flex items-center justify-between mb-4">
-                    <span class="text-xs font-black tracking-wider text-gray-400 uppercase">Total Transaksi</span>
-                    <div class="flex items-center justify-center w-10 h-10 text-blue-600 bg-blue-50 rounded-xl">
-                        <i class="fa-solid fa-receipt"></i>
+                }
+                $totalPlatformFee = ($totalQrisOmzet * 1.5) / 100;
+                $storeNetIncome = ($salesSummary->total_net ?? 0) - $totalPlatformFee;
+            @endphp
+            <div class="flex flex-col justify-between p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Pendapatan
+                        Bersih</span>
+                    <div
+                        class="flex items-center justify-center w-8 h-8 rounded-md bg-primary-50 text-primary-600 shrink-0">
+                        <i class="text-xs fa-solid fa-wallet"></i>
                     </div>
                 </div>
-                <h3 class="text-2xl font-black text-gray-900">{{ $salesSummary->total_transactions ?? 0 }} Nota</h3>
-                <p class="mt-1 text-xs font-medium text-gray-400">Transaksi berstatus lunas</p>
+                <div>
+                    <p class="font-mono text-xl font-semibold md:text-2xl text-primary-600">
+                        Rp {{ number_format($storeNetIncome, 0, ',', '.') }}
+                    </p>
+                    <p class="font-body text-[11px] text-ink-400 mt-1">Bersih (Sudah potong komisi platform)</p>
+                </div>
             </div>
 
-            <div class="p-6 bg-white border border-gray-100 shadow-sm rounded-[2rem]">
-                <div class="flex items-center justify-between mb-4">
-                    <span class="text-xs font-black tracking-wider text-gray-400 uppercase">Komisi Platform</span>
-                    <div class="flex items-center justify-center w-10 h-10 text-amber-600 bg-amber-50 rounded-xl">
-                        <i class="fa-solid fa-percent"></i>
+            <!-- Card 2: Total Transaksi -->
+            <div class="flex flex-col justify-between p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Total
+                        Transaksi</span>
+                    <div
+                        class="flex items-center justify-center w-8 h-8 rounded-md bg-primary-100 text-primary-700 shrink-0">
+                        <i class="text-xs fa-solid fa-receipt"></i>
                     </div>
                 </div>
-                <h3 class="text-2xl font-black text-amber-600">Rp {{ number_format($totalPlatformFee, 0, ',', '.') }}
-                </h3>
-                <p class="mt-1 text-xs font-medium text-gray-400">Potongan 1.5% khusus transaksi QRIS</p>
+                <div>
+                    <p class="font-mono text-xl font-semibold md:text-2xl text-ink-900">
+                        {{ $salesSummary->total_transactions ?? 0 }} Nota
+                    </p>
+                    <p class="font-body text-[11px] text-ink-400 mt-1">Transaksi berstatus lunas</p>
+                </div>
             </div>
 
-            <div class="p-6 bg-white border border-gray-100 shadow-sm rounded-[2rem]">
-                <div class="flex items-center justify-between mb-4">
-                    <span class="text-xs font-black tracking-wider text-gray-400 uppercase">Total Diskon</span>
-                    <div class="flex items-center justify-center w-10 h-10 text-rose-600 bg-rose-50 rounded-xl">
-                        <i class="fa-solid fa-tags"></i>
+            <!-- Card 3: Komisi Platform -->
+            <div class="flex flex-col justify-between p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Komisi
+                        Platform</span>
+                    <div
+                        class="flex items-center justify-center w-8 h-8 rounded-md bg-accent-100 text-accent-700 shrink-0">
+                        <i class="text-xs fa-solid fa-percent"></i>
                     </div>
                 </div>
-                <h3 class="text-2xl font-black text-rose-600">-Rp
-                    {{ number_format($salesSummary->total_discount ?? 0, 0, ',', '.') }}</h3>
-                <p class="mt-1 text-xs font-medium text-gray-400">Jumlah subsidi promo produk</p>
+                <div>
+                    <p class="font-mono text-xl font-semibold md:text-2xl text-accent-700">
+                        Rp {{ number_format($totalPlatformFee, 0, ',', '.') }}
+                    </p>
+                    <p class="font-body text-[11px] text-ink-400 mt-1">Potongan 1.5% khusus transaksi QRIS</p>
+                </div>
+            </div>
+
+            <!-- Card 4: Total Diskon Promo -->
+            <div class="flex flex-col justify-between p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Subsidi
+                        Diskon</span>
+                    <div
+                        class="flex items-center justify-center w-8 h-8 rounded-md bg-red-50 text-semantic-danger shrink-0">
+                        <i class="text-xs fa-solid fa-tags"></i>
+                    </div>
+                </div>
+                <div>
+                    <p class="font-mono text-xl font-semibold md:text-2xl text-semantic-danger">
+                        -Rp {{ number_format($salesSummary->total_discount ?? 0, 0, ',', '.') }}
+                    </p>
+                    <p class="font-body text-[11px] text-ink-400 mt-1">Total potongan promo produk</p>
+                </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 gap-8 mb-8 lg:grid-cols-3">
-            <div class="p-6 bg-white border border-gray-100 shadow-sm lg:col-span-1 rounded-[2.5rem]">
-                <h3 class="mb-4 text-lg font-black text-gray-900">Aliran Dana Masuk</h3>
+        <!-- 2 Column Breakdown: Aliran Dana & Top 5 Selling -->
+        <div class="grid grid-cols-1 gap-6 mb-8 lg:grid-cols-3">
+
+            <!-- Left Panel: Payment Method Breakdown -->
+            <div class="p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200 lg:col-span-1">
+                <h3 class="pb-3 mb-4 text-base font-semibold border-b font-heading text-ink-900 border-border-200">
+                    Aliran Dana Masuk
+                </h3>
+
                 <div class="space-y-3">
                     @forelse($paymentMethods as $pm)
                         @if ($pm->payment_method == 'cash')
-                            <div class="p-4 border border-gray-100 bg-gray-50 rounded-2xl">
+                            <div class="p-3 border rounded-md bg-surface-100 border-border-200">
                                 <div class="flex items-center justify-between mb-1">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-2 h-6 bg-blue-500 rounded-full"></div>
-                                        <span class="text-sm font-black text-gray-800 uppercase">Tunai / Cash</span>
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-primary-600"></span>
+                                        <span class="text-xs font-semibold uppercase font-body text-ink-900">Tunai /
+                                            Cash</span>
                                     </div>
-                                    <span class="text-sm font-black text-gray-900">Rp
-                                        {{ number_format($pm->total_amount, 0, ',', '.') }}</span>
+                                    <span class="font-mono text-xs font-semibold text-ink-900">
+                                        Rp {{ number_format($pm->total_amount, 0, ',', '.') }}
+                                    </span>
                                 </div>
-                                <div class="flex justify-between text-[11px] text-gray-400 font-medium px-5">
-                                    <span>Potongan Platform:</span>
+                                <div class="flex justify-between font-mono text-[11px] text-ink-400 pl-4">
+                                    <span>Fee Admin:</span>
                                     <span>Rp 0</span>
                                 </div>
                             </div>
@@ -120,64 +164,80 @@
                                 $feeThisMethod = ($pm->total_amount * 1.5) / 100;
                                 $netThisMethod = $pm->total_amount - $feeThisMethod;
                             @endphp
-                            <div class="p-4 border bg-purple-50/40 rounded-2xl border-purple-100/50">
-                                <div class="flex items-center justify-between mb-2">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-2 h-6 bg-purple-500 rounded-full"></div>
-                                        <span class="text-sm font-black text-purple-900 uppercase">QRIS /
-                                            Midtrans</span>
+                            <div class="p-3 border rounded-md bg-accent-100/40 border-accent-500/20">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-accent-500"></span>
+                                        <span class="text-xs font-semibold uppercase font-body text-accent-700">QRIS /
+                                            Online</span>
                                     </div>
-                                    <span class="text-sm font-black text-purple-900">Rp
-                                        {{ number_format($pm->total_amount, 0, ',', '.') }}</span>
+                                    <span class="font-mono text-xs font-semibold text-ink-900">
+                                        Rp {{ number_format($pm->total_amount, 0, ',', '.') }}
+                                    </span>
                                 </div>
-                                <div
-                                    class="space-y-0.5 text-[11px] font-medium text-gray-500 px-5 border-t border-purple-100/30 pt-1.5">
-                                    <div class="flex justify-between">
-                                        <span>Potongan Admin (1.5%):</span>
-                                        <span class="text-rose-600">-Rp
+                                <div class="space-y-0.5 font-mono text-[11px] pl-4 pt-1 border-t border-accent-500/10">
+                                    <div class="flex justify-between text-ink-400">
+                                        <span>Potongan (1.5%):</span>
+                                        <span class="text-semantic-danger">-Rp
                                             {{ number_format($feeThisMethod, 0, ',', '.') }}</span>
                                     </div>
-                                    <div class="flex justify-between font-bold text-gray-700">
-                                        <span>Masuk Dompet Finance:</span>
-                                        <span class="text-emerald-600">Rp
+                                    <div class="flex justify-between font-semibold text-ink-900">
+                                        <span>Net Masuk Dompet:</span>
+                                        <span class="text-primary-600">Rp
                                             {{ number_format($netThisMethod, 0, ',', '.') }}</span>
                                     </div>
                                 </div>
                             </div>
                         @endif
                     @empty
-                        <p class="py-10 text-sm italic text-center text-gray-400">Belum ada aliran dana masuk</p>
+                        <p class="py-8 text-xs italic text-center font-body text-ink-400">Belum ada aliran dana masuk
+                        </p>
                     @endforelse
                 </div>
             </div>
 
-            <div class="p-6 bg-white border border-gray-100 shadow-sm lg:col-span-2 rounded-[2.5rem]">
-                <h3 class="mb-4 text-lg font-black text-gray-900">5 Produk Terlaris (Top Selling)</h3>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
+            <!-- Right Panel: Top Selling Products Table -->
+            <div class="p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200 lg:col-span-2">
+                <h3 class="pb-3 mb-4 text-base font-semibold border-b font-heading text-ink-900 border-border-200">
+                    5 Produk Terlaris (Top Selling)
+                </h3>
+
+                <div class="w-full overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left border-collapse whitespace-nowrap">
                         <thead>
-                            <tr class="text-xs font-black text-gray-400 uppercase border-b border-gray-100">
-                                <th class="pb-3">Nama Produk</th>
-                                <th class="pb-3 text-center">Jumlah Terjual</th>
-                                <th class="pb-3 text-right">Subtotal Omzet</th>
+                            <tr
+                                class="h-10 text-xs font-semibold tracking-wider uppercase border-b bg-surface-100 border-border-200 font-heading text-ink-700">
+                                <th class="px-4 py-2">Nama Produk</th>
+                                <th class="px-4 py-2 text-center">Qty Terjual</th>
+                                <th class="px-4 py-2 text-right">Subtotal Omzet</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-50">
+                        <tbody class="text-xs divide-y font-body md:text-sm text-ink-900 divide-border-200">
                             @forelse($topProducts as $idx => $tp)
-                                <tr class="text-sm">
-                                    <td class="flex items-center gap-2 py-4 font-bold text-gray-900">
-                                        <span
-                                            class="flex justify-center items-center w-5 h-5 text-[10px] text-blue-600 bg-blue-50 rounded-full font-black">{{ $idx + 1 }}</span>
-                                        {{ $tp->product_name }}
+                                <tr class="h-12 transition-colors hover:bg-surface-100/60">
+                                    <td class="px-4 py-3">
+                                        <div class="flex items-center gap-2.5">
+                                            <span
+                                                class="w-5 h-5 rounded-full bg-primary-100 text-primary-700 font-heading font-bold text-[10px] flex items-center justify-center shrink-0">
+                                                {{ $idx + 1 }}
+                                            </span>
+                                            <span class="font-semibold text-ink-900 truncate max-w-[200px]">
+                                                {{ $tp->product_name }}
+                                            </span>
+                                        </div>
                                     </td>
-                                    <td class="py-4 font-black text-center text-gray-600">{{ $tp->total_qty }}x</td>
-                                    <td class="py-4 font-black text-right text-blue-600">Rp
-                                        {{ number_format($tp->total_sales, 0, ',', '.') }}</td>
+                                    <td class="px-4 py-3 font-mono font-semibold text-center text-ink-700">
+                                        {{ $tp->total_qty }}x
+                                    </td>
+                                    <td class="px-4 py-3 font-mono font-semibold text-right text-primary-600">
+                                        Rp {{ number_format($tp->total_sales, 0, ',', '.') }}
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="3" class="py-10 text-sm italic text-center text-gray-400">Belum ada
-                                        data penjualan produk</td>
+                                    <td colspan="3" class="py-8 text-xs italic text-center font-body text-ink-400">
+                                        Belum ada data penjualan produk pada periode ini.
+                                    </td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -186,53 +246,69 @@
             </div>
         </div>
 
-        <div class="p-6 bg-white border border-gray-100 shadow-sm rounded-[2.5rem]">
-            <h3 class="mb-2 text-lg font-black text-gray-900">Audit Shift & Laci Kasir</h3>
-            <p class="mb-4 text-xs font-medium text-gray-400">Daftar rekonsiliasi kas kasir untuk mencocokkan saldo
-                fisik laci dengan hitungan sistem.</p>
+        <!-- Audit Shift Table Box -->
+        <div class="p-5 mb-8 overflow-hidden border rounded-lg shadow-sm bg-surface-0 border-border-200">
+            <h3 class="mb-1 text-base font-semibold font-heading text-ink-900">
+                Audit Shift & Laci Kasir
+            </h3>
+            <p class="mb-4 text-xs font-body text-ink-700">
+                Daftar rekonsiliasi kas kasir untuk mencocokkan saldo fisik laci dengan hitungan sistem.
+            </p>
 
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+            <div class="w-full overflow-x-auto custom-scrollbar">
+                <table class="w-full text-left border-collapse whitespace-nowrap">
                     <thead>
-                        <tr class="text-xs font-black text-gray-400 uppercase border-b border-gray-100">
-                            <th class="pb-3">Nama Kasir</th>
-                            <th class="pb-3">Waktu Buka / Tutup</th>
-                            <th class="pb-3 text-right">Modal Awal</th>
-                            <th class="pb-3 text-right">Fisik Laci</th>
-                            <th class="pb-3 text-center">Status</th>
-                            <th class="pb-3">Catatan Audit</th>
+                        <tr
+                            class="h-10 text-xs font-semibold tracking-wider uppercase border-b bg-surface-100 border-border-200 font-heading text-ink-700">
+                            <th class="px-4 py-2">Nama Kasir</th>
+                            <th class="px-4 py-2">Waktu Buka / Tutup</th>
+                            <th class="px-4 py-2 text-right">Modal Awal</th>
+                            <th class="px-4 py-2 text-right">Fisik Laci</th>
+                            <th class="px-4 py-2 text-center">Status</th>
+                            <th class="px-4 py-2">Catatan Audit</th>
                         </tr>
                     </thead>
-                    <tbody class="text-sm divide-y divide-gray-50">
+                    <tbody class="text-xs divide-y font-body text-ink-900 divide-border-200">
                         @forelse($shifts as $s)
-                            <tr>
-                                <td class="py-4 font-bold text-gray-900">{{ $s->user->name ?? 'Tidak Diketahui' }}
+                            <tr class="h-12 transition-colors hover:bg-surface-100/60">
+                                <td class="px-4 py-3 font-semibold text-ink-900">
+                                    {{ $s->user->name ?? 'User Dihapus' }}
                                 </td>
-                                <td class="py-4 font-medium leading-tight text-gray-500">
-                                    <span class="block text-xs text-emerald-600">Buka: {{ $s->start_time }}</span>
-                                    <span class="block text-xs text-rose-600">Tutup:
+                                <td class="px-4 py-3 font-mono text-[11px] text-ink-700">
+                                    <span class="block text-primary-600">Buka: {{ $s->start_time }}</span>
+                                    <span class="block text-ink-400">Tutup:
                                         {{ $s->end_time ?? 'Sedang Aktif' }}</span>
                                 </td>
-                                <td class="py-4 font-bold text-right text-gray-700">Rp
-                                    {{ number_format($s->cash_start, 0, ',', '.') }}</td>
-                                <td class="py-4 font-bold text-right text-gray-900">
-                                    {{ $s->cash_actual ? 'Rp ' . number_format($s->cash_actual, 0, ',', '.') : '-' }}
+                                <td class="px-4 py-3 font-mono font-medium text-right text-ink-900">
+                                    Rp {{ number_format($s->cash_start, 0, ',', '.') }}
                                 </td>
-                                <td class="py-4 text-center">
-                                    <span
-                                        class="px-3 py-1 text-[10px] font-black uppercase rounded-full {{ $s->status === 'open' ? 'bg-blue-50 text-blue-600 animate-pulse' : 'bg-gray-100 text-gray-600' }}">
-                                        {{ $s->status }}
-                                    </span>
+                                <td class="px-4 py-3 font-mono font-semibold text-right text-ink-900">
+                                    {{ $s->cash_actual ? 'Rp ' . number_format($s->cash_actual, 0, ',', '.') : '—' }}
                                 </td>
-                                <td class="max-w-xs py-4 text-xs font-medium text-gray-400 truncate"
+                                <td class="px-4 py-3 text-center">
+                                    @if ($s->status === 'open')
+                                        <span
+                                            class="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-semibold text-primary-700 bg-primary-100 rounded-full">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-primary-600 animate-pulse"></span>
+                                            Berjalan
+                                        </span>
+                                    @else
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-0.5 text-[11px] font-semibold text-ink-400 bg-surface-100 border border-border-200 rounded-full">
+                                            Ditutup
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3 text-ink-700 font-body text-xs truncate max-w-[180px]"
                                     title="{{ $s->notes }}">
-                                    {{ $s->notes ?? '-' }}
+                                    {{ $s->notes ?? '—' }}
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="py-10 text-sm italic text-center text-gray-400">Tidak ada
-                                    aktivitas shift kasir pada tanggal ini</td>
+                                <td colspan="6" class="py-8 text-xs italic text-center font-body text-ink-400">
+                                    Tidak ada aktivitas shift kasir pada tanggal terpilih.
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -240,24 +316,23 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 gap-6 p-6 lg:grid-cols-3">
-            <div class="p-6 bg-white border border-gray-100 shadow-sm lg:col-span-2 rounded-[2.5rem]">
-                <div class="flex items-center justify-between mb-4">
-                    <div>
-                        <h3 class="text-lg font-black text-gray-900">Tren Grafik Penjualan</h3>
-                        <p class="text-xs font-medium text-gray-400">Melihat pergerakan omzet pada periode terpilih.
-                        </p>
-                    </div>
+        <!-- Visual Analytics Chart Grid -->
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            <div class="p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200 lg:col-span-2">
+                <div class="mb-4">
+                    <h3 class="text-base font-semibold font-heading text-ink-900">Tren Grafik Penjualan</h3>
+                    <p class="font-body text-xs text-ink-700 mt-0.5">Pergerakan total omzet pada periode tanggal
+                        terpilih.</p>
                 </div>
                 <div class="w-full h-64">
                     <canvas id="trendChart"></canvas>
                 </div>
             </div>
 
-            <div class="p-6 bg-white border border-gray-100 shadow-sm lg:col-span-1 rounded-[2.5rem]">
-                <div>
-                    <h3 class="text-lg font-black text-gray-900">Proporsi Pembayaran</h3>
-                    <p class="mb-4 text-xs font-medium text-gray-400">Perbandingan kanal transaksi masuk.</p>
+            <div class="p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200 lg:col-span-1">
+                <div class="mb-4">
+                    <h3 class="text-base font-semibold font-heading text-ink-900">Proporsi Kanal Pembayaran</h3>
+                    <p class="font-body text-xs text-ink-700 mt-0.5">Perbandingan metode Tunai vs QRIS Online.</p>
                 </div>
                 <div class="relative flex items-center justify-center w-full h-64">
                     <canvas id="paymentChart"></canvas>
@@ -271,7 +346,7 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // --- 1. GRAFIK TREN PENJUALAN ---
+            // 1. Chart Omzet Penjualan (GrowPOS Colors: Emerald Green #16805F)
             const ctxTrend = document.getElementById('trendChart').getContext('2d');
             const trendLabels = {!! json_encode($chartLabels) !!};
             const trendData = {!! json_encode($chartValues) !!};
@@ -281,15 +356,13 @@
                 data: {
                     labels: trendLabels.length > 0 ? trendLabels : ['Tidak Ada Data'],
                     datasets: [{
-                        label: 'Omzet Penjualan (Rp)',
+                        label: 'Omzet (Rp)',
                         data: trendData.length > 0 ? trendData : [0],
-                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                        borderColor: '#2563eb',
-                        borderWidth: 3,
-                        borderRadius: 8,
-                        barPercentage: 0.5,
-                        tension: 0.3,
-                        fill: true
+                        backgroundColor: 'rgba(22, 128, 95, 0.15)',
+                        borderColor: '#16805F',
+                        borderWidth: 2,
+                        borderRadius: 6,
+                        barPercentage: 0.55
                     }]
                 },
                 options: {
@@ -304,14 +377,14 @@
                         y: {
                             beginAtZero: true,
                             grid: {
-                                color: 'rgba(0, 0, 0, 0.03)'
+                                color: '#E2E8F0'
                             },
                             ticks: {
                                 callback: function(value) {
                                     return 'Rp ' + new Intl.NumberFormat('id-ID').format(value);
                                 },
                                 font: {
-                                    weight: 'bold',
+                                    family: 'IBM Plex Mono',
                                     size: 10
                                 }
                             }
@@ -322,7 +395,7 @@
                             },
                             ticks: {
                                 font: {
-                                    weight: 'bold',
+                                    family: 'Plus Jakarta Sans',
                                     size: 11
                                 }
                             }
@@ -331,12 +404,12 @@
                 }
             });
 
-            // --- 2. GRAFIK PROPORSI PEMBAYARAN ---
+            // 2. Chart Proporsi Pembayaran
             const ctxPayment = document.getElementById('paymentChart').getContext('2d');
             let pmLabels = [];
             let pmValues = [];
             @foreach ($paymentMethods as $pm)
-                pmLabels.push("{{ $pm->payment_method == 'cash' ? 'Tunai' : 'QRIS/TF' }}");
+                pmLabels.push("{{ $pm->payment_method == 'cash' ? 'Tunai (Cash)' : 'QRIS / Online' }}");
                 pmValues.push({{ $pm->total_amount }});
             @endforeach
 
@@ -346,10 +419,9 @@
                     labels: pmLabels.length > 0 ? pmLabels : ['Belum Ada Transaksi'],
                     datasets: [{
                         data: pmValues.length > 0 ? pmValues : [1],
-                        backgroundColor: pmValues.length > 0 ? ['#2563eb', '#a855f7'] : ['#e2e8f0'],
-                        borderWidth: 4,
-                        borderColor: '#ffffff',
-                        hoverOffset: 4
+                        backgroundColor: pmValues.length > 0 ? ['#16805F', '#F0932B'] : ['#E2E8F0'],
+                        borderWidth: 3,
+                        borderColor: '#FFFFFF'
                     }]
                 },
                 options: {
@@ -359,12 +431,12 @@
                         legend: {
                             position: 'bottom',
                             labels: {
-                                boxWidth: 12,
-                                padding: 20,
                                 font: {
-                                    weight: 'bold',
-                                    size: 12
-                                }
+                                    family: 'Plus Jakarta Sans',
+                                    size: 11,
+                                    weight: '600'
+                                },
+                                boxWidth: 10
                             }
                         }
                     },

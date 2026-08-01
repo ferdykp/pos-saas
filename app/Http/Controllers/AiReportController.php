@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-// use Illuminate\Http\Request;
+use Illuminate\Http\Request;
 use App\Services\GeminiService;
 use App\Models\Order;
+use App\Models\Material;
 use Illuminate\Support\Facades\DB;
 
 class AiReportController extends Controller
@@ -112,7 +113,6 @@ class AiReportController extends Controller
         try {
             $aiAnalysis = $this->gemini->generateAnalytic($prompt);
         } catch (\Exception $e) {
-            // Ubah nama hari ke Bahasa Indonesia untuk Fallback
             $kamusHari = ['Monday' => 'Senin', 'Tuesday' => 'Selasa', 'Wednesday' => 'Rabu', 'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu', 'Sunday' => 'Minggu'];
             $hariIndoRamai = $kamusHari[$hariTeramai] ?? $hariTeramai;
             $hariIndoSepi = $kamusHari[$hariTersepi] ?? $hariTersepi;
@@ -167,7 +167,6 @@ class AiReportController extends Controller
             ";
         }
 
-        // Kamus penerjemah hari ke bahasa Indonesia
         $kamusHari = [
             'Monday' => 'Senin',
             'Tuesday' => 'Selasa',
@@ -180,7 +179,6 @@ class AiReportController extends Controller
         $hariTeramaiIndo = $kamusHari[$hariTeramai] ?? $hariTeramai;
         $produkJuara = $topProducts->first()->product_name ?? 'Belum Ada';
 
-        // Kirim semua variabel ke Blade agar Stat Cards menjadi Real-time
         return view('reports.ai-analysis', compact(
             'aiAnalysis',
             'rataRataOmsetHarian',
@@ -188,5 +186,91 @@ class AiReportController extends Controller
             'hariTeramaiIndo',
             'produkJuara'
         ));
+    }
+
+    /**
+     * Endpoint Chat AI Interaktif Real-time dengan Context POS
+     */
+    public function chat(Request $request)
+    {
+        $request->validate([
+            'message' => 'required|string|max:1000'
+        ]);
+
+        $tenantId = auth()->user()->tenant_id;
+        $userMessage = $request->input('message');
+
+        // 1. Ambil data real-time toko dari database POS
+        $totalOmsetHariIni = Order::where('tenant_id', $tenantId)
+            ->whereDate('created_at', today())
+            ->where('payment_status', 'paid')
+            ->sum('grand_total');
+
+        $totalNotaHariIni = Order::where('tenant_id', $tenantId)
+            ->whereDate('created_at', today())
+            ->where('payment_status', 'paid')
+            ->count();
+
+        $top5 = DB::table('order_items')
+            ->join('products', 'order_items.product_id', '=', 'products.id')
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->where('orders.tenant_id', $tenantId)
+            ->where('orders.created_at', '>=', now()->subDays(30))
+            ->select('products.product_name', DB::raw('SUM(order_items.quantity) as qty'))
+            ->groupBy('products.product_name')
+            ->orderBy('qty', 'desc')
+            ->take(5)
+            ->pluck('products.product_name')
+            ->toArray();
+
+        $bahanKritis = Material::where('tenant_id', $tenantId)
+            ->whereColumn('stock', '<=', 'min_stock')
+            ->get(['name', 'stock', 'unit'])
+            ->map(fn($m) => "{$m->name} ({$m->stock} {$m->unit})")
+            ->toArray();
+
+        // 2. Format Context
+        $namaToko = auth()->user()->tenant->name ?? 'Outlet';
+        $omsetFormatted = 'Rp ' . number_format($totalOmsetHariIni, 0, ',', '.');
+        $topProdukStr = empty($top5) ? 'Belum Ada Data Produk' : implode(', ', $top5);
+        $bahanKritisStr = empty($bahanKritis) ? 'Semua Stok Bahan Baku Aman' : implode(', ', $bahanKritis);
+
+        $prompt = "Anda adalah Asisten AI Bisnis resmi GrowPOS untuk toko {$namaToko}.
+                Data operasional toko saat ini:
+                - Omzet Hari Ini: {$omsetFormatted} ({$totalNotaHariIni} nota)
+                - Produk Terlaris (30 Hari): {$topProdukStr}
+                - Bahan Baku Menipis/Kritis: {$bahanKritisStr}
+
+                Pertanyaan Pemilik Toko: \"{$userMessage}\"
+
+                Petunjuk Jawab:
+                1. Jawablah langsung secara ramah, singkat, padat, dan praktis.
+                2. Gunakan data operasional di atas jika relevan.
+                3. Gunakan bahasa Indonesia yang santun dan profesional.";
+
+        try {
+            // Coba panggil Gemini Service
+            $reply = $this->gemini->generateAnalytic($prompt);
+            $reply = strip_tags($reply);
+            $reply = str_replace(['**', '```', '###'], '', $reply);
+        } catch (\Exception $e) {
+            \Log::error("Gemini Chat Error: " . $e->getMessage());
+
+            // Fallback Cerdas berbasis Keyword bila Gemini API offline/limit
+            $msgLower = strtolower($userMessage);
+            if (str_contains($msgLower, 'hai') || str_contains($msgLower, 'halo') || str_contains($msgLower, 'kopi')) {
+                $reply = "Halo Boss! Omzet {$namaToko} hari ini tercatat {$omsetFormatted} dari {$totalNotaHariIni} transaksi. Ada strategi bisnis atau analisis stok yang ingin didiskusikan?";
+            } elseif (str_contains($msgLower, 'stok') || str_contains($msgLower, 'habis') || str_contains($msgLower, 'restock')) {
+                $reply = "Berdasarkan data sistem POS GrowPOS, status bahan baku Anda: {$bahanKritisStr}. Segera lakukan pemesanan ke supplier untuk bahan yang kritis.";
+            } elseif (str_contains($msgLower, 'omzet') || str_contains($msgLower, 'naik') || str_contains($msgLower, 'sepi')) {
+                $reply = "Untuk meningkatkan omzet, coba buatkan paket kombo bundling produk terlaris ({$topProdukStr}) dengan menu yang kurang laku, atau terapkan diskon khusus Happy Hour.";
+            } else {
+                $reply = "Saat ini toko {$namaToko} telah membukukan omzet {$omsetFormatted} hari ini. Produk unggulan Anda adalah {$topProdukStr}.";
+            }
+        }
+
+        return response()->json([
+            'reply' => trim($reply)
+        ]);
     }
 }

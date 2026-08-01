@@ -1,275 +1,410 @@
 <x-app-layout>
-    <div class="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between mb-8">
+    @section('title', 'Bahan Baku & Inventori')
+
+    <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-desktop">
+
+        <!-- Header Halaman & Action Buttons -->
+        <div
+            class="flex flex-col justify-between gap-4 pb-6 mb-8 border-b sm:flex-row sm:items-center border-border-200">
             <div>
-                <h1 class="text-3xl font-black tracking-tight text-gray-900">Bahan Baku (Inventori)</h1>
-                <p class="font-medium text-gray-500">Kelola stok bahan mentah, bumbu, dan perlengkapan toko.</p>
+                <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
+                    Bahan Baku & Inventori
+                </h1>
+                <p class="mt-1 text-xs font-body md:text-sm text-ink-700">
+                    Kelola ketersediaan stok bahan mentah, resep porsi, perlengkapan toko, dan mutasi dari supplier.
+                </p>
             </div>
-            <div class="flex gap-3">
-                {{-- <a href="{{ route('inventory.history') }}"
-                    class="px-6 py-3 font-bold text-gray-600 transition bg-white border border-gray-100 rounded-2xl hover:bg-gray-50">
-                    Riwayat
-                </a> --}}
-                <button onclick="document.getElementById('addMaterialModal').classList.remove('hidden')"
-                    class="px-6 py-3 font-bold text-white transition bg-blue-600 shadow-xl rounded-2xl shadow-blue-100 hover:bg-blue-700 active:scale-95">
-                    + Tambah Bahan
-                </button>
+
+            <!-- Button Primary: Height 44px, Emerald Green -->
+            <button onclick="document.getElementById('addMaterialModal').classList.remove('hidden')"
+                class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body md:text-sm shrink-0">
+                <i class="text-xs fa-solid fa-plus"></i>
+                <span>Tambah Bahan Baku</span>
+            </button>
+        </div>
+
+        <!-- Metric Stat Cards Ringkasan Stok -->
+        <div class="grid grid-cols-1 gap-4 mb-8 sm:grid-cols-3 md:gap-6">
+            <div
+                class="flex items-center justify-between p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
+                <div>
+                    <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Total Jenis
+                        Bahan</span>
+                    <p class="mt-2 font-mono text-2xl font-semibold md:text-3xl text-ink-900">
+                        {{ $materials->total() }}
+                    </p>
+                </div>
+                <div
+                    class="flex items-center justify-center text-lg rounded-md w-11 h-11 bg-primary-50 text-primary-600 shrink-0">
+                    <i class="fa-solid fa-boxes-packing"></i>
+                </div>
+            </div>
+
+            <div
+                class="flex items-center justify-between p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
+                <div>
+                    <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Stok Aman
+                        Operasional</span>
+                    <p class="mt-2 font-mono text-2xl font-semibold md:text-3xl text-primary-600">
+                        {{ $materials->filter(fn($m) => $m->stock > $m->min_stock)->count() }}
+                    </p>
+                </div>
+                <div
+                    class="flex items-center justify-center text-lg rounded-md w-11 h-11 bg-primary-100 text-primary-700 shrink-0">
+                    <i class="fa-solid fa-cubes"></i>
+                </div>
+            </div>
+
+            <div
+                class="flex items-center justify-between p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
+                <div>
+                    <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Stok Kritis /
+                        Perlu Belanja</span>
+                    <p class="mt-2 font-mono text-2xl font-semibold md:text-3xl text-semantic-danger">
+                        {{ $materials->filter(fn($m) => $m->stock <= $m->min_stock)->count() }}
+                    </p>
+                </div>
+                <div
+                    class="flex items-center justify-center text-lg rounded-md w-11 h-11 bg-red-50 text-semantic-danger shrink-0">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
             </div>
         </div>
 
-        <div class="overflow-hidden bg-white border border-gray-100 shadow-sm rounded-[2.5rem]">
-            <table class="w-full text-left">
-                <thead class="border-b border-gray-100 bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-4 text-xs font-black tracking-widest text-gray-400 uppercase">Bahan Baku</th>
-                        <th class="px-6 py-4 text-xs font-black tracking-widest text-center text-gray-400 uppercase">
-                            Stok</th>
-                        <th class="px-6 py-4 text-xs font-black tracking-widest text-center text-gray-400 uppercase">
-                            Min. Stok</th>
-                        <th class="px-6 py-4 text-xs font-black tracking-widest text-right text-gray-400 uppercase">
-                            Status</th>
-                        <th class="px-6 py-4 text-xs font-black tracking-widest text-right text-gray-400 uppercase">
-                            Aksi</th>
+        <!-- Table Container (Spesifikasi GrowPOS: Row Height 48px, bg surface-100 header) -->
+        <div class="mb-6 overflow-hidden border rounded-lg shadow-sm bg-surface-0 border-border-200">
+            <div class="w-full overflow-x-auto custom-scrollbar">
+                <table class="w-full text-left border-collapse whitespace-nowrap">
+                    <thead>
+                        <tr
+                            class="h-12 text-xs font-semibold tracking-wider uppercase border-b bg-surface-100 border-border-200 font-heading text-ink-700">
+                            <th class="px-5 py-3">Bahan Baku & SKU</th>
+                            <th class="px-5 py-3 text-center">Stok Fisik Saat Ini</th>
+                            <th class="px-5 py-3 text-center">Min. Stok Warning</th>
+                            <th class="px-5 py-3 text-center">Status Keamanan</th>
+                            <th class="px-5 py-3 text-center">Aksi Manajemen</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-xs divide-y font-body md:text-sm text-ink-900 divide-border-200">
+                        @forelse($materials as $item)
+                            <tr class="h-12 transition-colors hover:bg-surface-100/60">
 
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-50">
-                    @forelse($materials as $item)
-                        <tr class="transition-colors hover:bg-gray-50/50">
-                            <td class="px-6 py-4">
-                                <p class="text-sm font-bold text-gray-900">{{ $item->name }}</p>
-                                <p class="text-[10px] font-bold text-blue-500 uppercase tracking-tight">
-                                    {{ $item->sku }}</p>
-                            </td>
-                            <td class="px-6 py-4 text-center">
-                                <span
-                                    class="text-lg font-black {{ $item->stock <= $item->min_stock ? 'text-red-600' : 'text-gray-900' }}">
-                                    {{ $item->stock }}
-                                </span>
-                                <span class="ml-1 text-xs font-bold text-gray-400">{{ $item->unit }}</span>
-                            </td>
-                            <td class="px-6 py-4 text-sm font-bold text-center text-gray-500">
-                                {{ $item->min_stock }} {{ $item->unit }}
-                            </td>
-                            <td class="px-6 py-4 text-right">
-                                @if ($item->stock <= $item->min_stock)
+                                <!-- Material Name & SKU -->
+                                <td class="px-5 py-3">
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="flex items-center justify-center w-8 h-8 rounded-md bg-primary-100 text-primary-700 shrink-0">
+                                            <i class="text-xs fa-solid fa-vial-wheat"></i>
+                                        </div>
+                                        <div class="min-w-0">
+                                            <span
+                                                class="block font-semibold leading-tight truncate text-ink-900">{{ $item->name }}</span>
+                                            <span
+                                                class="font-mono text-[11px] font-normal text-ink-400 mt-0.5 block truncate">
+                                                SKU: {{ $item->sku }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- Current Stock Level -->
+                                <td class="px-5 py-3 font-mono text-center">
                                     <span
-                                        class="inline-flex items-center px-3 py-1 text-[10px] font-black text-red-600 bg-red-100 rounded-lg uppercase">
-                                        <span class="w-1.5 h-1.5 mr-1.5 bg-red-500 rounded-full animate-pulse"></span>
-                                        Stok Kritis
+                                        class="font-bold text-sm {{ $item->stock <= $item->min_stock ? 'text-semantic-danger' : 'text-ink-900' }}">
+                                        {{ $item->stock }}
                                     </span>
-                                @else
-                                    <span
-                                        class="px-3 py-1 text-[10px] font-black text-green-600 bg-green-100 rounded-lg uppercase">
-                                        Aman
-                                    </span>
-                                @endif
-                            </td>
-                            <td class="flex justify-end gap-3 px-6 py-4 text-right">
-                                <button onclick="openHistoryModal('{{ $item->id }}', '{{ $item->name }}')"
-                                    class="text-xs font-bold text-gray-500 uppercase hover:text-blue-600">
-                                    Riwayat
-                                </button>
-                                <button
-                                    onclick="openStockModal('{{ $item->id }}', '{{ $item->name }}', '{{ $item->unit }}')"
-                                    class="text-xs font-bold tracking-widest text-blue-600 uppercase hover:underline">
-                                    Update Stok
-                                </button>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="4" class="px-6 py-12 italic text-center text-gray-400 bg-gray-50/30">
-                                <div class="flex flex-col items-center">
-                                    <svg class="w-12 h-12 mb-3 text-gray-200" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                                    </svg>
-                                    <p class="font-bold">Belum ada bahan baku yang terdaftar</p>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                                    <span class="text-xs font-medium text-ink-400 ml-0.5">{{ $item->unit }}</span>
+                                </td>
+
+                                <!-- Minimum Stock Warning -->
+                                <td class="px-5 py-3 font-mono text-xs text-center text-ink-700">
+                                    {{ $item->min_stock }} {{ $item->unit }}
+                                </td>
+
+                                <!-- Status Badge (Pill Shape: radius-full) -->
+                                <td class="px-5 py-3 text-center">
+                                    @if ($item->stock <= $item->min_stock)
+                                        <span
+                                            class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-semibold text-semantic-danger bg-red-50 rounded-full">
+                                            <span
+                                                class="w-1.5 h-1.5 rounded-full bg-semantic-danger animate-pulse"></span>
+                                            Stok Kritis
+                                        </span>
+                                    @else
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold text-primary-700 bg-primary-100 rounded-full">
+                                            Aman Operasional
+                                        </span>
+                                    @endif
+                                </td>
+
+                                <!-- Action Buttons -->
+                                <td class="px-5 py-3 text-center">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <button
+                                            onclick="openHistoryModal('{{ $item->id }}', '{{ addslashes($item->name) }}')"
+                                            class="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold text-ink-700 bg-surface-100 hover:bg-border-200 rounded-md transition-colors"
+                                            title="Lihat Mutasi">
+                                            <i class="text-xs fa-solid fa-clock-rotate-left"></i>
+                                            <span>Riwayat</span>
+                                        </button>
+
+                                        <button
+                                            onclick="openStockModal('{{ $item->id }}', '{{ addslashes($item->name) }}', '{{ $item->unit }}')"
+                                            class="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold text-primary-700 bg-primary-50 hover:bg-primary-600 hover:text-white rounded-md transition-colors"
+                                            title="Update Stok">
+                                            <i class="text-xs fa-solid fa-pen-to-square"></i>
+                                            <span>Update Stok</span>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <!-- Empty State -->
+                            <tr>
+                                <td colspan="5" class="px-6 py-12 text-center">
+                                    <div class="flex flex-col items-center justify-center">
+                                        <div
+                                            class="flex items-center justify-center w-12 h-12 mb-2 rounded-full bg-primary-50 text-primary-600">
+                                            <i class="text-xl fa-solid fa-boxes-packing"></i>
+                                        </div>
+                                        <p class="text-sm font-semibold font-heading text-ink-900">Belum ada bahan baku
+                                            terdaftar</p>
+                                        <p class="font-body text-xs text-ink-700 mt-0.5 max-w-xs">
+                                            Daftarkan inventori bahan baku untuk mengontrol penggunaan stok dan porsi
+                                            resep outlet.
+                                        </p>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <div class="mt-6">
+
+        <!-- Pagination Bar -->
+        <div>
             {{ $materials->links() }}
         </div>
     </div>
 
+    <!-- Modal 1: Tambah Bahan Baku Baru (Max-Width 480px / max-w-modal-sm) -->
     <div id="addMaterialModal"
-        class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 bg-gray-900/60 backdrop-blur-sm">
-        <div class="bg-white rounded-[2.5rem] p-8 w-full max-w-md shadow-2xl">
-            <h3 class="mb-6 text-2xl font-black text-gray-900">Tambah Bahan</h3>
-            <form action="{{ route('materials.store') }}" method="POST">
-                @csrf
-                <div class="space-y-5">
-                    <div>
-                        <label class="block mb-2 text-xs font-black tracking-widest text-gray-400 uppercase">Nama
-                            Bahan</label>
-                        <input type="text" name="name" placeholder="Misal: Biji Kopi Arabica" required
-                            class="w-full px-4 py-3 font-bold transition border-gray-100 rounded-2xl bg-gray-50 focus:ring-blue-500 focus:border-blue-500">
-                    </div>
+        class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 bg-ink-900/40 backdrop-blur-[2px]">
+        <div class="w-full p-6 border rounded-lg shadow-lg bg-surface-0 max-w-modal-sm border-border-200">
 
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label
-                                class="block mb-2 text-xs font-black tracking-widest text-gray-400 uppercase">Satuan</label>
-                            <select name="unit"
-                                class="w-full px-4 py-3 font-bold border-gray-100 rounded-2xl bg-gray-50 focus:ring-blue-500">
-                                <option value="kg">Kilogram (kg)</option>
-                                <option value="gr">Gram (gr)</option>
-                                <option value="liter">Liter (l)</option>
-                                <option value="ml">Mililiter (ml)</option>
-                                <option value="pcs">Pcs / Biji</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block mb-2 text-xs font-black tracking-widest text-gray-400 uppercase">Stok
-                                Awal</label>
-                            <input type="number" name="stock" value="0" min="0" required
-                                class="w-full px-4 py-3 font-black text-right text-blue-600 border-gray-100 rounded-2xl bg-gray-50">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block mb-2 text-xs font-black tracking-widest text-gray-400 uppercase">Min. Stok
-                            (Peringatan)</label>
-                        <input type="number" name="min_stock" value="5" min="1" required
-                            class="w-full px-4 py-3 font-bold border-gray-100 rounded-2xl bg-gray-50">
-                        <p class="mt-1 text-[10px] text-gray-400 italic">Sistem akan memberi tahu jika stok di bawah
-                            angka ini.</p>
-                    </div>
-                </div>
-
-                <div class="flex gap-3 mt-8">
-                    <button type="button" onclick="document.getElementById('addMaterialModal').classList.add('hidden')"
-                        class="flex-1 py-4 font-bold text-gray-500 transition bg-gray-100 rounded-2xl hover:bg-gray-200">Batal</button>
-                    <button type="submit"
-                        class="flex-1 py-4 font-black text-white transition bg-blue-600 shadow-xl rounded-2xl shadow-blue-100 hover:bg-blue-700 active:scale-95">Simpan</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="updateStockModal"
-        class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 bg-gray-900/60 backdrop-blur-sm">
-        <div class="bg-white rounded-[2.5rem] p-8 w-full max-w-md shadow-2xl">
-            <h3 id="stockModalTitle" class="mb-6 text-2xl font-black text-gray-900">Update Stok</h3>
-            <form action="{{ route('materials.update-stock') }}" method="POST">
-                @csrf
-                <input type="hidden" name="material_id" id="stockMaterialId">
-
-                <div class="space-y-5">
-                    <div>
-                        <label class="block mb-2 text-xs font-black text-gray-400 uppercase">Tipe</label>
-                        <select name="type" id="typeSelect" onchange="toggleSupplierFields()"
-                            class="w-full px-4 py-3 font-bold border-gray-100 rounded-2xl bg-gray-50 focus:ring-blue-500">
-                            <option value="stock_in">Barang Masuk (+)</option>
-                            <option value="stock_out">Barang Keluar (-)</option>
-                            <option value="adjustment">Penyesuaian / Rusak (-)</option>
-                        </select>
-                    </div>
-
-                    <div id="supplierFields"
-                        class="p-4 mt-4 space-y-4 border border-blue-50 rounded-3xl bg-blue-50/30">
-                        <div>
-                            <label
-                                class="block mb-2 text-[10px] font-black text-blue-400 uppercase tracking-widest">Supplier</label>
-                            <select name="supplier_id"
-                                class="w-full px-4 py-3 font-bold bg-white border-white shadow-sm rounded-2xl focus:ring-blue-500">
-                                <option value="">-- Pilih Supplier --</option>
-                                @foreach ($suppliers as $s)
-                                    <option value="{{ $s->id }}">{{ $s->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div>
-                            <label
-                                class="block mb-2 text-[10px] font-black text-blue-400 uppercase tracking-widest">Harga
-                                Beli Satuan (Rp)</label>
-                            <input type="number" name="purchase_price" placeholder="0"
-                                class="w-full px-4 py-3 font-black bg-white border-white shadow-sm rounded-2xl focus:ring-blue-500">
-                        </div>
-                    </div>
-
-                    <div>
-                        <div class="flex justify-between mb-2">
-                            <label class="text-xs font-black text-gray-400 uppercase">Jumlah</label>
-                            <span id="displayUnit"
-                                class="text-xs font-black tracking-tighter text-blue-500 uppercase"></span>
-                        </div>
-                        <div class="relative">
-                            <input type="number" name="quantity" required min="1" placeholder="0"
-                                class="w-full px-4 py-3 text-lg font-black border-gray-100 rounded-2xl bg-gray-50 focus:ring-blue-500">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block mb-2 text-xs font-black text-gray-400 uppercase">Catatan</label>
-                        <textarea name="note" rows="2" placeholder="Contoh: Belanja mingguan atau Telur pecah"
-                            class="w-full px-4 py-3 text-sm font-medium border-gray-100 rounded-2xl bg-gray-50 focus:ring-blue-500"></textarea>
-                    </div>
-                </div>
-
-                <div class="flex gap-3 mt-8">
-                    <button type="button" onclick="closeStockModal()"
-                        class="flex-1 py-4 font-bold text-gray-500 transition bg-gray-100 rounded-2xl hover:bg-gray-200">Batal</button>
-                    <button type="submit"
-                        class="flex-1 py-4 font-black text-white transition bg-blue-600 shadow-xl rounded-2xl shadow-blue-100 hover:bg-blue-700 active:scale-95">Update
-                        Stok</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div id="historyModal"
-        class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 bg-gray-900/60 backdrop-blur-sm">
-        <div class="bg-white rounded-[2.5rem] p-8 w-full max-w-2xl shadow-2xl max-h-[80vh] flex flex-col">
-            <div class="flex items-center justify-between mb-6">
-                <h3 id="historyModalTitle" class="text-2xl font-black text-gray-900">Riwayat Stok</h3>
-                <button onclick="closeHistoryModal()" class="text-gray-400 hover:text-gray-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
+            <div class="flex items-center justify-between pb-3 mb-4 border-b border-border-200">
+                <h3 class="text-lg font-semibold font-heading text-ink-900">Tambah Bahan Baku</h3>
+                <button type="button" onclick="document.getElementById('addMaterialModal').classList.add('hidden')"
+                    class="p-1 text-ink-400 hover:text-ink-900">
+                    <i class="text-base fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <div class="flex-1 overflow-y-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead class="sticky top-0 bg-white">
-                        <tr class="border-b border-gray-100">
-                            <th class="py-3 text-[10px] font-black text-gray-400 uppercase">Waktu</th>
-                            <th class="py-3 text-[10px] font-black text-gray-400 uppercase">Tipe</th>
-                            <th class="py-3 text-[10px] font-black text-gray-400 uppercase text-center">Qty</th>
-                            <th class="py-3 text-[10px] font-black text-gray-400 uppercase text-center">Saldo</th>
-                            <th class="py-3 text-[10px] font-black text-gray-400 uppercase">Catatan</th>
+            <form action="{{ route('materials.store') }}" method="POST" class="space-y-4">
+                @csrf
+                <div>
+                    <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
+                        Nama Bahan Baku <span class="text-semantic-danger">*</span>
+                    </label>
+                    <input type="text" name="name" placeholder="Contoh: Biji Kopi Arabica, Susu UHT" required
+                        class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 placeholder-ink-400 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Satuan Ukur</label>
+                        <select name="unit"
+                            class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
+                            <option value="kg">Kilogram (kg)</option>
+                            <option value="gr">Gram (gr)</option>
+                            <option value="liter">Liter (l)</option>
+                            <option value="ml">Mililiter (ml)</option>
+                            <option value="pcs">Pcs / Biji</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Stok Awal</label>
+                        <input type="number" name="stock" value="0" min="0" required
+                            class="w-full px-3 font-mono text-xs font-semibold transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Min. Stok Warning</label>
+                    <input type="number" name="min_stock" value="5" min="1" required
+                        class="w-full px-3 font-mono text-xs font-semibold transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
+                    <p class="font-body text-[11px] text-ink-400 mt-1">Sistem akan memberi peringatan jika stok di
+                        bawah batas ini.</p>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center gap-3 pt-3">
+                    <button type="button"
+                        onclick="document.getElementById('addMaterialModal').classList.add('hidden')"
+                        class="flex-1 text-xs font-semibold transition-colors rounded-md h-11 bg-surface-100 hover:bg-border-200 text-ink-900 font-body">
+                        Batal
+                    </button>
+                    <button type="submit"
+                        class="flex-1 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body">
+                        Simpan Bahan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 2: Update Stok / Mutasi Barang (Max-Width 480px / max-w-modal-sm) -->
+    <div id="updateStockModal"
+        class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 bg-ink-900/40 backdrop-blur-[2px]">
+        <div class="w-full p-6 border rounded-lg shadow-lg bg-surface-0 max-w-modal-sm border-border-200">
+
+            <div class="flex items-center justify-between pb-3 mb-4 border-b border-border-200">
+                <h3 id="stockModalTitle" class="text-lg font-semibold font-heading text-ink-900">Update Stok</h3>
+                <button type="button" onclick="closeStockModal()" class="p-1 text-ink-400 hover:text-ink-900">
+                    <i class="text-base fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form action="{{ route('materials.update-stock') }}" method="POST" class="space-y-4">
+                @csrf
+                <input type="hidden" name="material_id" id="stockMaterialId">
+
+                <div>
+                    <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Tipe Mutasi Stok</label>
+                    <select name="type" id="typeSelect" onchange="toggleSupplierFields()"
+                        class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
+                        <option value="stock_in">Barang Masuk / Restock (+)</option>
+                        <option value="stock_out">Barang Keluar / Pemakaian (-)</option>
+                        <option value="adjustment">Penyesuaian / Rusak / Expired (-)</option>
+                    </select>
+                </div>
+
+                <!-- Supplier Info Box (Shown when stock_in) -->
+                <div id="supplierFields" class="p-3 space-y-3 border rounded-md bg-primary-50 border-primary-100">
+                    <div>
+                        <label class="block font-body text-[11px] font-semibold text-primary-700 mb-1">Pilih
+                            Supplier</label>
+                        <select name="supplier_id"
+                            class="w-full h-10 px-3 text-xs border rounded-sm outline-none font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
+                            <option value="">-- Tanpa Supplier --</option>
+                            @foreach ($suppliers as $s)
+                                <option value="{{ $s->id }}">{{ $s->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-body text-[11px] font-semibold text-primary-700 mb-1">Harga Beli
+                            Satuan (Rp)</label>
+                        <input type="number" name="purchase_price" placeholder="0"
+                            class="w-full h-10 px-3 font-mono text-xs font-semibold border rounded-sm outline-none text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="text-xs font-semibold font-body text-ink-900">Jumlah Qty Mutasi</label>
+                        <span id="displayUnit" class="font-mono text-xs font-semibold text-primary-600"></span>
+                    </div>
+                    <input type="number" name="quantity" required min="1" placeholder="0"
+                        class="w-full px-3 font-mono text-sm font-bold transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
+                </div>
+
+                <div>
+                    <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Catatan Mutasi</label>
+                    <textarea name="note" rows="2" placeholder="Contoh: Restock mingguan pasar atau kemasan bocor"
+                        class="w-full p-3 text-xs transition-all border rounded-sm outline-none font-body text-ink-900 placeholder-ink-400 bg-surface-0 border-border-200 focus:border-primary-600"></textarea>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center gap-3 pt-3">
+                    <button type="button" onclick="closeStockModal()"
+                        class="flex-1 text-xs font-semibold transition-colors rounded-md h-11 bg-surface-100 hover:bg-border-200 text-ink-900 font-body">
+                        Batal
+                    </button>
+                    <button type="submit"
+                        class="flex-1 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body">
+                        Simpan Update
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 3: Riwayat Mutasi Stok (Max-Width 640px / max-w-modal-md) -->
+    <div id="historyModal"
+        class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 bg-ink-900/40 backdrop-blur-[2px]">
+        <div
+            class="bg-surface-0 rounded-lg p-6 w-full max-w-modal-md shadow-lg border border-border-200 max-h-[85vh] flex flex-col">
+
+            <div class="flex items-center justify-between pb-3 mb-4 border-b border-border-200">
+                <h3 id="historyModalTitle" class="text-lg font-semibold font-heading text-ink-900">Riwayat Stok</h3>
+                <button onclick="closeHistoryModal()" class="p-1 text-ink-400 hover:text-ink-900">
+                    <i class="text-base fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto custom-scrollbar">
+                <table class="w-full text-left border-collapse whitespace-nowrap">
+                    <thead class="sticky top-0 border-b bg-surface-100 border-border-200">
+                        <tr class="text-[11px] font-heading font-semibold text-ink-700 uppercase tracking-wider">
+                            <th class="px-4 py-2.5">Waktu</th>
+                            <th class="px-4 py-2.5">Tipe Mutasi</th>
+                            <th class="px-4 py-2.5 text-center">Qty</th>
+                            <th class="px-4 py-2.5 text-center">Saldo Akhir</th>
+                            <th class="px-4 py-2.5">Catatan</th>
                         </tr>
                     </thead>
-                    <tbody id="historyContent" class="text-sm divide-y divide-gray-50">
+                    <tbody id="historyContent" class="text-xs divide-y font-body text-ink-900 divide-border-200">
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
+    <!-- Script Handling Mutasi & Fetch History -->
     <script>
+        const formatRupiah = (number) => {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(number);
+        }
+
+        function toggleSupplierFields() {
+            const type = document.getElementById('typeSelect').value;
+            const fields = document.getElementById('supplierFields');
+            fields.style.display = (type === 'stock_in') ? 'block' : 'none';
+        }
+
+        function openStockModal(id, name, unit) {
+            document.getElementById('stockMaterialId').value = id;
+            document.getElementById('stockModalTitle').innerText = 'Update Stok: ' + name;
+            document.getElementById('displayUnit').innerText = 'Satuan: ' + unit;
+            document.getElementById('updateStockModal').classList.remove('hidden');
+            toggleSupplierFields();
+        }
+
+        function closeStockModal() {
+            document.getElementById('updateStockModal').classList.add('hidden');
+        }
+
         function openHistoryModal(id, name) {
             const content = document.getElementById('historyContent');
-            document.getElementById('historyModalTitle').innerText = 'Riwayat: ' + name;
+            document.getElementById('historyModalTitle').innerText = 'Riwayat Mutasi: ' + name;
             document.getElementById('historyModal').classList.remove('hidden');
 
-            // Loading state
-            content.innerHTML = '<tr><td colspan="5" class="py-10 text-center text-gray-400">Memuat data...</td></tr>';
+            content.innerHTML =
+                '<tr><td colspan="5" class="py-8 text-xs text-center text-ink-400 font-body">Memuat riwayat...</td></tr>';
 
             fetch(`/materials/${id}/history`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.length === 0) {
                         content.innerHTML =
-                            '<tr><td colspan="5" class="py-10 italic text-center text-gray-400">Belum ada riwayat mutasi.</td></tr>';
+                            '<tr><td colspan="5" class="py-8 text-xs italic text-center text-ink-400 font-body">Belum ada riwayat mutasi bahan baku.</td></tr>';
                         return;
                     }
 
@@ -284,121 +419,38 @@
                             minute: '2-digit'
                         });
 
-                        let typeClass = 'bg-gray-100 text-gray-600';
-                        if (item.type === 'stock_in') typeClass = 'bg-green-100 text-green-600';
-                        if (item.type === 'stock_out') typeClass = 'bg-red-100 text-red-600';
+                        let typeBadge = 'bg-surface-100 text-ink-700';
+                        if (item.type === 'stock_in') typeBadge = 'bg-primary-100 text-primary-700';
+                        if (item.type === 'stock_out' || item.type === 'adjustment') typeBadge =
+                            'bg-red-50 text-semantic-danger';
 
-                        return `
-                        <tr class="hover:bg-gray-50/50">
-                            <td class="py-4">
-                                <span class="font-bold text-gray-700">${date}</span><br>
-                                <span class="text-[10px] text-gray-400 uppercase">${time}</span>
-                            </td>
-                            <td class="py-4 font-black">
-                                <span class="px-2 py-0.5 rounded text-[10px] uppercase ${typeClass}">${item.type.replace('_', ' ')}</span>
-                            </td>
-                            <td class="py-4 text-center font-bold ${item.type === 'stock_in' ? 'text-green-600' : 'text-red-600'}">
-                                ${item.type === 'stock_in' ? '+' : '-'}${item.quantity}
-                            </td>
-                            <td class="py-4 font-black text-center text-gray-900">${item.after_stock}</td>
-                            <td class="py-4 text-xs italic text-gray-500">${item.note ?? '-'}</td>
-                        </tr>
-                    `;
-                    }).join('');
-                });
-        }
-
-        function closeHistoryModal() {
-            document.getElementById('historyModal').classList.add('hidden');
-        }
-    </script>
-
-    <script>
-        // Format Rupiah Helper
-        const formatRupiah = (number) => {
-            return new Intl.NumberFormat('id-ID', {
-                style: 'currency',
-                currency: 'IDR',
-                minimumFractionDigits: 0
-            }).format(number);
-        }
-
-        function toggleSupplierFields() {
-            const type = document.getElementById('typeSelect').value;
-            const fields = document.getElementById('supplierFields');
-            // Tampilkan supplier & harga hanya jika Barang Masuk
-            fields.style.display = (type === 'stock_in') ? 'block' : 'none';
-        }
-
-        function openStockModal(id, name, unit) {
-            document.getElementById('stockMaterialId').value = id;
-            document.getElementById('stockModalTitle').innerText = 'Stok: ' + name;
-            document.getElementById('displayUnit').innerText = 'Satuan: ' + unit; // Tampilkan unit
-            document.getElementById('updateStockModal').classList.remove('hidden');
-            toggleSupplierFields(); // Jalankan pengecekan tipe awal
-        }
-
-        function closeStockModal() {
-            document.getElementById('updateStockModal').classList.add('hidden');
-        }
-
-        function openHistoryModal(id, name) {
-            const content = document.getElementById('historyContent');
-            document.getElementById('historyModalTitle').innerText = 'Riwayat: ' + name;
-            document.getElementById('historyModal').classList.remove('hidden');
-
-            content.innerHTML = '<tr><td colspan="5" class="py-10 text-center text-gray-400">Memuat data...</td></tr>';
-
-            fetch(`/materials/${id}/history`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.length === 0) {
-                        content.innerHTML =
-                            '<tr><td colspan="5" class="py-10 italic text-center text-gray-400">Belum ada riwayat mutasi.</td></tr>';
-                        return;
-                    }
-
-                    content.innerHTML = data.map(item => {
-                        const date = new Date(item.created_at).toLocaleDateString('id-ID', {
-                            day: '2-digit',
-                            month: 'short'
-                        });
-                        const time = new Date(item.created_at).toLocaleTimeString('id-ID', {
-                            hour: '2-digit',
-                            minute: '2-digit'
-                        });
-
-                        let typeClass = 'bg-gray-100 text-gray-600';
-                        if (item.type === 'stock_in') typeClass = 'bg-green-100 text-green-600';
-                        if (item.type === 'stock_out' || item.type === 'adjustment') typeClass =
-                            'bg-red-100 text-red-600';
-
-                        // Info Supplier & Harga jika ada
                         const supplierInfo = item.supplier ?
-                            `<p class="text-[10px] text-blue-500 font-black uppercase mt-1">S: ${item.supplier.name}</p>` :
+                            `<p class="text-[10px] text-primary-600 font-semibold mt-0.5">Supplier: ${item.supplier.name}</p>` :
                             '';
                         const priceInfo = item.purchase_price > 0 ?
-                            `<p class="text-[10px] text-gray-400 font-bold italic">${formatRupiah(item.purchase_price)}</p>` :
+                            `<p class="text-[10px] text-ink-400 font-mono">${formatRupiah(item.purchase_price)}</p>` :
                             '';
 
                         return `
-                    <tr class="hover:bg-gray-50/50">
-                        <td class="py-4">
-                            <span class="font-bold text-gray-700">${date}</span><br>
-                            <span class="text-[10px] text-gray-400 uppercase">${time}</span>
-                        </td>
-                        <td class="py-4">
-                            <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase ${typeClass}">${item.type.replace('_', ' ')}</span>
-                            ${supplierInfo}
-                        </td>
-                        <td class="py-4 text-center font-bold ${item.type === 'stock_in' ? 'text-green-600' : 'text-red-600'}">
-                            ${item.type === 'stock_in' ? '+' : '-'}${item.quantity}
-                            ${priceInfo}
-                        </td>
-                        <td class="py-4 font-black text-center text-gray-900">${item.after_stock}</td>
-                        <td class="py-4 text-xs italic text-gray-500">${item.note ?? '-'}</td>
-                    </tr>
-                `;
+                            <tr class="h-10 hover:bg-surface-100/60">
+                                <td class="px-4 py-2 font-mono text-[11px]">
+                                    <span class="font-semibold text-ink-900">${date}</span><br>
+                                    <span class="text-ink-400">${time} WIB</span>
+                                </td>
+                                <td class="px-4 py-2">
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase ${typeBadge}">
+                                        ${item.type.replace('_', ' ')}
+                                    </span>
+                                    ${supplierInfo}
+                                </td>
+                                <td class="px-4 py-2 text-center font-mono font-semibold ${item.type === 'stock_in' ? 'text-primary-600' : 'text-semantic-danger'}">
+                                    ${item.type === 'stock_in' ? '+' : '-'}${item.quantity}
+                                    ${priceInfo}
+                                </td>
+                                <td class="px-4 py-2 font-mono font-semibold text-center text-ink-900">${item.after_stock}</td>
+                                <td class="px-4 py-2 font-body text-xs text-ink-700 truncate max-w-[140px]" title="${item.note ?? ''}">${item.note ?? '—'}</td>
+                            </tr>
+                        `;
                     }).join('');
                 });
         }

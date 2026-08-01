@@ -1,71 +1,107 @@
-<header class="z-40 flex items-center justify-between h-20 px-8 bg-white border-b border-gray-100">
-    <div class="flex items-center flex-1">
-        <button @click="sidebarOpen = true" class="p-2 mr-4 text-gray-500 lg:hidden bg-gray-50 rounded-xl">
+<header
+    class="z-30 flex items-center justify-between h-16 px-4 border-b md:px-6 lg:px-8 bg-surface-0 border-border-200 shrink-0">
+    <!-- Left Section: Mobile Menu Trigger & Global Search -->
+    <div class="flex items-center flex-1 gap-3">
+        <!-- Mobile Sidebar Toggle -->
+        <button @click="sidebarOpen = true"
+            class="p-2 transition-colors rounded-md text-ink-700 hover:text-primary-600 lg:hidden hover:bg-surface-100">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
             </svg>
         </button>
 
-        <div
-            class="items-center hidden w-full max-w-md px-4 py-2 transition-all border border-transparent md:flex bg-gray-50 rounded-2xl focus-within:border-blue-100 focus-within:bg-white">
-            <svg class="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <input type="text" placeholder="Cari invoice atau produk..."
-                class="w-full text-sm font-medium text-gray-600 placeholder-gray-400 bg-transparent border-none focus:ring-0">
-        </div>
-    </div>
-
-    <div class="flex items-center space-x-4">
-        <button
-            class="flex items-center justify-center w-10 h-10 text-gray-400 transition hover:text-blue-600 bg-gray-50 hover:bg-blue-50 rounded-xl">
+        <!-- Desktop Collapse Toggle -->
+        <button @click="sidebarCollapsed = !sidebarCollapsed"
+            class="hidden p-2 transition-colors rounded-md lg:flex text-ink-700 hover:text-primary-600 hover:bg-surface-100"
+            title="Toggle Sidebar">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8M4 18h16" />
             </svg>
         </button>
 
+        <!-- Global Search Field -->
+        <div class="relative items-center hidden w-full max-w-sm md:flex">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-ink-400">
+                <i class="text-xs fa-solid fa-magnifying-glass"></i>
+            </div>
+            <input type="text" placeholder="Cari transaksi, produk, atau pelanggan..."
+                class="w-full pr-4 text-xs transition-all border rounded-sm outline-none h-11 pl-9 font-body text-ink-900 placeholder-ink-400 bg-surface-100 border-border-200 focus:bg-surface-0 focus:border-primary-600 focus:ring-2 focus:ring-primary-100">
+        </div>
+    </div>
+
+    <!-- Right Section: Quick Actions & Profile Menu -->
+    <div class="flex items-center gap-3">
+
+        <!-- Quick POS Terminal Button (Emerald Accent Button) -->
+        <a href="{{ route('pos.index') }}"
+            class="items-center hidden h-10 gap-2 px-4 text-xs font-semibold text-white transition-all rounded-md shadow-sm sm:inline-flex bg-primary-600 hover:bg-primary-700">
+            <i class="fa-solid fa-cash-register"></i>
+            <span>Buka Kasir</span>
+        </a>
+
+        <!-- Quick AI Assistant Button -->
+        <a href="{{ route('reports.ai') }}"
+            class="relative flex items-center justify-center w-10 h-10 transition-all rounded-md text-accent-700 bg-accent-100 hover:bg-accent-500 hover:text-white"
+            title="Tanya GrowPOS AI">
+            <i class="text-sm fa-solid fa-wand-magic-sparkles"></i>
+            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-accent-500 rounded-full ring-2 ring-surface-0"></span>
+        </a>
+
+        <div class="h-6 w-[1px] bg-border-200 mx-1"></div>
+
+        <!-- User Profile Dropdown -->
         <div class="relative" x-data="{ userMenu: false }">
             <button @click="userMenu = !userMenu"
-                class="flex items-center space-x-3 p-1.5 rounded-2xl hover:bg-gray-50 transition border border-transparent hover:border-gray-100">
+                class="flex items-center gap-2.5 p-1 rounded-md hover:bg-surface-100 transition border border-transparent hover:border-border-200">
+
                 <div
-                    class="flex items-center justify-center shadow-md w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
+                    class="flex items-center justify-center text-sm font-bold border rounded-full shadow-sm w-9 h-9 bg-primary-100 border-primary-500/20 text-primary-700 font-heading">
+                    {{ substr(auth()->user()->name, 0, 1) }}
                 </div>
+
+                <div class="flex-col hidden text-left xl:flex">
+                    <span class="text-xs font-semibold leading-tight text-ink-900">{{ auth()->user()->name }}</span>
+                    <span class="text-[10px] font-medium text-ink-700 leading-tight">
+                        {{ auth()->user()->role === 'admin' ? 'Superadmin' : auth()->user()->tenant->name ?? 'Kasir Store' }}
+                    </span>
+                </div>
+
+                <i class="fa-solid fa-chevron-down text-[10px] text-ink-400 ml-1"></i>
             </button>
 
-            <div x-show="userMenu" @click.away="userMenu = false"
-                class="absolute right-0 mt-3 w-56 bg-white rounded-[1.5rem] shadow-2xl border border-gray-100 p-2 z-50">
+            <!-- Dropdown Menu Box -->
+            <div x-show="userMenu" @click.away="userMenu = false" x-transition:enter="transition ease-out duration-150"
+                x-transition:enter-start="opacity-0 scale-95 translate-y-1"
+                x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                x-transition:leave="transition ease-in duration-100"
+                x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                x-transition:leave-end="opacity-0 scale-95 translate-y-1" x-cloak
+                class="absolute right-0 mt-2 w-56 bg-surface-0 rounded-lg shadow-lg border border-border-200 p-1.5 z-50">
+
+                <div class="px-3 py-2 mb-1 border-b border-border-200">
+                    <p class="text-xs font-semibold truncate text-ink-900">{{ auth()->user()->name }}</p>
+                    <p class="text-[11px] text-ink-700 truncate">{{ auth()->user()->email }}</p>
+                </div>
+
                 <a href="{{ route('profile.index') }}"
-                    class="flex items-center p-3 space-x-3 text-sm font-bold text-gray-700 transition rounded-xl hover:bg-gray-50">
-                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-width="2"
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
+                    class="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-ink-700 rounded-md hover:bg-primary-50 hover:text-primary-600 transition">
+                    <i class="w-4 text-sm fa-regular fa-user"></i>
                     <span>Profil Saya</span>
                 </a>
+
                 <a href="{{ route('settings.index') }}"
-                    class="flex items-center p-3 space-x-3 text-sm font-bold text-gray-700 transition rounded-xl hover:bg-gray-50">
-                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-width="2"
-                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                        <path stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
+                    class="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-ink-700 rounded-md hover:bg-primary-50 hover:text-primary-600 transition">
+                    <i class="w-4 text-sm fa-solid fa-sliders"></i>
                     <span>Pengaturan Toko</span>
                 </a>
-                <hr class="my-2 border-gray-50">
+
+                <div class="my-1 border-t border-border-200"></div>
+
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button
-                        class="flex items-center w-full p-3 space-x-3 text-sm font-bold text-red-500 transition rounded-xl hover:bg-red-50">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-width="2"
-                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                        </svg>
+                    <button type="submit"
+                        class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-semantic-danger rounded-md hover:bg-red-50 transition">
+                        <i class="w-4 text-sm fa-solid fa-right-from-bracket"></i>
                         <span>Keluar Sistem</span>
                     </button>
                 </form>

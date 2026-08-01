@@ -1,122 +1,283 @@
 <x-app-layout>
-    <div class="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
-        <div class="flex flex-col justify-between gap-4 mb-8 md:flex-row md:items-center">
+    @section('title', 'Manajemen Pelanggan & CRM')
+
+    <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-desktop" x-data="{ showDeleteModal: false, deleteUrl: '', customerName: '' }">
+
+        <!-- Header Halaman & Tombol Tambah Pelanggan -->
+        <div
+            class="flex flex-col justify-between gap-4 pb-6 mb-8 border-b sm:flex-row sm:items-center border-border-200">
             <div>
-                <h1 class="text-3xl font-black tracking-tight text-gray-900">Database Pelanggan</h1>
-                <p class="font-medium text-gray-500">Pantau loyalitas dan riwayat "Bon" pelanggan Anda.</p>
+                <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
+                    Manajemen Pelanggan / CRM
+                </h1>
+                <p class="mt-1 text-xs font-body md:text-sm text-ink-700">
+                    Kelola basis data pelanggan, program poin loyalty, dan catatan piutang (bon) usaha Anda.
+                </p>
             </div>
+
+            <!-- Button Primary: Height 44px, Radius-md (10px), Emerald Green -->
             <button onclick="document.getElementById('addCustomerModal').classList.remove('hidden')"
-                class="px-6 py-3 font-bold text-white transition bg-blue-600 shadow-xl rounded-2xl shadow-blue-100 hover:bg-blue-700 active:scale-95">
-                + Registrasi Pelanggan
+                class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body md:text-sm shrink-0">
+                <i class="text-xs fa-solid fa-user-plus"></i>
+                <span>Registrasi Pelanggan</span>
             </button>
         </div>
 
-        <div class="grid grid-cols-1 gap-6 mb-8 md:grid-cols-3">
-            <div class="bg-blue-50 p-6 rounded-[2rem] border border-blue-100">
-                <p class="text-xs font-black tracking-widest text-blue-400 uppercase">Total Pelanggan</p>
-                <p class="text-2xl font-black text-blue-900">{{ $customers->total() }}</p>
-            </div>
-            <div class="bg-amber-50 p-6 rounded-[2rem] border border-amber-100">
-                <p class="text-xs font-black tracking-widest uppercase text-amber-400">Total Piutang (Bon)</p>
-                <p class="text-2xl font-black text-amber-900">Rp
-                    {{ number_format($customers->sum('total_debt'), 0, ',', '.') }}</p>
-            </div>
-        </div>
-
-        <div class="overflow-hidden bg-white border border-gray-100 shadow-sm rounded-[2.5rem]">
-            <table class="w-full text-left">
-                <thead class="border-b border-gray-100 bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-4 text-xs font-black tracking-widest text-gray-400 uppercase">Pelanggan</th>
-                        <th class="px-6 py-4 text-xs font-black tracking-widest text-center text-gray-400 uppercase">
-                            Status</th>
-                        <th class="px-6 py-4 text-xs font-black tracking-widest text-center text-gray-400 uppercase">
-                            Poin</th>
-                        <th class="px-6 py-4 text-xs font-black tracking-widest text-right text-gray-400 uppercase">
-                            Total Hutang</th>
-                        <th class="px-6 py-4 text-xs font-black tracking-widest text-right text-gray-400 uppercase">Aksi
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-50">
-                    @forelse($customers as $c)
-                        <tr class="transition-colors hover:bg-gray-50/50">
-                            <td class="px-6 py-4">
-                                <p class="text-sm font-bold text-gray-900">{{ $c->name }}</p>
-                                <p class="text-[10px] font-medium text-gray-400">{{ $c->phone ?? 'Tidak ada nomor' }}
-                                </p>
-                            </td>
-                            <td class="px-6 py-4 text-center">
-                                @if ($c->is_member)
-                                    <span
-                                        class="px-3 py-1 text-[10px] font-black text-blue-600 bg-blue-100 rounded-lg uppercase">Member</span>
-                                @else
-                                    <span
-                                        class="px-3 py-1 text-[10px] font-black text-gray-400 bg-gray-100 rounded-lg uppercase">Reguler</span>
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 font-black text-center text-gray-700">
-                                {{ $c->points }} <span class="text-[10px] text-gray-400">pts</span>
-                            </td>
-                            <td
-                                class="px-6 py-4 text-right font-black {{ $c->total_debt > 0 ? 'text-red-500' : 'text-gray-900' }}">
-                                Rp {{ number_format($c->total_debt, 0, ',', '.') }}
-                            </td>
-                            <td class="px-6 py-4 text-right">
-                                <div class="flex justify-end gap-2">
-                                    <button class="text-[10px] font-black text-blue-600 uppercase">Detail</button>
-                                    <form action="{{ route('customers.destroy', $c->id) }}" method="POST">
-                                        @csrf @method('DELETE')
-                                        <button type="submit"
-                                            class="text-[10px] font-black text-red-400 uppercase">Hapus</button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="px-6 py-12 italic text-center text-gray-400">Belum ada pelanggan.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        <div class="mt-6">{{ $customers->links() }}</div>
-    </div>
-
-    <div id="addCustomerModal"
-        class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 bg-gray-900/60 backdrop-blur-sm">
-        <div class="bg-white rounded-[2.5rem] p-8 w-full max-w-md shadow-2xl">
-            <h3 class="mb-6 text-2xl font-black text-gray-900">Pelanggan Baru</h3>
-            <form action="{{ route('customers.store') }}" method="POST">
-                @csrf
-                <div class="space-y-4">
-                    <div>
-                        <label class="block mb-2 text-xs font-black text-gray-400 uppercase">Nama Lengkap</label>
-                        <input type="text" name="name" required
-                            class="w-full px-4 py-3 font-bold border-gray-100 rounded-2xl bg-gray-50 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block mb-2 text-xs font-black tracking-widest text-gray-400 uppercase">No.
-                            WhatsApp (Untuk Struk Digital)</label>
-                        <input type="text" name="phone" placeholder="08..."
-                            class="w-full px-4 py-3 font-bold border-gray-100 rounded-2xl bg-gray-50 focus:ring-blue-500">
-                    </div>
-                    <div class="flex items-center p-4 bg-blue-50 rounded-2xl">
-                        <input type="checkbox" name="is_member" id="is_member_check" value="1"
-                            class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                        <label for="is_member_check" class="ml-3 text-sm font-bold text-blue-900">Daftarkan sebagai
-                            Member Aktif</label>
-                    </div>
+        <!-- Metric Stat Cards -->
+        <div class="grid grid-cols-1 gap-4 mb-8 sm:grid-cols-2 md:gap-6">
+            <!-- Total Pelanggan Card -->
+            <div
+                class="flex items-center justify-between p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
+                <div>
+                    <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Total Pelanggan
+                        Terdaftar</span>
+                    <p class="mt-2 font-mono text-2xl font-semibold md:text-3xl text-ink-900">
+                        {{ number_format($customers->total(), 0, ',', '.') }}
+                    </p>
                 </div>
-                <div class="flex gap-3 mt-8">
+                <div
+                    class="flex items-center justify-center text-lg rounded-md w-11 h-11 bg-primary-50 text-primary-600 shrink-0">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+            </div>
+
+            <!-- Total Piutang (Bon) Card -->
+            <div
+                class="flex items-center justify-between p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
+                <div>
+                    <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Total Piutang
+                        Pelanggan (Bon)</span>
+                    <p class="mt-2 font-mono text-2xl font-semibold md:text-3xl text-semantic-danger">
+                        Rp {{ number_format($customers->sum('total_debt'), 0, ',', '.') }}
+                    </p>
+                </div>
+                <div
+                    class="flex items-center justify-center text-lg rounded-md w-11 h-11 bg-red-50 text-semantic-danger shrink-0">
+                    <i class="fa-solid fa-hand-holding-dollar"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table Container (Spesifikasi GrowPOS: Row Height 48px, bg surface-100 header) -->
+        <div class="mb-6 overflow-hidden border rounded-lg shadow-sm bg-surface-0 border-border-200">
+            <div class="w-full overflow-x-auto custom-scrollbar">
+                <table class="w-full text-left border-collapse whitespace-nowrap">
+                    <thead>
+                        <tr
+                            class="h-12 text-xs font-semibold tracking-wider uppercase border-b bg-surface-100 border-border-200 font-heading text-ink-700">
+                            <th class="px-5 py-3">Pelanggan & WhatsApp</th>
+                            <th class="px-5 py-3 text-center">Tier Status</th>
+                            <th class="px-5 py-3 text-center">Poin Loyalty</th>
+                            <th class="px-5 py-3 text-right">Total Hutang / Bon</th>
+                            <th class="px-5 py-3 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-xs divide-y font-body md:text-sm text-ink-900 divide-border-200">
+                        @forelse($customers as $c)
+                            <tr class="h-12 transition-colors hover:bg-surface-100/60">
+
+                                <!-- Customer Avatar, Name & Phone -->
+                                <td class="px-5 py-3">
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="flex items-center justify-center w-8 h-8 text-xs font-bold rounded-full bg-primary-100 text-primary-700 font-heading shrink-0">
+                                            {{ substr($c->name, 0, 1) }}
+                                        </div>
+                                        <div class="min-w-0">
+                                            <span
+                                                class="block font-semibold leading-tight truncate text-ink-900">{{ $c->name }}</span>
+                                            <span
+                                                class="font-mono text-[11px] font-normal text-ink-400 mt-0.5 block truncate">
+                                                <i
+                                                    class="fa-brands fa-whatsapp text-semantic-success text-[10px] mr-0.5"></i>
+                                                {{ $c->phone ?? 'Tidak ada kontak' }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- Status Tier Loyalty Badge (Pill Shape: radius-full) -->
+                                <td class="px-5 py-3 text-center">
+                                    @if ($c->is_member)
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold text-primary-700 bg-primary-100 rounded-full">
+                                            <i class="fa-solid fa-crown text-[10px] mr-1 text-accent-500"></i>
+                                            Member
+                                        </span>
+                                    @else
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold text-ink-400 bg-surface-100 border border-border-200 rounded-full">
+                                            Reguler
+                                        </span>
+                                    @endif
+                                </td>
+
+                                <!-- Poin Loyalty -->
+                                <td class="px-5 py-3 text-center">
+                                    <span
+                                        class="font-mono font-semibold text-ink-900">{{ number_format($c->points, 0, ',', '.') }}</span>
+                                    <span class="text-[11px] text-ink-400 ml-0.5">pts</span>
+                                </td>
+
+                                <!-- Total Debt / Bon -->
+                                <td class="px-5 py-3 text-right">
+                                    @if ($c->total_debt > 0)
+                                        <span class="font-mono font-semibold text-semantic-danger">
+                                            Rp {{ number_format($c->total_debt, 0, ',', '.') }}
+                                        </span>
+                                    @else
+                                        <span class="font-mono font-medium text-ink-400">
+                                            Rp 0
+                                        </span>
+                                    @endif
+                                </td>
+
+                                <!-- Action Buttons -->
+                                <td class="px-5 py-3 text-center">
+                                    <div class="flex items-center justify-center gap-1.5">
+                                        <button type="button"
+                                            class="p-2 transition-colors rounded-md text-ink-700 hover:text-primary-600 bg-surface-100 hover:bg-primary-50"
+                                            title="Lihat Detail Pelanggan">
+                                            <i class="text-xs fa-solid fa-eye"></i>
+                                        </button>
+
+                                        <button type="button"
+                                            @click="showDeleteModal = true; deleteUrl = '{{ route('customers.destroy', $c->id) }}'; customerName = '{{ $c->name }}'"
+                                            class="p-2 transition-colors rounded-md text-ink-700 hover:text-semantic-danger bg-surface-100 hover:bg-red-50"
+                                            title="Hapus Data Pelanggan">
+                                            <i class="text-xs fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <!-- Empty State (Warm & Friendly Copy) -->
+                            <tr>
+                                <td colspan="5" class="px-6 py-12 text-center">
+                                    <div class="flex flex-col items-center justify-center">
+                                        <div
+                                            class="flex items-center justify-center w-12 h-12 mb-2 rounded-full bg-primary-50 text-primary-600">
+                                            <i class="text-xl fa-solid fa-users-slash"></i>
+                                        </div>
+                                        <p class="text-sm font-semibold font-heading text-ink-900">Belum ada data
+                                            pelanggan</p>
+                                        <p class="font-body text-xs text-ink-700 mt-0.5 max-w-xs">
+                                            Yuk, daftarkan pelanggan pertama Anda untuk mulai mengumpulkan poin dan
+                                            mencatat transaksi!
+                                        </p>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination Bar -->
+        <div>
+            {{ $customers->links() }}
+        </div>
+
+        <!-- Modal Registrasi Pelanggan Baru (Max-Width 480px / max-w-modal-sm, Backdrop Blur 2px) -->
+        <div id="addCustomerModal"
+            class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 bg-ink-900/40 backdrop-blur-[2px]">
+            <div class="w-full p-6 border rounded-lg shadow-lg bg-surface-0 max-w-modal-sm border-border-200">
+
+                <div class="flex items-center justify-between pb-3 mb-4 border-b border-border-200">
+                    <h3 class="text-lg font-semibold font-heading text-ink-900">Registrasi Pelanggan Baru</h3>
                     <button type="button" onclick="document.getElementById('addCustomerModal').classList.add('hidden')"
-                        class="flex-1 py-4 font-bold text-gray-500 bg-gray-100 rounded-2xl">Batal</button>
-                    <button type="submit"
-                        class="flex-1 py-4 font-black text-white bg-blue-600 shadow-xl rounded-2xl shadow-blue-100 hover:bg-blue-700">Simpan</button>
+                        class="p-1 text-ink-400 hover:text-ink-900">
+                        <i class="text-base fa-solid fa-xmark"></i>
+                    </button>
                 </div>
-            </form>
+
+                <form action="{{ route('customers.store') }}" method="POST" class="space-y-4">
+                    @csrf
+                    <!-- Nama Lengkap Field (Height 44px, Radius-sm = 6px) -->
+                    <div>
+                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
+                            Nama Lengkap <span class="text-semantic-danger">*</span>
+                        </label>
+                        <input type="text" name="name" required placeholder="Contoh: Budi Santoso"
+                            class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 placeholder-ink-400 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100">
+                    </div>
+
+                    <!-- Nomor WhatsApp Field -->
+                    <div>
+                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">
+                            No. WhatsApp (Untuk Struk Digital)
+                        </label>
+                        <input type="text" name="phone" placeholder="0812xxxx"
+                            class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 placeholder-ink-400 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100">
+                    </div>
+
+                    <!-- Option Active Member Toggle -->
+                    <div class="flex items-center gap-3 p-3 border rounded-md bg-primary-50 border-primary-100">
+                        <input type="checkbox" name="is_member" id="is_member_check" value="1"
+                            class="w-4 h-4 rounded text-primary-600 border-border-200 focus:ring-primary-600">
+                        <label for="is_member_check"
+                            class="text-xs font-semibold cursor-pointer font-body text-primary-700">
+                            Daftarkan sebagai Member Aktif (Loyalty Points)
+                        </label>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex items-center gap-3 pt-3">
+                        <button type="button"
+                            onclick="document.getElementById('addCustomerModal').classList.add('hidden')"
+                            class="flex-1 text-xs font-semibold transition-colors rounded-md h-11 bg-surface-100 hover:bg-border-200 text-ink-900 font-body">
+                            Batal
+                        </button>
+                        <button type="submit"
+                            class="flex-1 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 font-body">
+                            Simpan Data
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
+
+        <!-- Modal Confirm Delete Pelanggan -->
+        <div x-show="showDeleteModal" x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-900/40 backdrop-blur-[2px]" x-cloak>
+
+            <div class="w-full p-6 border rounded-lg shadow-lg max-w-modal-sm bg-surface-0 border-border-200"
+                @click.away="showDeleteModal = false">
+
+                <div
+                    class="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-red-50 text-semantic-danger">
+                    <i class="text-xl fa-solid fa-triangle-exclamation"></i>
+                </div>
+
+                <div class="mb-6 text-center">
+                    <h3 class="text-lg font-semibold font-heading text-ink-900">Hapus Data Pelanggan?</h3>
+                    <p class="mt-2 text-xs leading-relaxed font-body text-ink-700">
+                        Apakah Anda yakin ingin menghapus pelanggan <span class="font-semibold text-ink-900"
+                            x-text="customerName"></span>? Riwayat poin dan data pelanggan ini akan terhapus.
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button type="button" @click="showDeleteModal = false"
+                        class="flex-1 text-xs font-semibold transition-colors rounded-md h-11 bg-surface-100 hover:bg-border-200 text-ink-900 font-body">
+                        Batal
+                    </button>
+
+                    <form :action="deleteUrl" method="POST" class="flex-1">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit"
+                            class="w-full text-xs font-semibold text-white transition-colors rounded-md h-11 bg-semantic-danger hover:bg-red-700 font-body">
+                            Ya, Hapus
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
     </div>
 </x-app-layout>
