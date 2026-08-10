@@ -42,5 +42,9 @@ return [
         'is_sanitized' => true,
         'is_3ds' => true,
     ],
+    'gemini' => [
+        'api_key' => env('GEMINI_API_KEY'),
+        'model' => env('GEMINI_MODEL', 'gemini-2.5-flash'),
+    ],
 
 ];

@@ -27,132 +27,93 @@ class ReportController extends Controller
     public function index(Request $request)
     {
         $tenantId = auth()->user()->tenant_id;
+        $startDate = $request->start_date ?? now()->startOfMonth()->toDateString();
+        $endDate = $request->end_date ?? now()->endOfMonth()->toDateString();
 
-        $startDate = $request->get('start_date', Carbon::today()->toDateString());
-        $endDate = $request->get('end_date', Carbon::today()->toDateString());
-        $startDateTime = Carbon::parse($startDate)->startOfDay();
-        $endDateTime = Carbon::parse($endDate)->endOfDay();
-
-        $salesSummary = Order::where('tenant_id', $tenantId)
-            ->whereBetween('created_at', [$startDateTime, $endDateTime])
+        // 1. Query Dasar Order Lunas
+        $ordersQuery = Order::where('tenant_id', $tenantId)
             ->where('payment_status', 'paid')
-            ->select(
-                DB::raw('SUM(subtotal) as total_gross'),
-                DB::raw('SUM(discount) as total_discount'),
-                DB::raw('SUM(tax) as total_tax'),
-                DB::raw('SUM(grand_total) as total_net'),
-                DB::raw('COUNT(id) as total_transactions')
-            )->first();
+            ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
 
-        $paymentMethods = Order::where('tenant_id', $tenantId)
-            ->whereBetween('created_at', [$startDateTime, $endDateTime])
+        // 2. Sales Summary (Total Transaksi, Net Sales, Diskon, Pajak)
+        $salesSummary = (object) [
+            'total_gross'        => (float) $ordersQuery->sum('subtotal'),
+            'total_discount'     => (float) $ordersQuery->sum('discount'),
+            'total_tax'          => (float) $ordersQuery->sum('tax'),
+            'total_net'          => (float) $ordersQuery->sum('grand_total'),
+            'total_transactions' => $ordersQuery->count(),
+        ];
+
+        // 3. Breakdown Metode Pembayaran (Cash vs QRIS) -> Solusi Error $paymentMethods
+        $paymentMethods = Order::select('payment_method', DB::raw('SUM(grand_total) as total_amount'))
+            ->where('tenant_id', $tenantId)
             ->where('payment_status', 'paid')
+            ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
             ->groupBy('payment_method')
-            ->select('payment_method', DB::raw('SUM(grand_total) as total_amount'))
             ->get();
 
-        $topProducts = DB::table('order_items')
-            ->join('products', 'order_items.product_id', '=', 'products.id')
+        // 4. Hitung Total HPP (COGS) & Laba Bersih
+        $totalHpp = (float) DB::table('order_items')
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->leftJoin('products', 'order_items.product_id', '=', 'products.id')
             ->where('orders.tenant_id', $tenantId)
-            ->whereBetween('orders.created_at', [$startDateTime, $endDateTime])
             ->where('orders.payment_status', 'paid')
-            ->groupBy('products.id', 'products.product_name')
-            ->orderBy('total_qty', 'desc')
-            ->select(
-                'products.product_name',
-                DB::raw('SUM(order_items.quantity) as total_qty'),
-                DB::raw('SUM(order_items.subtotal) as total_sales')
-            )
-            ->take(5)
+            ->whereBetween('orders.created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+            ->sum(DB::raw('order_items.quantity * COALESCE(products.cost_price, 0)'));
+
+        $totalQrisOmzet = $paymentMethods->where('payment_method', '!=', 'cash')->sum('total_amount');
+        $totalPlatformFee = ($totalQrisOmzet * 1.5) / 100;
+        $storeNetSales = $salesSummary->total_net - $totalPlatformFee;
+        $netProfit = $storeNetSales - $totalHpp;
+
+        // 5. Top 5 Produk Terlaris
+        $topProducts = DB::table('order_items')
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->select('order_items.product_name', DB::raw('SUM(order_items.quantity) as total_qty'), DB::raw('SUM(order_items.subtotal) as total_sales'))
+            ->where('orders.tenant_id', $tenantId)
+            ->where('orders.payment_status', 'paid')
+            ->whereBetween('orders.created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+            ->groupBy('order_items.product_name')
+            ->orderByDesc('total_qty')
+            ->limit(5)
             ->get();
 
-        // Shift dikaitkan ke tenant lewat relasi user yang membuka shift.
-        // Pastikan kolom tenant_id ada juga di tabel shifts; kalau ada, filter
-        // langsung ->where('tenant_id', $tenantId) jauh lebih murah daripada whereHas.
-        $shifts = Shift::whereBetween('start_time', [$startDateTime, $endDateTime])
-            ->whereHas('user', function ($q) use ($tenantId) {
-                $q->where('tenant_id', $tenantId);
-            })
+        // 6. Audit Shift Kasir
+        $shifts = Shift::where('tenant_id', $tenantId)
+            ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
             ->with('user')
-            ->orderBy('id', 'desc')
+            ->latest()
             ->get();
 
-        $dailySalesData = Order::where('tenant_id', $tenantId)
-            ->whereBetween('created_at', [$startDateTime, $endDateTime])
+        // 7. Data Grafik Tren Penjualan
+        $dailySales = Order::select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(grand_total) as total'))
+            ->where('tenant_id', $tenantId)
             ->where('payment_status', 'paid')
-            ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(grand_total) as total_sales'))
+            ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
             ->groupBy(DB::raw('DATE(created_at)'))
             ->orderBy('date', 'asc')
             ->get();
 
-        $chartLabels = $dailySalesData->pluck('date')->map(function ($date) {
-            return \Carbon\Carbon::parse($date)->translatedFormat('d M');
-        })->toArray();
-        $chartValues = $dailySalesData->pluck('total_sales')->toArray();
+        $chartLabels = $dailySales->pluck('date')->map(fn($d) => date('d M', strtotime($d)))->toArray();
+        $chartValues = $dailySales->pluck('total')->toArray();
+
+        // 8. Tabel Transaksi Lunas dengan Pagination
+        $orders = $ordersQuery->with(['customer', 'user'])->latest()->paginate(15);
 
         return view('reports.index', compact(
-            'salesSummary',
-            'paymentMethods',
-            'topProducts',
-            'shifts',
             'startDate',
             'endDate',
+            'salesSummary',
+            'paymentMethods',
+            'totalHpp',
+            'netProfit',
+            'topProducts',
+            'shifts',
             'chartLabels',
-            'chartValues'
+            'chartValues',
+            'orders'
         ));
     }
-
-    // public function exportExcel(Request $request)
-    // {
-    //     $startDate = $request->get('start_date', now()->toDateString());
-    //     $endDate = $request->get('end_date', now()->toDateString());
-    //     $tenant = auth()->user()->tenant;
-
-    //     // 1. Tarik ringkasan data finansial & produk untuk asupan Prompt AI
-    //     $salesSummary = Order::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
-    //         ->where('payment_status', 'paid')
-    //         ->select(DB::raw('SUM(grand_total) as total_net'), DB::raw('COUNT(id) as total_tx'))->first();
-
-    //     $topProduct = DB::table('order_items')
-    //         ->join('products', 'order_items.product_id', '=', 'products.id')
-    //         ->join('orders', 'order_items.order_id', '=', 'orders.id')
-    //         ->whereBetween('orders.created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
-    //         ->where('orders.payment_status', 'paid')
-    //         ->groupBy('products.product_name')
-    //         ->orderBy('total_qty', 'desc')
-    //         ->select('products.product_name', DB::raw('SUM(order_items.quantity) as total_qty'))->first();
-
-    //     // 2. Susun data kompresi ringkas
-    //     $dataBisnis = [
-    //         'nama_toko' => $tenant->name ?? 'Toko Saya',
-    //         'periode' => $startDate . ' s/d ' . $endDate,
-    //         'total_omset_periode_ini' => $salesSummary->total_net ?? 0,
-    //         'total_transaksi' => $salesSummary->total_tx ?? 0,
-    //         'produk_paling_laris' => $topProduct->product_name ?? 'Belum ada transaksi'
-    //     ];
-
-    //     // 3. Instruksikan AI memproduksi teks laporan murni tanpa tag HTML agar elok di Excel
-    //     $prompt = "Anda adalah Chief Business Analyst POS. Analisis data ringkas periode ini: " . json_encode($dataBisnis) . ".
-    //     Tulis analisis profesional dalam bentuk POIN BARIS (tanpa format markdown, tanpa bintang-bintang, tanpa tag HTML, murni baris teks narasi terpisah menggunakan baris baru \\n).
-    //     Buat struktur 4 baris kalimat utama:
-    //     Baris 1: Evaluasi performa finansial toko.
-    //     Baris 2: Analisis dominasi produk juara.
-    //     Baris 3: Rekomendasi taktis promosi bundling bulan depan.
-    //     Baris 4: Taktik menaikkan kepuasan loyalitas pelanggan.";
-
-    //     // 4. Lakukan pemanggilan AI dengan pengaman Try-Catch (Fallback)
-    //     try {
-    //         $aiTextResult = $this->gemini->generateAnalytic($prompt);
-    //     } catch (\Exception $e) {
-    //         $aiTextResult = "Evaluasi Finansial: Performa transaksi berjalan dengan stabil sepanjang rentang periode laporan.\nAnalisis Produk: Produk utama berhasil mempertahankan tingkat rotasi persediaan yang sehat.\nRekomendasi Promosi: Naikkan penjualan item pelengkap lewat peluncuran kupon khusus transaksi berulang.\nTaktik Loyalitas: Terapkan penawaran diskon langsung bagi transaksi non-tunai di jam-jam sepi pengunjung.";
-    //     }
-
-    //     $fileName = 'Laporan_POS_' . $startDate . '_s_d_' . $endDate . '.xlsx';
-
-    //     // 5. Lempar teks hasil AI ($aiTextResult) ke dalam class Export Maatwebsite
-    //     return Excel::download(new OrdersReportExport($startDate, $endDate, $aiTextResult), $fileName);
-    // }
 
     public function exportExcel(Request $request)
     {

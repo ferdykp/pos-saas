@@ -117,6 +117,18 @@
         <p>{{ auth()->user()->tenant->address ?? 'Alamat Operasional' }}</p>
         <p>Telp: {{ auth()->user()->tenant->phone ?? '-' }}</p>
     </div>
+    {{-- <div class="receipt-header">
+        <p>No. Invoice: {{ $order->invoice_number }}</p>
+        <p>Kasir: {{ $order->user->name ?? 'Kasir' }}</p>
+        <p>Tipe:
+            <strong>
+                {{ strtoupper($order->order_type ?? 'DINE_IN') }}
+                @if ($order->order_type === 'dine_in' && $order->table_number)
+                    (Meja {{ $order->table_number }})
+                @endif
+            </strong>
+        </p>
+    </div> --}}
 
     <div class="divider"></div>
 
@@ -129,6 +141,14 @@
             <td>Kasir: {{ auth()->user()->name }}</td>
             <td class="text-right">{{ $order->customer->name ?? 'Pelanggan Umum' }}</td>
         </tr>
+        <p>Tipe:
+            <strong>
+                {{ strtoupper($order->order_type ?? 'DINE_IN') }}
+                @if ($order->order_type === 'dine_in' && $order->table_number)
+                    (Meja {{ $order->table_number }})
+                @endif
+            </strong>
+        </p>
     </table>
 
     <div class="divider"></div>

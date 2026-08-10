@@ -11,7 +11,8 @@
                     Laporan Operasional
                 </h1>
                 <p class="mt-1 text-xs font-body md:text-sm text-ink-700">
-                    Pantau seluruh performa omzet penjualan, komisi platform, dan audit laci kasir secara langsung.
+                    Pantau seluruh performa omzet penjualan, HPP, laba bersih, komisi platform, dan audit laci kasir
+                    secara langsung.
                 </p>
             </div>
 
@@ -45,24 +46,28 @@
             </form>
         </div>
 
-        <!-- 4 Stat Summary Cards (GrowPOS Design Tokens) -->
-        <div class="grid grid-cols-1 gap-4 mb-8 sm:grid-cols-2 lg:grid-cols-4 md:gap-6">
-
-            <!-- Card 1: Pendapatan Bersih -->
-            @php
-                $totalQrisOmzet = 0;
-                foreach ($paymentMethods as $pm) {
-                    if ($pm->payment_method !== 'cash') {
-                        $totalQrisOmzet += $pm->total_amount;
-                    }
+        @php
+            $totalQrisOmzet = 0;
+            foreach ($paymentMethods as $pm) {
+                if ($pm->payment_method !== 'cash') {
+                    $totalQrisOmzet += $pm->total_amount;
                 }
-                $totalPlatformFee = ($totalQrisOmzet * 1.5) / 100;
-                $storeNetIncome = ($salesSummary->total_net ?? 0) - $totalPlatformFee;
-            @endphp
+            }
+            $totalPlatformFee = ($totalQrisOmzet * 1.5) / 100;
+            $storeNetSales = ($salesSummary->total_net ?? 0) - $totalPlatformFee;
+            $cogsVal = $totalHpp ?? 0;
+            $calculatedNetProfit = $netProfit ?? $storeNetSales - $cogsVal;
+            $marginPercent = $storeNetSales > 0 ? number_format(($calculatedNetProfit / $storeNetSales) * 100, 1) : 0;
+        @endphp
+
+        <!-- Stat Summary Cards Grid (Ringkasan Keuangan & Laba Bersih) -->
+        <div class="grid grid-cols-1 gap-4 mb-8 sm:grid-cols-2 lg:grid-cols-3 md:gap-6">
+
+            <!-- Card 1: Pendapatan Bersih (Omzet Net) -->
             <div class="flex flex-col justify-between p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
                 <div class="flex items-center justify-between mb-2">
                     <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Pendapatan
-                        Bersih</span>
+                        Omzet</span>
                     <div
                         class="flex items-center justify-center w-8 h-8 rounded-md bg-primary-50 text-primary-600 shrink-0">
                         <i class="text-xs fa-solid fa-wallet"></i>
@@ -70,13 +75,51 @@
                 </div>
                 <div>
                     <p class="font-mono text-xl font-semibold md:text-2xl text-primary-600">
-                        Rp {{ number_format($storeNetIncome, 0, ',', '.') }}
+                        Rp {{ number_format($storeNetSales, 0, ',', '.') }}
                     </p>
-                    <p class="font-body text-[11px] text-ink-400 mt-1">Bersih (Sudah potong komisi platform)</p>
+                    <p class="font-body text-[11px] text-ink-400 mt-1">Omzet lunas (Sudah potong komisi platform)</p>
                 </div>
             </div>
 
-            <!-- Card 2: Total Transaksi -->
+            <!-- Card 2: Total HPP / COGS (Modal Barang Terjual) -->
+            <div class="flex flex-col justify-between p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Total HPP (Modal
+                        Produk)</span>
+                    <div
+                        class="flex items-center justify-center w-8 h-8 rounded-md bg-accent-100 text-accent-700 shrink-0">
+                        <i class="text-xs fa-solid fa-boxes-packing"></i>
+                    </div>
+                </div>
+                <div>
+                    <p class="font-mono text-xl font-semibold md:text-2xl text-accent-700">
+                        Rp {{ number_format($cogsVal, 0, ',', '.') }}
+                    </p>
+                    <p class="font-body text-[11px] text-ink-400 mt-1">Total modal (cost price) barang terjual</p>
+                </div>
+            </div>
+
+            <!-- Card 3: Laba Bersih (Net Profit) -->
+            <div class="flex flex-col justify-between p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Laba Bersih (Net
+                        Profit)</span>
+                    <div
+                        class="flex items-center justify-center w-8 h-8 rounded-md bg-emerald-100 text-emerald-700 shrink-0">
+                        <i class="text-xs fa-solid fa-chart-line"></i>
+                    </div>
+                </div>
+                <div>
+                    <p
+                        class="font-mono text-xl font-bold md:text-2xl {{ $calculatedNetProfit >= 0 ? 'text-primary-600' : 'text-semantic-danger' }}">
+                        Rp {{ number_format($calculatedNetProfit, 0, ',', '.') }}
+                    </p>
+                    <p class="font-body text-[11px] text-ink-400 mt-1">Margin Keuntungan: <span
+                            class="font-semibold text-ink-900">{{ $marginPercent }}%</span></p>
+                </div>
+            </div>
+
+            <!-- Card 4: Total Transaksi -->
             <div class="flex flex-col justify-between p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
                 <div class="flex items-center justify-between mb-2">
                     <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Total
@@ -88,13 +131,13 @@
                 </div>
                 <div>
                     <p class="font-mono text-xl font-semibold md:text-2xl text-ink-900">
-                        {{ $salesSummary->total_transactions ?? 0 }} Nota
+                        {{ $salesSummary->total_transactions ?? ($totalOrders ?? 0) }} Nota
                     </p>
                     <p class="font-body text-[11px] text-ink-400 mt-1">Transaksi berstatus lunas</p>
                 </div>
             </div>
 
-            <!-- Card 3: Komisi Platform -->
+            <!-- Card 5: Komisi Platform -->
             <div class="flex flex-col justify-between p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
                 <div class="flex items-center justify-between mb-2">
                     <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Komisi
@@ -112,7 +155,7 @@
                 </div>
             </div>
 
-            <!-- Card 4: Total Diskon Promo -->
+            <!-- Card 6: Total Diskon Promo -->
             <div class="flex flex-col justify-between p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
                 <div class="flex items-center justify-between mb-2">
                     <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Subsidi
@@ -124,7 +167,7 @@
                 </div>
                 <div>
                     <p class="font-mono text-xl font-semibold md:text-2xl text-semantic-danger">
-                        -Rp {{ number_format($salesSummary->total_discount ?? 0, 0, ',', '.') }}
+                        -Rp {{ number_format($salesSummary->total_discount ?? ($totalDiscount ?? 0), 0, ',', '.') }}
                     </p>
                     <p class="font-body text-[11px] text-ink-400 mt-1">Total potongan promo produk</p>
                 </div>

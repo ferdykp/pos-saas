@@ -10,7 +10,7 @@
             <!-- Filter & Search Action Bar -->
             <div class="flex flex-col items-stretch justify-between gap-3 mb-5 sm:flex-row sm:items-center shrink-0">
 
-                <!-- Search Product Input Field (Height 44px, radius-sm) -->
+                <!-- Search Product Input Field -->
                 <div class="relative flex-1 max-w-md">
                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-ink-400">
                         <i class="text-xs fa-solid fa-magnifying-glass"></i>
@@ -57,7 +57,7 @@
             <div id="productGrid"
                 class="grid flex-1 grid-cols-2 gap-3 pb-24 pr-1 overflow-y-auto custom-scrollbar sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 md:gap-4 lg:pb-6">
                 @foreach ($products as $p)
-                    <div onclick="addToCart({{ $p->id }}, '{{ addslashes($p->product_name) }}', {{ $p->sell_price }}, {{ $p->final_price }}, {{ $p->discount_applied }}, '{{ addslashes($p->discount_name ?? '') }}')"
+                    <div onclick="addToCart({{ $p->id }}, '{{ addslashes($p->product_name) }}', {{ $p->sell_price }}, {{ $p->final_price }}, {{ $p->discount_applied }}, '{{ addslashes($p->discount_name ?? '') }}', {{ $p->manage_stock ?? 0 }}, {{ $p->stock ?? 0 }})"
                         data-category="{{ $p->category ? $p->category->name : '' }}"
                         data-name="{{ strtolower($p->product_name) }}"
                         class="product-item group relative bg-surface-0 border border-border-200 rounded-lg shadow-sm hover:shadow-md hover:border-primary-600 cursor-pointer transition-all flex flex-col justify-between overflow-hidden p-2.5 aspect-[1/1.1]">
@@ -138,8 +138,8 @@
             class="fixed lg:static inset-0 z-40 lg:z-0 w-full lg:w-[380px] xl:w-[420px] bg-surface-0 border-l border-border-200 flex flex-col h-full shadow-lg lg:shadow-none transition-transform duration-300">
 
             <!-- Cart Header & Shift Controls -->
-            <div class="p-4 border-b border-border-200 shrink-0 bg-surface-100/50">
-                <div class="flex items-center justify-between mb-3">
+            <div class="p-4 space-y-3 border-b border-border-200 shrink-0 bg-surface-100/50">
+                <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <button @click="mobileCartOpen = false" class="lg:hidden p-1.5 text-ink-400 hover:text-ink-900">
                             <i class="text-lg fa-solid fa-xmark"></i>
@@ -169,6 +169,22 @@
                     </div>
                 </div>
 
+                <!-- TIPE PESANAN & NOMOR MEJA (F&B ESSENTIALS) -->
+                <div class="grid grid-cols-12 gap-2">
+                    <div class="col-span-7">
+                        <select id="orderTypeSelect" onchange="toggleTableInput()"
+                            class="w-full h-10 px-3 text-xs font-semibold border rounded-sm outline-none font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
+                            <option value="dine_in">🍽️ Dine-In (Makan di Tempat)</option>
+                            <option value="takeaway">🛍️ Takeaway (Bawa Pulang)</option>
+                            <option value="delivery">🛵 Delivery (Layanan Antar)</option>
+                        </select>
+                    </div>
+                    <div class="col-span-5" id="tableInputContainer">
+                        <input type="text" id="tableNumberInput" placeholder="No. Meja"
+                            class="w-full h-10 px-3 font-mono text-xs font-bold text-center border rounded-sm outline-none text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
+                    </div>
+                </div>
+
                 <!-- Customer Selection Field -->
                 <div class="relative">
                     <select id="customerSelect" class="w-full">
@@ -187,8 +203,8 @@
                 <div class="flex flex-col items-center justify-center py-16 text-center text-ink-400">
                     <i class="mb-2 text-3xl opacity-50 fa-solid fa-cart-flatbed"></i>
                     <p class="text-xs font-semibold font-body">Keranjang masih kosong</p>
-                    <p class="font-body text-[11px] text-ink-400 mt-0.5">Pilih produk di sebelah kiri untuk ditambahkan.
-                    </p>
+                    <p class="font-body text-[11px] text-ink-400 mt-0.5">Pilih produk di sebelah kiri untuk
+                        ditambahkan.</p>
                 </div>
             </div>
 
@@ -251,13 +267,10 @@
                 </div>
                 <div class="flex gap-3 pt-2">
                     <button type="button" onclick="document.getElementById('openShiftModal').classList.add('hidden')"
-                        class="flex-1 text-xs font-semibold transition-colors rounded-md h-11 bg-surface-100 hover:bg-border-200 text-ink-900 font-body">
-                        Batal
-                    </button>
+                        class="flex-1 text-xs font-semibold transition-colors rounded-md h-11 bg-surface-100 hover:bg-border-200 text-ink-900 font-body">Batal</button>
                     <button type="submit"
-                        class="flex-1 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 font-body">
-                        Mulai Shift
-                    </button>
+                        class="flex-1 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 font-body">Mulai
+                        Shift</button>
                 </div>
             </form>
         </div>
@@ -304,13 +317,10 @@
                 <div class="flex gap-3 pt-2">
                     <button type="button"
                         onclick="document.getElementById('closeShiftModal').classList.add('hidden')"
-                        class="flex-1 text-xs font-semibold transition-colors rounded-md h-11 bg-surface-100 hover:bg-border-200 text-ink-900 font-body">
-                        Batal
-                    </button>
+                        class="flex-1 text-xs font-semibold transition-colors rounded-md h-11 bg-surface-100 hover:bg-border-200 text-ink-900 font-body">Batal</button>
                     <button type="submit"
-                        class="flex-1 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-semantic-danger hover:bg-red-700 font-body">
-                        Konfirmasi Tutup
-                    </button>
+                        class="flex-1 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-semantic-danger hover:bg-red-700 font-body">Konfirmasi
+                        Tutup</button>
                 </div>
             </form>
         </div>
@@ -344,13 +354,10 @@
 
                 <div class="flex gap-3 pt-2">
                     <button type="button" onclick="closeCustomerModal()"
-                        class="flex-1 text-xs font-semibold transition-colors rounded-md h-11 bg-surface-100 hover:bg-border-200 text-ink-900 font-body">
-                        Batal
-                    </button>
+                        class="flex-1 text-xs font-semibold transition-colors rounded-md h-11 bg-surface-100 hover:bg-border-200 text-ink-900 font-body">Batal</button>
                     <button type="submit"
-                        class="flex-1 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 font-body">
-                        Simpan Pelanggan
-                    </button>
+                        class="flex-1 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 font-body">Simpan
+                        Pelanggan</button>
                 </div>
             </form>
         </div>
@@ -366,11 +373,20 @@
             </h3>
 
             <div class="grid grid-cols-1 gap-6 mb-6 md:grid-cols-2">
+                <!-- Left Details Box -->
                 <div class="p-4 space-y-3 rounded-md bg-surface-100">
-                    <div>
-                        <span
-                            class="block text-[11px] font-semibold text-ink-400 uppercase tracking-wider">Pelanggan</span>
-                        <p id="reviewCustomer" class="font-body text-xs font-semibold text-ink-900 mt-0.5">-</p>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <span
+                                class="block text-[11px] font-semibold text-ink-400 uppercase tracking-wider">Pelanggan</span>
+                            <p id="reviewCustomer" class="font-body text-xs font-semibold text-ink-900 mt-0.5">-</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="block text-[11px] font-semibold text-ink-400 uppercase tracking-wider">Tipe
+                                Pesanan</span>
+                            <span id="reviewOrderType"
+                                class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-primary-100 text-primary-700 mt-0.5">Dine-In</span>
+                        </div>
                     </div>
 
                     <div>
@@ -398,6 +414,7 @@
                     </div>
                 </div>
 
+                <!-- Right Payment Options -->
                 <div class="space-y-4">
                     <div>
                         <label class="block mb-2 text-xs font-semibold font-body text-ink-900">Metode
@@ -423,14 +440,50 @@
                         </div>
                     </div>
 
-                    <div id="cashInputGroup">
-                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Uang Tunai
-                            Diterima</label>
-                        <input type="text" id="cashAmount" oninput="formatCurrencyInput(this)"
-                            class="w-full px-3 font-mono text-base font-bold border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600"
-                            placeholder="0">
+                    <div id="cashInputGroup" class="space-y-3">
+                        <div>
+                            <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Uang Tunai
+                                Diterima</label>
+                            <input type="text" id="cashAmount" oninput="formatCurrencyInput(this)"
+                                class="w-full px-3 font-mono text-base font-bold border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600"
+                                placeholder="0">
+                        </div>
 
-                        <div class="flex items-center justify-between p-3 mt-3 rounded-md bg-primary-50">
+                        <!-- QUICK CASH NOMINAL BUTTONS -->
+                        <div>
+                            <span
+                                class="block text-[11px] font-semibold text-ink-400 uppercase tracking-wider mb-1.5">Nominal
+                                Cepat</span>
+                            <div class="grid grid-cols-3 gap-1.5" id="quickCashContainer">
+                                <button type="button" onclick="setQuickCash('exact')"
+                                    class="h-8 text-[11px] font-mono font-bold text-primary-700 bg-primary-50 hover:bg-primary-100 border border-primary-200 rounded transition-colors">
+                                    Uang Pas
+                                </button>
+                                <button type="button" onclick="setQuickCash(10000)"
+                                    class="h-8 text-[11px] font-mono font-semibold text-ink-700 bg-surface-100 hover:bg-border-200 border border-border-200 rounded transition-colors">
+                                    Rp 10.000
+                                </button>
+                                <button type="button" onclick="setQuickCash(20000)"
+                                    class="h-8 text-[11px] font-mono font-semibold text-ink-700 bg-surface-100 hover:bg-border-200 border border-border-200 rounded transition-colors">
+                                    Rp 20.000
+                                </button>
+                                <button type="button" onclick="setQuickCash(50000)"
+                                    class="h-8 text-[11px] font-mono font-semibold text-ink-700 bg-surface-100 hover:bg-border-200 border border-border-200 rounded transition-colors">
+                                    Rp 50.000
+                                </button>
+                                <button type="button" onclick="setQuickCash(100000)"
+                                    class="h-8 text-[11px] font-mono font-semibold text-ink-700 bg-surface-100 hover:bg-border-200 border border-border-200 rounded transition-colors">
+                                    Rp 100.000
+                                </button>
+                                <button type="button" onclick="setQuickCash('next_round')" id="btnNextRound"
+                                    class="h-8 text-[11px] font-mono font-semibold text-ink-700 bg-surface-100 hover:bg-border-200 border border-border-200 rounded transition-colors">
+                                    Pembulatan
+                                </button>
+                            </div>
+                        </div>
+
+                        <div
+                            class="flex items-center justify-between p-3 border rounded-md bg-primary-50 border-primary-100">
                             <span class="text-xs font-semibold text-primary-700">Kembalian</span>
                             <p id="changeText" class="font-mono text-base font-bold text-primary-700">Rp 0</p>
                         </div>
@@ -440,13 +493,10 @@
 
             <div class="flex gap-3">
                 <button onclick="document.getElementById('paymentModal').classList.add('hidden')"
-                    class="flex-1 text-xs font-semibold transition-colors rounded-md h-11 bg-surface-100 hover:bg-border-200 text-ink-900 font-body">
-                    Batal
-                </button>
+                    class="flex-1 text-xs font-semibold transition-colors rounded-md h-11 bg-surface-100 hover:bg-border-200 text-ink-900 font-body">Batal</button>
                 <button onclick="submitOrder('paid')"
-                    class="flex-1 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 font-body">
-                    Konfirmasi & Cetak
-                </button>
+                    class="flex-1 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 font-body">Konfirmasi
+                    & Cetak</button>
             </div>
         </div>
     </div>
@@ -470,13 +520,10 @@
 
             <div class="flex gap-3">
                 <button onclick="tutupModalQris()"
-                    class="flex-1 text-xs font-semibold transition-colors rounded-md h-11 bg-surface-100 hover:bg-border-200 text-ink-900 font-body">
-                    Tutup
-                </button>
+                    class="flex-1 text-xs font-semibold transition-colors rounded-md h-11 bg-surface-100 hover:bg-border-200 text-ink-900 font-body">Tutup</button>
                 <button id="btnCheckStatus" onclick="cekStatusManual()"
-                    class="flex-1 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 font-body">
-                    Cek Status
-                </button>
+                    class="flex-1 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 font-body">Cek
+                    Status</button>
             </div>
         </div>
     </div>
@@ -508,7 +555,7 @@
 
     <iframe id="printFrame" class="hidden"></iframe>
 
-    <!-- JavaScript Logics Preserved 100% & Cleaned -->
+    <!-- JavaScript Logics -->
     <script>
         const IS_TAX_ACTIVE = {{ ($settings['tax_active'] ?? '0') == '1' ? 'true' : 'false' }};
         const TAX_PERCENTAGE = {{ $settings['tax_percentage'] ?? '0' }};
@@ -523,7 +570,19 @@
                 allowClear: false,
                 width: '100%'
             });
+            toggleTableInput();
         });
+
+        function toggleTableInput() {
+            const orderType = document.getElementById('orderTypeSelect').value;
+            const container = document.getElementById('tableInputContainer');
+            if (orderType === 'dine_in') {
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+                document.getElementById('tableNumberInput').value = '';
+            }
+        }
 
         function filterCategory(category, name) {
             document.getElementById('activeCategoryName').innerText = name;
@@ -543,8 +602,18 @@
             });
         }
 
-        function addToCart(id, name, originalPrice, finalPrice, discountApplied, discountName) {
+        function addToCart(id, name, originalPrice, finalPrice, discountApplied, discountName, manageStock, currentStock) {
             const existingItem = cart.find(item => item.id === id);
+
+            // Validasi Stok Maksimum di Frontend
+            if (manageStock === 1) {
+                const currentQtyInCart = existingItem ? existingItem.quantity : 0;
+                if (currentQtyInCart + 1 > currentStock) {
+                    alert(`Stok produk '${name}' tidak mencukupi! Tersisa: ${currentStock}`);
+                    return;
+                }
+            }
+
             if (existingItem) {
                 existingItem.quantity += 1;
             } else {
@@ -555,6 +624,8 @@
                     finalPrice,
                     discountApplied,
                     discountName,
+                    manageStock,
+                    currentStock,
                     quantity: 1
                 });
             }
@@ -564,8 +635,13 @@
         function updateQty(id, delta) {
             const itemIndex = cart.findIndex(item => item.id === id);
             if (itemIndex > -1) {
-                cart[itemIndex].quantity += delta;
-                if (cart[itemIndex].quantity <= 0) cart.splice(itemIndex, 1);
+                const item = cart[itemIndex];
+                if (delta > 0 && item.manageStock === 1 && item.quantity + 1 > item.currentStock) {
+                    alert(`Stok produk '${item.name}' tidak mencukupi! Tersisa: ${item.currentStock}`);
+                    return;
+                }
+                item.quantity += delta;
+                if (item.quantity <= 0) cart.splice(itemIndex, 1);
             }
             renderCart();
         }
@@ -619,13 +695,11 @@
                 `).join('');
             }
 
-            // Sync Desktop Elements
             document.getElementById('subtotalText').innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(subtotal);
             document.getElementById('discountText').innerText = '-Rp ' + new Intl.NumberFormat('id-ID').format(
                 totalDiscount);
             document.getElementById('totalText').innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(total);
 
-            // Sync Mobile Elements
             document.getElementById('mobileTotalText').innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(total);
             document.getElementById('mobileItemCount').innerText = itemCount;
 
@@ -687,6 +761,12 @@
             document.getElementById('reviewCustomer').innerText = customerData ? customerData.text :
                 'Pelanggan Umum (Guest)';
 
+            const orderType = document.getElementById('orderTypeSelect').value;
+            const tableNum = document.getElementById('tableNumberInput').value;
+            let typeLabel = orderType === 'dine_in' ? `Dine-In ${tableNum ? '(Meja ' + tableNum + ')' : ''}` : (
+                orderType === 'takeaway' ? 'Takeaway' : 'Delivery');
+            document.getElementById('reviewOrderType').innerText = typeLabel;
+
             const reviewItemsContainer = document.getElementById('reviewItems');
             reviewItemsContainer.innerHTML = cart.map(item => `
                 <div class="flex justify-between font-body text-ink-700">
@@ -721,6 +801,8 @@
             const data = {
                 customer_id: document.getElementById('customerSelect').value === 'guest' ? null : document
                     .getElementById('customerSelect').value,
+                order_type: document.getElementById('orderTypeSelect').value,
+                table_number: document.getElementById('tableNumberInput').value || null,
                 payment_method: method,
                 payment_status: status,
                 subtotal: subtotal,
@@ -963,10 +1045,15 @@
 
         async function openCloseShiftModal() {
             try {
-                const response = await fetch('/shifts/summary');
+                const response = await fetch('/shifts/summary', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                });
                 const res = await response.json();
 
-                if (res.success) {
+                if (response.ok && res.success) {
                     document.getElementById('text_shift_start').innerText = 'Rp ' + new Intl.NumberFormat('id-ID')
                         .format(res.cash_start);
                     document.getElementById('text_shift_sales').innerText = '+Rp ' + new Intl.NumberFormat('id-ID')
@@ -977,8 +1064,11 @@
                     document.getElementById('input_cash_actual').value = "";
                     document.getElementById('shift_notes').value = "";
                     document.getElementById('closeShiftModal').classList.remove('hidden');
+                } else {
+                    alert(res.message || 'Gagal memuat ringkasan shift.');
                 }
             } catch (error) {
+                console.error('Shift summary error:', error);
                 alert('Gagal memuat rangkuman shift.');
             }
         }
@@ -1013,5 +1103,29 @@
                 alert('Gagal memproses tutup shift.');
             }
         };
+
+        function setQuickCash(amount) {
+            const {
+                total
+            } = calculateTotals();
+            const cashInput = document.getElementById('cashAmount');
+
+            if (amount === 'exact') {
+                cashInput.value = new Intl.NumberFormat('id-ID').format(total);
+            } else if (amount === 'next_round') {
+                // Pembulatan ke kelipatan 10.000 / 50.000 terdekat di atas total
+                let rounded = total;
+                if (total % 10000 !== 0) {
+                    rounded = Math.ceil(total / 10000) * 10000;
+                } else if (total % 50000 !== 0) {
+                    rounded = Math.ceil(total / 50000) * 50000;
+                }
+                cashInput.value = new Intl.NumberFormat('id-ID').format(rounded);
+            } else {
+                cashInput.value = new Intl.NumberFormat('id-ID').format(amount);
+            }
+
+            calculateChange();
+        }
     </script>
 </x-app-layout>

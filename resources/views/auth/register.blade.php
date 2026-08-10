@@ -1,4 +1,6 @@
 <x-guest-layout>
+    @section('title', 'Halaman Register')
+
     <div class="bg-primary-100/40">
         <nav class="flex justify-between py-3 mx-16">
             <a href="/" class="inline-block transition duration-500 scale-100 hover:scale-105">

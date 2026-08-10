@@ -1,4 +1,6 @@
 <x-guest-layout>
+    @section('title', 'Halaman Login')
+
     {{-- Container Utama Full Screen --}}
     <div class="grid min-h-screen grid-cols-1 overflow-hidden md:grid-cols-2">
 

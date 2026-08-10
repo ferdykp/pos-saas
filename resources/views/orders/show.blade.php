@@ -37,6 +37,23 @@
 
             <!-- Receipt Meta Info -->
             <div class="space-y-1.5 font-mono text-xs text-ink-900">
+                {{-- <p>Tipe:
+                    <strong>
+                        {{ strtoupper($order->order_type ?? 'DINE_IN') }}
+                        @if ($order->order_type === 'dine_in' && $order->table_number)
+                            (Meja {{ $order->table_number }})
+                        @endif
+                    </strong>
+                </p> --}}
+                <div class="flex justify-between">
+                    <span class="text-ink-400">Tipe:</span>
+                    <span class="font-semibold text-ink-900">{{ strtoupper($order->order_type ?? 'DINE_IN') }}
+                        @if ($order->order_type === 'dine_in' && $order->table_number)
+                            (Meja {{ $order->table_number }})
+                        @endif
+                    </span>
+                </div>
+
                 <div class="flex justify-between">
                     <span class="text-ink-400">No. Invoice:</span>
                     <span class="font-semibold text-ink-900">{{ $order->invoice_number }}</span>

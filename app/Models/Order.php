@@ -16,6 +16,7 @@ class Order extends Model
         'tenant_id',
         'customer_id',
         'user_id',
+        'order_type',
         'invoice_number',
         'table_number',
         'subtotal',

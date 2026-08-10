@@ -31,8 +31,20 @@
             </div>
         </div>
 
+        {{-- Disclaimer data terbatas: jujur ke pemilik toko kalau insight masih indikatif --}}
+        @isset($dataCukup)
+            @if (!$dataCukup)
+                <div
+                    class="flex items-center gap-2 p-3 mb-6 text-xs text-blue-800 border border-blue-200 rounded-lg bg-blue-50">
+                    <i class="text-blue-500 fa-solid fa-circle-info"></i>
+                    <span>Data transaksi Anda masih terbatas. Insight AI di bawah ini bersifat indikatif dan akan
+                        semakin akurat seiring bertambahnya transaksi.</span>
+                </div>
+            @endif
+        @endisset
+
         <!-- Metric Stat Banner -->
-        <div class="grid grid-cols-2 gap-3 mb-6 lg:grid-cols-4">
+        <div class="grid grid-cols-2 gap-3 mb-6 lg:grid-cols-5">
             <div
                 class="bg-surface-0 p-3.5 rounded-lg border border-border-200 shadow-sm flex items-center justify-between">
                 <div>
@@ -94,7 +106,59 @@
                     <i class="fa-solid fa-crown"></i>
                 </div>
             </div>
+
+            {{-- Kartu baru: Tren 7 hari terakhir --}}
+            <div
+                class="bg-surface-0 p-3.5 rounded-lg border border-border-200 shadow-sm flex items-center justify-between">
+                <div>
+                    <span class="font-body text-[11px] font-semibold text-ink-700 uppercase tracking-wider block">Tren
+                        7 Hari</span>
+                    @isset($growthPercent)
+                        @if ($growthPercent !== null)
+                            <p
+                                class="mt-1 font-mono text-base font-semibold md:text-lg {{ $growthPercent >= 0 ? 'text-emerald-600' : 'text-red-600' }}">
+                                {{ $growthPercent >= 0 ? '+' : '' }}{{ $growthPercent }}%
+                            </p>
+                        @else
+                            <p class="mt-1 text-xs font-semibold text-ink-400">Belum Cukup Data</p>
+                        @endif
+                    @else
+                        <p class="mt-1 text-xs font-semibold text-ink-400">Belum Cukup Data</p>
+                    @endisset
+                </div>
+                <div
+                    class="flex items-center justify-center w-8 h-8 text-xs rounded-md shrink-0
+                        {{ isset($growthPercent) && $growthPercent !== null && $growthPercent < 0 ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700' }}">
+                    <i
+                        class="fa-solid {{ isset($growthPercent) && $growthPercent !== null && $growthPercent < 0 ? 'fa-arrow-trend-down' : 'fa-arrow-trend-up' }}"></i>
+                </div>
+            </div>
         </div>
+
+        {{-- Panel Kombo Cerdas: fitur pembeda GrowPOS -- rekomendasi bundling
+             berbasis data pembelian riil, bukan sekadar tebakan produk laris + sepi --}}
+        @isset($comboPairs)
+            @if ($comboPairs->isNotEmpty())
+                <div class="p-4 mb-6 border rounded-lg bg-violet-50 border-violet-200">
+                    <div class="flex items-center gap-2 mb-2">
+                        <i class="text-sm fa-solid fa-wand-magic-sparkles text-violet-600"></i>
+                        <h3 class="text-xs font-bold tracking-wider uppercase font-heading text-violet-900">
+                            Kombo Cerdas — Produk yang Sering Dibeli Bersamaan
+                        </h3>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        @foreach ($comboPairs as $pair)
+                            <span
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-white border rounded-full border-violet-200 text-violet-800">
+                                {{ $pair->produk_a }} <i class="text-[10px] fa-solid fa-plus text-violet-400"></i>
+                                {{ $pair->produk_b }}
+                                <span class="ml-1 text-violet-500">({{ $pair->frekuensi }}x)</span>
+                            </span>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+        @endisset
 
         <!-- Split Screen Layout -->
         <div class="grid items-start grid-cols-1 gap-6 lg:grid-cols-12">
@@ -155,7 +219,7 @@
                                 Tanya GrowPOS AI
                             </h3>
                             <span class="font-body text-[10px] text-primary-600 font-medium block">
-                                Online • Asisten Bisnis Toko Real-time
+                                Online • Mengingat konteks percakapan Anda
                             </span>
                         </div>
                     </div>
@@ -242,6 +306,17 @@
                                 class="w-1.5 h-1.5 bg-primary-600 rounded-full animate-bounce [animation-delay:0.4s]"></span>
                         </div>
                     </div>
+
+                    <!-- Suggested Follow-up Chips: AI proaktif menyarankan pertanyaan lanjutan -->
+                    <div x-show="suggestions.length > 0 && !isLoading" class="flex flex-wrap gap-1.5 pl-8">
+                        <template x-for="(sug, sIndex) in suggestions" :key="sIndex">
+                            <button type="button" @click="sendQuickPrompt(sug)"
+                                class="px-2.5 py-1 bg-white hover:bg-primary-50 hover:text-primary-700 border border-primary-200 rounded-full font-body text-[11px] text-primary-600 transition-colors">
+                                <i class="fa-solid fa-arrow-turn-up rotate-90 text-[9px] mr-1"></i>
+                                <span x-text="sug"></span>
+                            </button>
+                        </template>
+                    </div>
                 </div>
 
                 <!-- Chat Input Area -->
@@ -269,6 +344,7 @@
                 inputQuery: '',
                 isLoading: false,
                 messages: [],
+                suggestions: [],
 
                 sendQuickPrompt(promptText) {
                     this.inputQuery = promptText;
@@ -284,6 +360,13 @@
                         minute: '2-digit'
                     });
 
+                    // Ambil snapshot histori SEBELUM pesan baru ditambahkan,
+                    // supaya backend tahu urutan percakapan sebelumnya (untuk multi-turn context).
+                    const historySnapshot = this.messages.slice(-6).map(m => ({
+                        sender: m.sender,
+                        text: m.text
+                    }));
+
                     this.messages.push({
                         sender: 'user',
                         text: userText,
@@ -291,6 +374,7 @@
                     });
                     this.inputQuery = '';
                     this.isLoading = true;
+                    this.suggestions = [];
                     this.scrollToBottom();
 
                     try {
@@ -302,7 +386,8 @@
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
                             },
                             body: JSON.stringify({
-                                message: userText
+                                message: userText,
+                                history: historySnapshot
                             })
                         });
 
@@ -317,15 +402,18 @@
                                     minute: '2-digit'
                                 })
                             });
+                            this.suggestions = data.suggestions || [];
                         } else {
                             this.messages.push({
                                 sender: 'ai',
-                                text: data.message || 'Maaf, terjadi kesalahan respon dari sistem AI.',
+                                text: data.reply || data.message ||
+                                    'Maaf, terjadi kesalahan respon dari sistem AI.',
                                 time: new Date().toLocaleTimeString([], {
                                     hour: '2-digit',
                                     minute: '2-digit'
                                 })
                             });
+                            this.suggestions = data.suggestions || [];
                         }
                     } catch (error) {
                         console.error("AI Chat Error:", error);
@@ -345,6 +433,7 @@
 
                 clearChat() {
                     this.messages = [];
+                    this.suggestions = [];
                 },
 
                 scrollToBottom() {

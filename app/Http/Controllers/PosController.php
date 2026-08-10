@@ -125,6 +125,7 @@ class PosController extends Controller
                 'customer_id'    => $request->customer_id,
                 'user_id'        => auth()->id(),
                 'invoice_number' => $invoice,
+                'order_type'     => $request->order_type ?? 'dine_in',
                 'table_number'   => $request->table_number,
                 'subtotal'       => $request->subtotal,
                 'discount'       => $request->discount ?? 0,
