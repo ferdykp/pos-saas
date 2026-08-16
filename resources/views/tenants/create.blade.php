@@ -1,9 +1,9 @@
 <x-guest-layout>
-    <div class="bg-primary-100/40">
+    <div class="min-h-screen bg-primary-100/40">
         <nav class="flex justify-between py-3 mx-16">
             <a href="/" class="inline-block transition duration-500 scale-100 hover:scale-105">
-                <div class="flex items-center justify-center">
-                    <img src="{{ asset('img/growpos_logo.png') }}" class="w-10" alt="">
+                <div class="flex items-center justify-center gap-2">
+                    <img src="{{ asset('img/growpos_logo.png') }}" class="w-10" alt="GrowPOS Logo">
                     <div class="font-bold text-h2 text-primary-600">GrowPOS</div>
                 </div>
             </a>
@@ -14,12 +14,47 @@
                     <div class="relative inline-block font-bold transition-all group text-body-base text-primary-600">
                         <span
                             class="absolute left-0 bottom-[-2px] w-0 group-hover:w-full transition-all duration-500 h-0.5 bg-primary-600"></span>
-
                         Masuk
                     </div>
                 </a>
             </div>
         </nav>
+
+        {{-- Banner Notifikasi Verifikasi Email Sukses / Status System --}}
+        <div class="px-4 mx-auto max-w-8xl">
+            @if (session('status'))
+                <div class="flex items-center gap-3 p-4 mt-2 mb-2 text-sm font-semibold border rounded-lg shadow-sm text-emerald-800 bg-emerald-50/90 border-emerald-200"
+                    data-aos="fade-down">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 shrink-0">
+                        <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="font-bold text-emerald-900 text-body-base">Verifikasi Email Berhasil!</p>
+                        <p class="font-medium text-emerald-700 text-body-sm">{{ session('status') }}</p>
+                    </div>
+                </div>
+            @endif
+
+            @if (request()->has('verified') && request()->get('verified') == 1)
+                <div class="flex items-center gap-3 p-4 mt-2 mb-2 text-sm font-semibold border rounded-lg shadow-sm text-emerald-800 bg-emerald-50/90 border-emerald-200"
+                    data-aos="fade-down">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 shrink-0">
+                        <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="font-bold text-emerald-900 text-body-base">Email Berhasil Diverifikasi!</p>
+                        <p class="font-medium text-emerald-700 text-body-sm">Selamat, akun GrowPOS Anda telah aktif.
+                            Silakan lengkapi informasi bisnis Anda di bawah ini.</p>
+                    </div>
+                </div>
+            @endif
+        </div>
 
         <div class="px-4 mx-auto max-w-8xl">
             <!-- items-stretch membuat tinggi kolom kiri & kanan otomatis sama -->
@@ -81,7 +116,6 @@
 
                 <!-- KOLOM KANAN -->
                 <div class="w-full h-full rounded-lg">
-                    <!-- PENTING: Gunakan 'justify-start' agar konten mulai dari ATAS -->
                     <div
                         class="flex flex-col justify-start h-full p-8 border rounded-lg shadow-md bg-surface-0 border-border-200">
                         <div class="w-full space-y-4">
@@ -101,8 +135,7 @@
 
                             <div class="text-h2 text-ink-900">Siapkan Bisnis Anda</div>
                             <div class="mt-1 font-semibold text-ink-700 text-body-base">Beri tahu kami sedikit tentang
-                                usaha
-                                Anda.</div>
+                                usaha Anda.</div>
 
                             <div x-data="{ isSubmitting: false }">
                                 <form action="{{ route('tenants.store') }}" method="POST" enctype="multipart/form-data"
@@ -128,33 +161,32 @@
                                                 <div class="flex-1">
                                                     <input type="file" name="img_logo" accept="image/*"
                                                         @change="
-                                                                const file = $event.target.files[0];
-                                                                const maxSize = 2 * 1024 * 1024; // 2MB dalam Bytes
+                                                            const file = $event.target.files[0];
+                                                            const maxSize = 2 * 1024 * 1024;
 
-                                                                errorMessage = ''; // Reset error state
+                                                            errorMessage = '';
 
-                                                                if (file) {
-                                                                    if (file.size > maxSize) {
-                                                                        errorMessage = 'Ukuran gambar terlalu besar! Maksimal 2MB.';
-                                                                        $event.target.value = ''; // Reset input file agar tidak ikut terisi
-                                                                        imgPreview = null; // Reset gambar preview
-                                                                        return;
-                                                                    }
-
-                                                                    const reader = new FileReader();
-                                                                    reader.onload = (e) => { imgPreview = e.target.result; };
-                                                                    reader.readAsDataURL(file);
-                                                                } else {
+                                                            if (file) {
+                                                                if (file.size > maxSize) {
+                                                                    errorMessage = 'Ukuran gambar terlalu besar! Maksimal 2MB.';
+                                                                    $event.target.value = '';
                                                                     imgPreview = null;
+                                                                    return;
                                                                 }
-                                                            "
+
+                                                                const reader = new FileReader();
+                                                                reader.onload = (e) => { imgPreview = e.target.result; };
+                                                                reader.readAsDataURL(file);
+                                                            } else {
+                                                                imgPreview = null;
+                                                            }
+                                                        "
                                                         class="block w-full cursor-pointer text-body-sm text-ink-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-body-sm file:font-black file:bg-primary-600/10 file:text-primary-600 hover:file:bg-primary-600/20" />
                                                     <p class="mt-1 text-[10px] text-ink-400">Format: JPG, PNG, atau
                                                         WEBP. Maksimal 2MB.</p>
                                                 </div>
                                             </div>
 
-                                            <!-- Peringatan jika file melebihi kapasitas (Client Side) -->
                                             <template x-if="errorMessage">
                                                 <p
                                                     class="mt-1.5 ml-1 text-body-sm font-bold text-semantic-danger flex items-center gap-1">
@@ -163,12 +195,12 @@
                                                 </p>
                                             </template>
 
-                                            <!-- Error dari Backend Validation (Laravel) -->
                                             @error('img_logo')
                                                 <p class="mt-1 ml-1 font-bold text-body-sm text-semantic-danger">
                                                     {{ $message }}</p>
                                             @enderror
                                         </div>
+
                                         <!-- Nama Bisnis -->
                                         <div>
                                             <x-input-label value="Nama Bisnis / Toko"
@@ -278,7 +310,6 @@
 
         <footer class="bg-primary-100/50">
             <div class="grid grid-cols-2 gap-8 px-6 py-12 mx-auto max-w-7xl md:grid-cols-12">
-
                 <div class="col-span-2 md:col-span-3">
                     <a href="/" class="inline-block transition duration-500 scale-100 hover:scale-105">
                         <div class="flex items-center mb-4">
@@ -295,18 +326,17 @@
                     <div class="space-y-3 font-medium text-body-sm text-ink-700">
                         <a href="#" class="block transition hover:text-primary-600 hover:translate-x-1">Tentang
                             Kami</a>
-                        <a href="#" class="block transition hover:text-primary-600 hover:translate-x-1">
-                            Pusat Bantuan</a>
+                        <a href="#" class="block transition hover:text-primary-600 hover:translate-x-1">Pusat
+                            Bantuan</a>
                     </div>
                 </div>
                 <div class="col-span-1 md:col-span-3">
                     <div class="mb-4 font-bold text-body-sm text-primary-500">Legal</div>
                     <div class="space-y-3 font-medium text-body-sm text-ink-700">
                         <a href="#"
-                            class="block transition hover:text-primary-600 hover:translate-x-1">Kebijakan
-                            Privasi</a>
-                        <a href="#" class="block transition hover:text-primary-600 hover:translate-x-1">
-                            Syarat & Ketentuan</a>
+                            class="block transition hover:text-primary-600 hover:translate-x-1">Kebijakan Privasi</a>
+                        <a href="#" class="block transition hover:text-primary-600 hover:translate-x-1">Syarat &
+                            Ketentuan</a>
                     </div>
                 </div>
                 <div class="col-span-1 md:col-span-3">

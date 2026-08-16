@@ -3,6 +3,48 @@
 
     <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-desktop">
 
+        {{-- Banner Notifikasi Verifikasi Email Berhasil --}}
+        @if (request()->has('verified') && request()->get('verified') == 1)
+            <div
+                class="flex items-center justify-between p-4 mb-6 border rounded-lg shadow-sm text-emerald-800 bg-emerald-50 border-emerald-200">
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 shrink-0">
+                        <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-emerald-900">Email Anda Berhasil Diverifikasi!</h4>
+                        <p class="text-xs text-emerald-700">Selamat datang di GrowPOS! Akun Anda kini sepenuhnya
+                            terverifikasi dan siap digunakan.</p>
+                    </div>
+                </div>
+                <button type="button" onclick="this.parentElement.remove()"
+                    class="text-emerald-500 hover:text-emerald-800">
+                    <i class="text-lg fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        @endif
+
+        @if (session('status'))
+            <div
+                class="flex items-center justify-between p-4 mb-6 border rounded-lg shadow-sm text-emerald-800 bg-emerald-50 border-emerald-200">
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 shrink-0">
+                        <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <p class="text-sm font-semibold text-emerald-900">{{ session('status') }}</p>
+                </div>
+                <button type="button" onclick="this.parentElement.remove()"
+                    class="text-emerald-500 hover:text-emerald-800">
+                    <i class="text-lg fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        @endif
+
         <!-- ==================== HEADER & QUICK ACTIONS ==================== -->
         <div class="flex flex-col justify-between gap-4 mb-8 xl:flex-row xl:items-center">
             <div>
@@ -84,7 +126,8 @@
                             "Omzet Anda stabil minggu ini, tapi ada 3 barang yang stoknya menipis!"
                         </h3>
                         <p class="max-w-3xl mt-1 text-xs leading-relaxed font-body md:text-sm text-ink-700">
-                            Penjualan produk kategori terlaris meningkat 15% dibanding hari kemarin. Pertimbangkan untuk
+                            Penjualan produk kategori terlaris meningkat 15% dibanding hari kemarin. Pertimbangkan
+                            untuk
                             restock barang sebelum jam sibuk nanti sore.
                         </p>
 
@@ -139,7 +182,8 @@
             <div
                 class="p-5 transition-shadow border rounded-lg shadow-sm bg-surface-0 border-border-200 hover:shadow-md">
                 <div class="flex items-center justify-between mb-3">
-                    <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Total Piutang
+                    <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Total
+                        Piutang
                         (Bon)</span>
                     <div class="flex items-center justify-center rounded-md w-9 h-9 bg-red-50 text-semantic-danger">
                         <i class="text-base fa-solid fa-hand-holding-dollar"></i>
@@ -216,7 +260,8 @@
                 class="flex flex-col justify-between p-5 border rounded-lg shadow-sm lg:col-span-1 bg-surface-0 md:p-6 border-border-200">
                 <div>
                     <h3 class="text-lg font-semibold font-heading text-ink-900">Metode Pembayaran</h3>
-                    <p class="mb-4 text-xs font-body text-ink-700">Perbandingan transaksi Tunai vs QRIS/Transfer</p>
+                    <p class="mb-4 text-xs font-body text-ink-700">Perbandingan transaksi Tunai vs QRIS/Transfer
+                    </p>
                 </div>
                 <div class="relative flex items-center justify-center w-full h-56 my-auto">
                     <canvas id="paymentChart"></canvas>
@@ -285,7 +330,8 @@
                             class="flex items-center justify-center mb-3 rounded-full w-14 h-14 bg-primary-50 text-primary-600">
                             <i class="text-xl fa-solid fa-store-slash"></i>
                         </div>
-                        <h4 class="text-base font-semibold font-heading text-ink-900">Belum ada transaksi hari ini</h4>
+                        <h4 class="text-base font-semibold font-heading text-ink-900">Belum ada transaksi hari ini
+                        </h4>
                         <p class="max-w-sm mt-1 mb-4 text-xs font-body text-ink-700">
                             Yuk, mulai layani pelanggan pertama Anda hari ini dan catat penjualannya!
                         </p>

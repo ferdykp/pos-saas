@@ -6,11 +6,14 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Database\Eloquent\Relations\HasMany; // Tambahkan ini
-use Illuminate\Database\Eloquent\Relations\BelongsTo; // Tambahkan ini
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Notifications\Messages\MailMessage;
 
 class User extends Authenticatable
 {
+    // HANYA gunakan Trait resmi di sini (Jangan ada VerifyEmail di baris use ini)
     use HasFactory, Notifiable, HasRoles;
 
     protected $fillable = [
@@ -21,9 +24,10 @@ class User extends Authenticatable
         'avatar',
         'password',
         'status',
-        'role', // <--- Tambahkan ini
+        'role',
+        'google_id',
+        'email_verified_at',
     ];
-
 
     protected $hidden = [
         'password',
@@ -35,18 +39,11 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    /**
-     * Bisnis yang sedang aktif digunakan (Selected Tenant)
-     */
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class, 'tenant_id');
     }
 
-    /**
-     * DAFTAR SEMUA BISNIS yang dimiliki user ini
-     * Ini yang menyebabkan error tadi karena sebelumnya belum ada.
-     */
     public function tenants(): HasMany
     {
         return $this->hasMany(Tenant::class, 'user_id');
@@ -60,5 +57,28 @@ class User extends Authenticatable
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
+    }
+
+    /**
+     * Send email verification notification
+     */
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new class extends VerifyEmail {
+            public function toMail($notifiable)
+            {
+                $verificationUrl = $this->verificationUrl($notifiable);
+
+                return (new MailMessage)
+                    ->subject('Konfirmasi Registrasi Akun GrowPOS Anda')
+                    ->greeting('Halo ' . $notifiable->name . ',')
+                    ->line('Terima kasih telah memilih GrowPOS sebagai mitra pertumbuhan bisnis Anda.')
+                    ->line('Satu langkah terakhir untuk mengaktifkan seluruh fitur kasir pintar dan laporan otomatis: silakan konfirmasi bahwa alamat email ini adalah milik Anda.')
+                    ->action('Verifikasi Email Sekarang', $verificationUrl)
+                    ->line('Tautan verifikasi ini berlaku selama 60 menit demi keamanan akun Anda.')
+                    ->line('Jika Anda tidak merasa mendaftar di layanan GrowPOS, Anda dapat mengabaikan email ini secara aman.')
+                    ->salutation("Salam hangat,\nTim Ekosistem GrowPOS Indonesia");
+            }
+        });
     }
 }
