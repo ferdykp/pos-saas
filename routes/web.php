@@ -19,6 +19,7 @@ use App\Http\Controllers\PosController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\AiReportController;
+use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\WithdrawalController;
@@ -32,6 +33,10 @@ use App\Http\Controllers\WithdrawalController;
 Route::get('/', function () {
     return view('landing');
 });
+
+Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
+
 
 /*
 |--------------------------------------------------------------------------
@@ -63,6 +68,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
 
 
     // -------------------------------------------------------------------
@@ -144,6 +150,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('settings', SettingController::class);
         Route::post('/settings/update-points', [SettingController::class, 'updatePoints'])->name('settings.update-points');
     });
+});
+
+Route::middleware(['auth'])->group(function () {
+    // Endpoint ringan untuk mengecek apakah email sudah terverifikasi
+    Route::get('/api/check-email-verification', function () {
+        return response()->json([
+            'verified' => auth()->user()->hasVerifiedEmail(),
+            'has_tenant' => !is_null(auth()->user()->tenant_id),
+            'redirect_url' => auth()->user()->tenant_id
+                ? route('dashboard')
+                : route('tenants.create'),
+        ]);
+    })->name('api.check-verification');
 });
 
 /*

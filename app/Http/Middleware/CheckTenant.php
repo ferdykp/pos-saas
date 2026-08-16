@@ -15,12 +15,23 @@ class CheckTenant
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (auth()->check() && auth()->user()->tenant_id === null) {
-            // Jika belum punya tenant dan tidak sedang di halaman input tenant, redirect.
-            if (!$request->routeIs('tenants.*')) {
-                return redirect()->route('tenants.create');
+        if (auth()->check()) {
+            // 1. Jika email BELUM diverifikasi, JANGAN dialihkan ke tenant setup dulu.
+            // Biarkan middleware 'verified' Laravel yang mengarahkannya ke /verify-email.
+            if (!auth()->user()->hasVerifiedEmail()) {
+                if (!$request->routeIs('verification.*') && !$request->is('logout')) {
+                    return redirect()->route('verification.notice');
+                }
+            }
+
+            // 2. Jika email SUDAH diverifikasi tapi belum punya tenant
+            if (auth()->user()->tenant_id === null) {
+                if (!$request->routeIs('tenants.*') && !$request->is('logout')) {
+                    return redirect()->route('tenants.create');
+                }
             }
         }
+
         return $next($request);
     }
 }

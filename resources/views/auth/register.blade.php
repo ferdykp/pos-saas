@@ -117,6 +117,28 @@
                                 get isDigitValid() { return this.password.length >= 8 },
                                 get isMatch() { return this.password === this.password_confirmation && this.password_confirmation !== '' }
                             }">
+
+                                <!-- Tombol Register dengan Google -->
+                                <a href="{{ route('auth.google') }}" class="block w-full mb-6 no-underline">
+                                    <div
+                                        class="border-2 border-primary-600/30 hover:bg-primary-500/10 transition duration-300 bg-primary-600/5 py-3.5 space-x-3 rounded-md items-center flex justify-center w-full cursor-pointer">
+                                        <img src="https://authjs.dev/img/providers/google.svg" alt="Google"
+                                            class="w-5 h-5 pointer-events-none">
+                                        <span
+                                            class="font-semibold pointer-events-none text-body-base text-primary-600">Daftar
+                                            Instan dengan Google</span>
+                                    </div>
+                                </a>
+
+                                <!-- Pembatas OR -->
+                                <div class="relative flex items-center justify-center w-full mb-6">
+                                    <div class="flex-grow border-t border-border-200"></div>
+                                    <span
+                                        class="flex-shrink mx-4 font-semibold tracking-wider uppercase text-body-sm text-ink-400">
+                                        atau daftar dengan email
+                                    </span>
+                                    <div class="flex-grow border-t border-border-200"></div>
+                                </div>
                                 <form method="POST" action="{{ route('register') }}" class="space-y-5"
                                     @submit="isSubmitting = true">
                                     @csrf
