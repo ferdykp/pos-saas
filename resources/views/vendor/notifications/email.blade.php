@@ -21,7 +21,7 @@
                     {{-- Header --}}
                     <tr>
                         <td style="background-color:#065f46; padding:28px 32px; text-align:center;">
-                            <img src="{{ config('app.url') }}/img/growpos_logo.png" alt="GrowPOS"
+                            <img src="{{ config('app.url') }}/img/growpos_logo-bg.png" alt="GrowPOS"
                                 style="height:40px; display:block; margin:0 auto 8px;">
                             <div style="color:#ffffff; font-size:16px; font-weight:700; letter-spacing:0.3px;">GrowPOS
                                 System</div>
