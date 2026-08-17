@@ -51,4 +51,9 @@ return [
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_REDIRECT_URI', 'http://localhost:8000/auth/google/callback'),
     ],
+    // config/services.php
+    'social' => [
+        'instagram' => env('SOCIAL_INSTAGRAM_URL'),
+        'whatsapp'  => env('SOCIAL_WHATSAPP_URL'),
+    ],
 ];

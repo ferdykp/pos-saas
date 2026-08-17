@@ -122,5 +122,9 @@ return [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
+    // config/app.php
+    'company_name' => env('APP_COMPANY_NAME', 'GrowPOS Indonesia'),
+    'company_address' => env('APP_COMPANY_ADDRESS', 'Surabaya, Jawa Timur, Indonesia'),
+    'support_url' => env('APP_SUPPORT_URL'),
 
 ];
