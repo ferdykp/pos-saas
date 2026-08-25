@@ -1,4 +1,14 @@
-@props(['title', 'desc', 'price', 'period', 'cta', 'features' => [], 'popular' => false])
+@props([
+    'planId' => null,
+    'title',
+    'desc',
+    'price',
+    'period',
+    'cta',
+    'features' => [],
+    'popular' => false,
+    'actionUrl' => null,
+])
 
 <div data-aos="fade-up" @class([
     'bg-surface-0 rounded-lg p-8 transition duration-300 hover:-translate-y-3 flex flex-col justify-between',
@@ -30,11 +40,37 @@
         </ul>
     </div>
 
-    <button @class([
-        'w-full py-3 rounded-md font-bold text-body-sm transition mt-6',
-        'bg-primary-600 text-white hover:bg-primary-900 shadow-md' => $popular,
-        'border-2 border-primary-600 text-primary-600 hover:bg-primary-600 hover:text-white' => !$popular,
-    ])>
-        {{ $cta }}
-    </button>
+    @auth
+        @if ($planId)
+            {{-- Form Submit Checkout Paket jika User Sudah Login --}}
+            <form action="{{ route('billing.subscribe') }}" method="POST" class="mt-6">
+                @csrf
+                <input type="hidden" name="plan_id" value="{{ $planId }}">
+                <button type="submit" @class([
+                    'w-full py-3 rounded-md font-bold text-body-sm transition',
+                    'bg-primary-600 text-white hover:bg-primary-900 shadow-md' => $popular,
+                    'border-2 border-primary-600 text-primary-600 hover:bg-primary-600 hover:text-white' => !$popular,
+                ])>
+                    {{ $cta }}
+                </button>
+            </form>
+        @else
+            <a href="{{ route('billing.index') }}" @class([
+                'w-full py-3 rounded-md font-bold text-body-sm transition text-center block mt-6',
+                'bg-primary-600 text-white hover:bg-primary-900 shadow-md' => $popular,
+                'border-2 border-primary-600 text-primary-600 hover:bg-primary-600 hover:text-white' => !$popular,
+            ])>
+                {{ $cta }}
+            </a>
+        @endif
+    @else
+        {{-- Redirect ke Halaman Register/Login jika Belum Auth --}}
+        <a href="{{ route('login') }}" @class([
+            'w-full py-3 rounded-md font-bold text-body-sm transition text-center block mt-6',
+            'bg-primary-600 text-white hover:bg-primary-900 shadow-md' => $popular,
+            'border-2 border-primary-600 text-primary-600 hover:bg-primary-600 hover:text-white' => !$popular,
+        ])>
+            {{ $cta }}
+        </a>
+    @endauth
 </div>

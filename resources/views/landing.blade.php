@@ -70,6 +70,7 @@
           </section>
 
           {{-- ===================== HARGA ===================== --}}
+          {{-- ===================== HARGA ===================== --}}
           <section id="harga" class="py-20 bg-primary-50">
               <div class="px-4 mx-auto max-w-8xl sm:px-6 lg:px-10">
 
@@ -81,36 +82,50 @@
                   <div class="flex items-center justify-center">
                       <div class="grid items-center w-full max-w-6xl grid-cols-1 gap-6 md:grid-cols-3">
 
-                          <x-landing.pricing-card title="Starter" desc="Cocok untuk pedagang kaki lima & UMKM baru."
-                              price="Rp 0" period="selamanya" cta="Pilih Starter" :features="[
-                                  '100 Transaksi / Bulan' => true,
-                                  'Manajemen Stok Dasar' => true,
-                                  'Laporan Harian' => true,
-                                  'Analitik AI' => false,
-                              ]" />
+                          @if (isset($plans) && $plans->count() > 0)
+                              @foreach ($plans as $plan)
+                                  <x-landing.pricing-card :plan-id="$plan->id" :popular="$plan->slug === 'growth'" :title="$plan->name"
+                                      :desc="$plan->description" :price="$plan->price == 0
+                                          ? 'Rp 0'
+                                          : 'Rp ' . number_format($plan->price / 1000, 0) . 'rb'" :period="$plan->price == 0 ? 'selamanya' : 'bulan'" :cta="auth()->check()
+                                          ? ($plan->price == 0
+                                              ? 'Pilih Starter'
+                                              : 'Langganan Sekarang')
+                                          : 'Mulai Sekarang'"
+                                      :features="$plan->features ?? []" />
+                              @endforeach
+                          @else
+                              {{-- Fallback Statis --}}
+                              <x-landing.pricing-card title="Starter" desc="Cocok untuk pedagang kaki lima & UMKM baru."
+                                  price="Rp 0" period="selamanya" cta="Pilih Starter" :features="[
+                                      '100 Transaksi / Bulan' => true,
+                                      'Manajemen Stok Dasar' => true,
+                                      'Laporan Harian' => true,
+                                      'Analitik AI' => false,
+                                  ]" />
 
-                          <x-landing.pricing-card :popular="true" title="Growth"
-                              desc="Untuk toko yang mulai berkembang pesat." price="Rp 149rb" period="bulan"
-                              cta="Coba 14 Hari Gratis" :features="[
-                                  'Transaksi Tanpa Batas' => true,
-                                  'Manajemen Stok Lanjut' => true,
-                                  'CRM & Loyalitas' => true,
-                                  'Support 24/7 Chat' => true,
-                              ]" />
+                              <x-landing.pricing-card :popular="true" title="Growth"
+                                  desc="Untuk toko yang mulai berkembang pesat." price="Rp 149rb" period="bulan"
+                                  cta="Coba 14 Hari Gratis" :features="[
+                                      'Transaksi Tanpa Batas' => true,
+                                      'Manajemen Stok Lanjut' => true,
+                                      'CRM & Loyalitas' => true,
+                                      'Support 24/7 Chat' => true,
+                                  ]" />
 
-                          <x-landing.pricing-card title="Scale" desc="Solusi perusahaan untuk bisnis multi-cabang."
-                              price="Rp 499rb" period="bulan" cta="Hubungi Sales" :features="[
-                                  'Hingga 10 Outlet' => true,
-                                  'Analitik AI Eksklusif' => true,
-                                  'Integrasi API Terbuka' => true,
-                                  'Account Manager Pribadi' => true,
-                              ]" />
+                              <x-landing.pricing-card title="Scale" desc="Solusi perusahaan untuk bisnis multi-cabang."
+                                  price="Rp 499rb" period="bulan" cta="Hubungi Sales" :features="[
+                                      'Hingga 10 Outlet' => true,
+                                      'Analitik AI Eksklusif' => true,
+                                      'Integrasi API Terbuka' => true,
+                                      'Account Manager Pribadi' => true,
+                                  ]" />
+                          @endif
 
                       </div>
                   </div>
               </div>
           </section>
-
           <x-landing.cta-section />
           <x-landing.footer />
       </div>
