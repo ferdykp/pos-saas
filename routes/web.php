@@ -124,6 +124,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [SubscriptionController::class, 'index'])->name('index');
         Route::post('/subscribe', [SubscriptionController::class, 'subscribe'])->name('subscribe');
         Route::get('/invoices/{invoice}', [SubscriptionController::class, 'showInvoice'])->name('invoice');
+        Route::get('/invoices/{invoice}/check-status', [SubscriptionController::class, 'checkStatus'])->name('check-status');
     });
 
 

@@ -25,6 +25,9 @@ return new class extends Migration
                 'expired'
             ])->default('pending');
 
+            $table->string('snap_token')->nullable();
+            $table->string('payment_method')->nullable();
+
             $table->date('due_date');
             $table->timestamp('paid_at')->nullable();
 

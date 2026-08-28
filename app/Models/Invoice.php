@@ -20,6 +20,8 @@ class Invoice extends Model
         'status',
         'due_date',
         'paid_at',
+        'snap_token',      // add this
+        'payment_method',  // add this — also written in applyMidtransStatus()
     ];
 
     protected $casts = [

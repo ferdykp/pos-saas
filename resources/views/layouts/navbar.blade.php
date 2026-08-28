@@ -32,6 +32,31 @@
     <!-- Right Section: Quick Actions & Profile Menu -->
     <div class="flex items-center gap-3">
 
+        <!-- Indikator Badge Paket Langganan Aktif -->
+        @php
+            $activeSub = auth()->user()->tenant
+                ? auth()
+                    ->user()
+                    ->tenant->subscriptions()
+                    ->where('status', 'active')
+                    ->where('end_date', '>=', now())
+                    ->latest()
+                    ->first()
+                : null;
+        @endphp
+
+        <a href="{{ route('billing.index') }}"
+            class="items-center hidden px-2.5 py-1 text-[11px] font-bold transition-all rounded-full sm:inline-flex gap-1.5 border shadow-2xs hover:opacity-90"
+            title="Kelola Paket Berlangganan Toko">
+            @if ($activeSub && $activeSub->plan)
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="text-primary-800 font-heading">{{ $activeSub->plan->name }}</span>
+            @else
+                <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                <span class="text-rose-700 font-heading">Belum Berlangganan</span>
+            @endif
+        </a>
+
         <!-- Quick POS Terminal Button (Emerald Accent Button) -->
         <a href="{{ route('pos.index') }}"
             class="items-center hidden h-10 gap-2 px-4 text-xs font-semibold text-white transition-all rounded-md shadow-sm sm:inline-flex bg-primary-600 hover:bg-primary-700">
@@ -87,6 +112,12 @@
                     class="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-ink-700 rounded-md hover:bg-primary-50 hover:text-primary-600 transition">
                     <i class="w-4 text-sm fa-regular fa-user"></i>
                     <span>Profil Saya</span>
+                </a>
+
+                <a href="{{ route('billing.index') }}"
+                    class="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-ink-700 rounded-md hover:bg-primary-50 hover:text-primary-600 transition">
+                    <i class="w-4 text-sm fa-solid fa-credit-card"></i>
+                    <span>Langganan & Penagihan</span>
                 </a>
 
                 <a href="{{ route('settings.index') }}"

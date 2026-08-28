@@ -20,11 +20,12 @@ return new class extends Migration
             $table->date('end_date');
 
             $table->enum('status', [
+                'pending',
                 'active',
                 'expired',
                 'trial',
                 'cancelled'
-            ])->default('trial');
+            ])->default('pending');
 
             $table->timestamps();
         });

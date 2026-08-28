@@ -7,31 +7,34 @@ use Illuminate\Database\Seeder;
 
 class PlanSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
-        // 1. Paket Starter (Kaki Lima & UMKM Baru)
+        // 1. Paket Starter (Gratis / UMKM Baru)
         Plan::updateOrCreate(
             ['slug' => 'starter'],
             [
                 'name'          => 'Starter',
                 'description'   => 'Cocok untuk pedagang kaki lima & UMKM baru.',
                 'price'         => 0,
-                'duration_days' => 30, // Diperbarui tiap 30 hari / selamanya
+                'duration_days' => 30,
                 'max_users'     => 1,
-                'max_products'  => 50,
+                'max_products'  => 100,
                 'max_outlets'   => 1,
                 'features'      => [
                     '100 Transaksi / Bulan' => true,
-                    'Manajemen Stok Dasar' => true,
-                    'Laporan Harian' => true,
-                    'Analitik AI' => false,
+                    'Manajemen Stok Dasar'  => true,
+                    'Laporan Harian'        => true,
+                    'Analitik AI'           => false,
                 ],
                 'is_active'     => true,
                 'is_public'     => true,
             ]
         );
 
-        // 2. Paket Growth (Untuk toko berkembang pesat - POPULAR)
+        // 2. Paket Growth (Paling Populer)
         Plan::updateOrCreate(
             ['slug' => 'growth'],
             [
@@ -40,20 +43,20 @@ class PlanSeeder extends Seeder
                 'price'         => 149000,
                 'duration_days' => 30,
                 'max_users'     => 5,
-                'max_products'  => 500,
+                'max_products'  => 1000,
                 'max_outlets'   => 2,
                 'features'      => [
                     'Transaksi Tanpa Batas' => true,
                     'Manajemen Stok Lanjut' => true,
-                    'CRM & Loyalitas' => true,
-                    'Support 24/7 Chat' => true,
+                    'CRM & Loyalitas'       => true,
+                    'Support 24/7 Chat'     => true,
                 ],
                 'is_active'     => true,
                 'is_public'     => true,
             ]
         );
 
-        // 3. Paket Scale (Perusahaan / Multi-cabang)
+        // 3. Paket Scale (Multi-Cabang / Enterprise)
         Plan::updateOrCreate(
             ['slug' => 'scale'],
             [
@@ -65,9 +68,9 @@ class PlanSeeder extends Seeder
                 'max_products'  => 5000,
                 'max_outlets'   => 10,
                 'features'      => [
-                    'Hingga 10 Outlet' => true,
-                    'Analitik AI Eksklusif' => true,
-                    'Integrasi API Terbuka' => true,
+                    'Hingga 10 Outlet'       => true,
+                    'Analitik AI Eksklusif'  => true,
+                    'Integrasi API Terbuka'  => true,
                     'Account Manager Pribadi' => true,
                 ],
                 'is_active'     => true,
