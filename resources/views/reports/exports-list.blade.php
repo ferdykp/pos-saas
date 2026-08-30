@@ -20,7 +20,7 @@
             </a>
         </div>
 
-        <!-- Table Container (Row Height 48px, bg surface-100 Header) -->
+        <!-- Table Container -->
         <div class="mb-6 overflow-hidden border rounded-lg shadow-sm bg-surface-0 border-border-200">
             <div class="w-full overflow-x-auto custom-scrollbar">
                 <table class="w-full text-left border-collapse whitespace-nowrap">
@@ -58,7 +58,7 @@
                                     {{ $export->created_at->translatedFormat('d M Y, H:i') }} WIB
                                 </td>
 
-                                <!-- Status Badge (Pill Shape: radius-full) -->
+                                <!-- Status Badge -->
                                 <td class="px-5 py-3 text-center status-badge-area">
                                     @if ($export->status === 'pending')
                                         <span

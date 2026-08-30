@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Gate;
 
 class PosController extends Controller
 {
@@ -26,7 +27,7 @@ class PosController extends Controller
         $cacheKeyCategories = "tenant_{$tenantId}_categories";
         $cacheKeySettings   = "tenant_{$tenantId}_settings";
 
-        // 2. AMBIL/SIMPAN CACHE KATEGORI (Aman dari __PHP_Incomplete_Class)
+        // 2. AMBIL/SIMPAN CACHE KATEGORI
         $categoriesRaw = Cache::remember($cacheKeyCategories, 86400, function () use ($tenantId) {
             return Category::where('tenant_id', $tenantId)->get()->toArray();
         });
@@ -65,10 +66,8 @@ class PosController extends Controller
             })->toArray();
         });
 
-        // Konversi ke koleksi objek standar agar Blade bisa membaca properti seperti $product->product_name
         $products = collect(json_decode(json_encode($productsRawCache)));
 
-        // Data dinamis tidak boleh masuk Cache demi akurasi real-time harian
         $customers = Customer::where('tenant_id', $tenantId)->get();
 
         $activeShift = Shift::where('tenant_id', $tenantId)
@@ -90,8 +89,36 @@ class PosController extends Controller
 
     public function store(Request $request)
     {
-        return DB::transaction(function () use ($request) {
-            $tenantId = auth()->user()?->tenant_id;
+        $tenant = auth()->user()?->tenant;
+
+        // -------------------------------------------------------------------------
+        // VALIDASI PROTEKSI PAKET LANGGANAN
+        // -------------------------------------------------------------------------
+
+        // 1. Cek Batas Transaksi Bulanan (Paket Starter: Max 100)
+        if ($tenant && $tenant->isTransactionLimitReached()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Limit 100 transaksi/bulan untuk Paket Starter telah tercapai. Silakan upgrade ke Paket Growth untuk transaksi tanpa batas!'
+            ], 422);
+        }
+
+        // 2. Cek Akses Pembayaran Digital (QRIS Midtrans)
+        if ($request->payment_method === 'midtrans' && Gate::denies('feature-qris')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pembayaran QRIS Midtrans hanya tersedia pada Paket Growth & Scale.'
+            ], 422);
+        }
+
+        // 3. Cek Akses CRM / Poin Member (Reset jika di Paket Starter)
+        $customerId = $request->customer_id;
+        if ($customerId && Gate::denies('feature-crm')) {
+            $customerId = null; // Abaikan pencatatan customer/poin jika di paket Starter
+        }
+
+        return DB::transaction(function () use ($request, $tenant, $customerId) {
+            $tenantId = $tenant?->id;
 
             // FORMAT INVOICE AMAN
             $invoice = 'INV-' . now()->format('YmdHis') . '-' . str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT);
@@ -122,7 +149,7 @@ class PosController extends Controller
             // Simpan ke Tabel Orders
             $order = Order::create([
                 'tenant_id'      => $tenantId,
-                'customer_id'    => $request->customer_id,
+                'customer_id'    => $customerId,
                 'user_id'        => auth()->id(),
                 'invoice_number' => $invoice,
                 'order_type'     => $request->order_type ?? 'dine_in',
@@ -160,15 +187,15 @@ class PosController extends Controller
                 ]);
             }
 
-            // Hutang Customer jika BON
-            if ($request->payment_status === 'unpaid' && $request->customer_id && !$isDigitalPayment) {
-                $customer = Customer::where('tenant_id', $tenantId)->lockForUpdate()->find($request->customer_id);
+            // Hutang Customer jika BON (Hanya jika fitur CRM aktif)
+            if ($request->payment_status === 'unpaid' && $customerId && !$isDigitalPayment && Gate::allows('feature-crm')) {
+                $customer = Customer::where('tenant_id', $tenantId)->lockForUpdate()->find($customerId);
                 if ($customer) {
                     $customer->increment('total_debt', $grandTotal);
                 }
             }
 
-            // 3. PROSES INTEGRASI MIDTRANS CORE API (QRIS ONLY)
+            // PROSES INTEGRASI MIDTRANS CORE API (QRIS ONLY)
             $qrUrl = null;
 
             if ($isDigitalPayment) {
@@ -190,16 +217,15 @@ class PosController extends Controller
                 try {
                     /** @var \stdClass $response */
                     $response = \Midtrans\CoreApi::charge($params);
-
                     $qrUrl = isset($response->actions[0]->url) ? $response->actions[0]->url : null;
                 } catch (\Exception $e) {
                     throw new \Exception("Gagal menghasilkan kode QRIS: " . $e->getMessage());
                 }
             }
 
-            // Logika Poin Customer
-            if ($paymentStatus === 'paid' && $request->customer_id) {
-                $customer = Customer::where('tenant_id', $tenantId)->lockForUpdate()->find($request->customer_id);
+            // Logika Poin Customer (Hanya jika fitur CRM aktif)
+            if ($paymentStatus === 'paid' && $customerId && Gate::allows('feature-crm')) {
+                $customer = Customer::where('tenant_id', $tenantId)->lockForUpdate()->find($customerId);
                 if ($customer) {
                     $settings = Setting::where('tenant_id', $tenantId)->pluck('value', 'key');
                     $pointMode    = $settings['point_mode'] ?? 'disabled';
@@ -237,93 +263,12 @@ class PosController extends Controller
         });
     }
 
-    /**
-     * Memeriksa status pembayaran order secara real-time langsung ke server Midtrans
-     * * @param mixed $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    // public function checkStatus(int $id)
-    // {
-    //     $tenantId = auth()->user()?->tenant_id;
-    //     $order = Order::where('tenant_id', $tenantId)->findOrFail($id);
-
-    //     // 1. Jika di database lokal kita memang sudah 'paid'
-    //     if ($order->payment_status === 'paid') {
-    //         return response()->json([
-    //             'success' => true,
-    //             'status' => 'paid'
-    //         ]);
-    //     }
-
-    //     // 2. Jika di database lokal masih 'unpaid', kita tanya langsung ke Server Midtrans
-    //     if ($order->payment_method === 'midtrans') {
-    //         \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY');
-    //         \Midtrans\Config::$isProduction = filter_var(env('MIDTRANS_IS_PRODUCTION', false), FILTER_VALIDATE_BOOLEAN);
-
-    //         try {
-    //             /** @var object|array $midtransStatus */
-    //             $midtransStatus = \Midtrans\Transaction::status($order->invoice_number);
-
-    //             $transactionStatus = $midtransStatus->transaction_status;
-
-    //             if ($transactionStatus == 'settlement' || $transactionStatus == 'capture') {
-    //                 $order->update([
-    //                     'payment_status' => 'paid',
-    //                     'order_status'   => 'completed'
-    //                 ]);
-
-    //                 // Pemicu poin customer jika status berubah jadi lunas
-    //                 if ($order->customer_id) {
-    //                     $customer = Customer::where('tenant_id', $tenantId)->lockForUpdate()->find($order->customer_id);
-    //                     if ($customer) {
-    //                         $settings = Setting::where('tenant_id', $tenantId)->pluck('value', 'key');
-    //                         $pointMode    = $settings['point_mode'] ?? 'disabled';
-    //                         $ruleValue    = (float) ($settings['point_rule_value'] ?? 0);
-    //                         $isMemberOnly = filter_var($settings['point_member_only'] ?? false, FILTER_VALIDATE_BOOLEAN);
-
-    //                         if ($pointMode !== 'disabled' && ($isMemberOnly ? $customer->is_member : true) && $ruleValue > 0) {
-    //                             $pointsEarned = 0;
-    //                             switch ($pointMode) {
-    //                                 case 'per_investment':
-    //                                     $pointsEarned = floor($order->grand_total / $ruleValue);
-    //                                     break;
-    //                                 case 'flat':
-    //                                     $pointsEarned = $ruleValue;
-    //                                     break;
-    //                                 case 'percentage':
-    //                                     $pointsEarned = floor($order->grand_total * ($ruleValue / 100));
-    //                                     break;
-    //                             }
-    //                             if ($pointsEarned > 0) {
-    //                                 $customer->increment('points', $pointsEarned);
-    //                             }
-    //                         }
-    //                     }
-    //                 }
-
-    //                 return response()->json([
-    //                     'success' => true,
-    //                     'status' => 'paid'
-    //                 ]);
-    //             }
-    //         } catch (\Exception $e) {
-    //             Log::error("Gagal cek status Midtrans untuk ID {$id}: " . $e->getMessage());
-    //         }
-    //     }
-
-    //     return response()->json([
-    //         'success' => true,
-    //         'status' => 'unpaid'
-    //     ]);
-    // }
     public function checkStatus(int $id)
     {
         $tenantId = auth()->user()?->tenant_id;
 
-        // Menggunakan Pessimistic Locking (lockForUpdate) mencegah race condition saldo ganda
         $order = Order::where('tenant_id', $tenantId)->lockForUpdate()->findOrFail($id);
 
-        // 1. Jika di database lokal kita memang sudah 'paid'
         if ($order->payment_status === 'paid') {
             return response()->json([
                 'success' => true,
@@ -331,7 +276,6 @@ class PosController extends Controller
             ]);
         }
 
-        // 2. Jika di database lokal masih 'unpaid', kita tanya langsung ke Server Midtrans
         if ($order->payment_method === 'midtrans') {
             \Midtrans\Config::$serverKey = config('services.midtrans.server_key');
             \Midtrans\Config::$isProduction = (bool) config('services.midtrans.is_production');
@@ -342,22 +286,16 @@ class PosController extends Controller
 
                 if ($transactionStatus == 'settlement' || $transactionStatus == 'capture') {
 
-                    // UPDATE STATUS INDUK ORDER
                     $order->update([
                         'payment_status'    => 'paid',
                         'order_status'      => 'completed',
-                        'withdrawal_status' => 'pending' // Siap ditarik dana oleh tenant
+                        'withdrawal_status' => 'pending'
                     ]);
 
-                    // =========================================================================
-                    // LOGIKA BARU: HITUNG KOMISI & UPDATE DOMPET TENANT (SOLUSI 1)
-                    // =========================================================================
-                    // Misal komisi platform Anda adalah 1.5% dari nilai Grand Total transaksi
                     $platformFeePercent = 1.5;
                     $totalFee = ($order->grand_total * $platformFeePercent) / 100;
                     $netIncomeForTenant = $order->grand_total - $totalFee;
 
-                    // Masukkan ke saldo dompet tenant secara aman
                     DB::table('tenant_wallets')->updateOrInsert(
                         ['tenant_id' => $tenantId],
                         [
@@ -365,10 +303,8 @@ class PosController extends Controller
                             'updated_at' => now()
                         ]
                     );
-                    // =========================================================================
 
-                    // Pemicu poin customer jika status berubah jadi lunas (Kode bawaan Anda)
-                    if ($order->customer_id) {
+                    if ($order->customer_id && Gate::allows('feature-crm')) {
                         $customer = Customer::where('tenant_id', $tenantId)->lockForUpdate()->find($order->customer_id);
                         if ($customer) {
                             $settings = Setting::where('tenant_id', $tenantId)->pluck('value', 'key');

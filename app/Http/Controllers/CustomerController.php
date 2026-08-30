@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class CustomerController extends Controller
 {
@@ -13,6 +14,12 @@ class CustomerController extends Controller
      */
     public function index()
     {
+        // Proteksi Fitur CRM (Khusus Growth & Scale)
+        if (Gate::denies('feature-crm')) {
+            return redirect()->route('billing.index')
+                ->with('warning', 'Fitur Manajemen Pelanggan / CRM hanya tersedia pada Paket Growth & Scale.');
+        }
+
         $tenantId = auth()->user()->tenant_id;
 
         $customers = Customer::where('tenant_id', $tenantId)
@@ -27,9 +34,20 @@ class CustomerController extends Controller
      */
     public function store(Request $request)
     {
+        // Proteksi Fitur CRM
+        if (Gate::denies('feature-crm')) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Fitur Pelanggan/CRM hanya tersedia pada Paket Growth & Scale.'
+                ], 403);
+            }
+            return redirect()->route('billing.index')->with('warning', 'Fitur CRM hanya tersedia pada Paket Growth & Scale.');
+        }
+
         // 1. Validasi Input
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name'  => 'required|string|max:255',
             'phone' => 'nullable|string|max:20',
         ]);
 
@@ -39,13 +57,11 @@ class CustomerController extends Controller
                 'tenant_id'  => auth()->user()->tenant_id,
                 'name'       => $request->name,
                 'phone'      => $request->phone,
-                // FIX: Mengonversi nilai "0" atau "1" dari AJAX/Form menjadi boolean sejati
                 'is_member'  => filter_var($request->is_member, FILTER_VALIDATE_BOOLEAN) || $request->is_member == '1',
                 'points'     => 0,
                 'total_debt' => 0,
             ]);
 
-            // FIX: Jika request dikirim via AJAX (Fetch dari halaman POS)
             if ($request->wantsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => true,
@@ -55,14 +71,12 @@ class CustomerController extends Controller
                 ]);
             }
 
-            // 3. Logic Redirect (Jika diisi dari form biasa / non-AJAX)
             if ($request->redirect_to === 'pos') {
                 return redirect()->route('pos.index')->with('success', 'Pelanggan ' . $customer->name . ' berhasil ditambahkan.');
             }
 
             return redirect()->route('customers.index')->with('success', 'Pelanggan berhasil didaftarkan.');
         } catch (\Exception $e) {
-            // Jika request via AJAX gagal
             if ($request->wantsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
@@ -70,24 +84,22 @@ class CustomerController extends Controller
                 ], 500);
             }
 
-            // Jika request form biasa gagal
             return redirect()->back()->with('error', 'Gagal: ' . $e->getMessage())->withInput();
         }
     }
-
 
     /**
      * Menampilkan detail pelanggan (untuk riwayat belanja & piutang).
      */
     public function show(Customer $customer)
     {
-        // Proteksi Multi-Tenant
+        if (Gate::denies('feature-crm')) {
+            abort(403, 'Fitur CRM tidak tersedia pada paket Anda.');
+        }
+
         if ($customer->tenant_id !== auth()->user()->tenant_id) {
             abort(403);
         }
-
-        // Nantinya di sini kita akan memuat riwayat pesanan
-        // $customer->load('orders');
 
         return view('customers.show', compact('customer'));
     }
@@ -97,12 +109,14 @@ class CustomerController extends Controller
      */
     public function destroy(Customer $customer)
     {
-        // Proteksi Multi-Tenant
+        if (Gate::denies('feature-crm')) {
+            abort(403);
+        }
+
         if ($customer->tenant_id !== auth()->user()->tenant_id) {
             abort(403);
         }
 
-        // Cek jika pelanggan masih punya hutang
         if ($customer->total_debt > 0) {
             return redirect()->back()->with('error', 'Pelanggan tidak bisa dihapus karena masih memiliki tanggungan hutang.');
         }
@@ -113,21 +127,28 @@ class CustomerController extends Controller
 
     public function storeApi(Request $request)
     {
+        if (Gate::denies('feature-crm')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Fitur Pelanggan/CRM hanya tersedia pada Paket Growth & Scale.'
+            ], 403);
+        }
+
         try {
             $validated = $request->validate([
-                'name' => 'required|string|max:255',
+                'name'  => 'required|string|max:255',
                 'phone' => 'nullable|string|max:20',
             ]);
 
             $customer = Customer::create([
-                'tenant_id' => auth()->user()->tenant_id, // WAJIB untuk multitenant
-                'name' => $validated['name'],
-                'phone' => $validated['phone'],
+                'tenant_id' => auth()->user()->tenant_id,
+                'name'      => $validated['name'],
+                'phone'     => $validated['phone'],
             ]);
 
             return response()->json([
                 'success' => true,
-                'data' => $customer
+                'data'    => $customer
             ]);
         } catch (\Exception $e) {
             return response()->json([

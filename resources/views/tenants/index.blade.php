@@ -3,6 +3,13 @@
 
     <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-desktop" x-data="{ showDeleteModal: false, deleteUrl: '', tenantName: '' }">
 
+        @php
+            $tenantCount = $tenants->count();
+            $currentPlan = auth()->user()->tenant?->currentPlan();
+            $maxOutlets = $currentPlan?->max_outlets ?? 1;
+            $isOutletFull = $tenantCount >= $maxOutlets;
+        @endphp
+
         <!-- Banner Flash Status/Notification -->
         @if (session('status'))
             <div
@@ -11,6 +18,34 @@
                 <span>{{ session('status') }}</span>
             </div>
         @endif
+
+        <!-- Banner Kuota Cabang/Tenant -->
+        <div
+            class="flex flex-col justify-between gap-3 p-4 mb-6 border rounded-lg shadow-sm sm:flex-row sm:items-center bg-surface-0 border-border-200">
+            <div class="flex items-center gap-3">
+                <div
+                    class="flex items-center justify-center w-10 h-10 rounded-full bg-primary-50 text-primary-600 shrink-0">
+                    <i class="fa-solid fa-store"></i>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold text-ink-900">Kuota Cabang Bisnis (Paket
+                        {{ $currentPlan?->name ?? 'Starter' }})</h4>
+                    <p class="text-[11px] text-ink-700 mt-0.5">
+                        Anda telah mendaftarkan <strong
+                            class="{{ $isOutletFull ? 'text-semantic-danger' : 'text-primary-600' }}">{{ $tenantCount }}</strong>
+                        dari maksimal <strong class="text-ink-900">{{ $maxOutlets }}</strong> cabang/toko.
+                    </p>
+                </div>
+            </div>
+
+            @if ($isOutletFull)
+                <a href="{{ route('billing.index') }}"
+                    class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-md transition shrink-0">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                    <span>Upgrade Cabang</span>
+                </a>
+            @endif
+        </div>
 
         <!-- Header Halaman & Tombol Tambah Tenant -->
         <div
@@ -24,12 +59,19 @@
                 </p>
             </div>
 
-            <!-- Button Primary: Height 44px, radius-md (10px), Emerald Green -->
-            <a href="{{ route('tenants.create') }}"
-                class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body md:text-sm shrink-0">
-                <i class="text-xs fa-solid fa-plus"></i>
-                <span>Tambah Tenant Baru</span>
-            </a>
+            @if ($isOutletFull)
+                <button disabled title="Kuota cabang paket {{ $currentPlan?->name }} sudah penuh"
+                    class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold border rounded-md cursor-not-allowed text-ink-400 bg-surface-100 border-border-200 h-11 opacity-60 font-body md:text-sm shrink-0">
+                    <i class="text-xs fa-solid fa-lock"></i>
+                    <span>Kuota Cabang Penuh</span>
+                </button>
+            @else
+                <a href="{{ route('tenants.create') }}"
+                    class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body md:text-sm shrink-0">
+                    <i class="text-xs fa-solid fa-plus"></i>
+                    <span>Tambah Tenant Baru</span>
+                </a>
+            @endif
         </div>
 
         <!-- 3 Cards Metric Statistik -->
@@ -55,7 +97,7 @@
             </div>
         </div>
 
-        <!-- Table Container (Spesifikasi: Row Height 48px, bg surface-100 header) -->
+        <!-- Table Container -->
         <div class="overflow-hidden border rounded-lg shadow-sm bg-surface-0 border-border-200">
             <div class="w-full overflow-x-auto custom-scrollbar">
                 <table class="w-full text-left border-collapse whitespace-nowrap">
@@ -74,7 +116,6 @@
                             <tr
                                 class="h-12 transition-colors {{ auth()->user()->tenant_id == $tenant->id ? 'bg-primary-50/40' : 'hover:bg-surface-100/50' }}">
 
-                                <!-- Brand / Logo & Detail -->
                                 <td class="px-5 py-3">
                                     <div class="flex items-center gap-3">
                                         @if ($tenant->img_logo)
@@ -97,12 +138,10 @@
                                     </div>
                                 </td>
 
-                                <!-- Tipe Bisnis -->
                                 <td class="px-5 py-3 font-medium text-ink-700">
                                     {{ $tenant->business_type ?? 'Lainnya' }}
                                 </td>
 
-                                <!-- Jumlah Staf -->
                                 <td class="px-5 py-3 text-center">
                                     <span
                                         class="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold text-ink-700 bg-surface-100 border border-border-200 rounded-full">
@@ -110,7 +149,6 @@
                                     </span>
                                 </td>
 
-                                <!-- Status Sesi Aktif -->
                                 <td class="px-5 py-3 text-center">
                                     @if (auth()->user()->tenant_id == $tenant->id)
                                         <span
@@ -126,7 +164,6 @@
                                     @endif
                                 </td>
 
-                                <!-- Action Buttons -->
                                 <td class="px-5 py-3 text-center">
                                     <div class="flex items-center justify-center gap-2">
                                         @if (auth()->user()->tenant_id != $tenant->id)
@@ -173,7 +210,7 @@
             </div>
         </div>
 
-        <!-- Modal Delete Confirmation (Spesifikasi GrowPOS Modal: Max-W 480px / max-w-modal-sm, Backdrop Blur) -->
+        <!-- Modal Delete Confirmation -->
         <div x-show="showDeleteModal" x-transition:enter="transition ease-out duration-200"
             x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
             x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"

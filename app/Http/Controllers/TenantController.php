@@ -26,13 +26,37 @@ class TenantController extends Controller
 
     public function store(Request $request)
     {
+        // -------------------------------------------------------------------------
+        // VALIDASI LIMIT MAKSIMAL TENANT / CABANG BERDASARKAN PAKET
+        // -------------------------------------------------------------------------
+        $currentUser = auth()->user();
+
+        // Ambil paket langganan dari tenant aktif saat ini (jika sudah ada)
+        $currentPlan = $currentUser->tenant?->currentPlan();
+
+        // Hitung total bisnis/tenant yang dimiliki user saat ini
+        $ownedTenantsCount = $currentUser->tenants()->count();
+
+        // Jika sudah punya minimal 1 tenant dan mencoba buat baru, cek limit paketnya
+        if ($ownedTenantsCount > 0 && $currentPlan) {
+            if ($ownedTenantsCount >= $currentPlan->max_outlets) {
+                return redirect()->route('billing.index')->with(
+                    'warning',
+                    "Gagal menambah bisnis baru! Paket {$currentPlan->name} Anda dibatasi maksimal {$currentPlan->max_outlets} cabang/bisnis. Silakan upgrade paket Anda di menu Billing."
+                );
+            }
+        }
+
+        // -------------------------------------------------------------------------
+        // PROSES SIMPAN TENANT BARU (Kode Bawaan Anda)
+        // -------------------------------------------------------------------------
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name'          => 'required|string|max:255',
             'business_type' => 'required|string|max:100',
-            'email' => 'required|email|max:255',
-            'phone' => 'required|string|max:20',
-            'address' => 'required|string',
-            'img_logo' => 'nullable|file|mimes:jpeg,png,jpg,webp|max:2048',
+            'email'         => 'required|email|max:255',
+            'phone'         => 'required|string|max:20',
+            'address'       => 'required|string',
+            'img_logo'      => 'nullable|file|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         $logoPath = null;
@@ -42,24 +66,23 @@ class TenantController extends Controller
             $logoPath = $file->storeAs('logos', $fileName, 'public');
         }
 
-        $tenant = auth()->user()->tenants()->create([
-            'name' => $request->name,
-            'slug' => Str::slug($request->name) . '-' . rand(100, 999),
+        $tenant = $currentUser->tenants()->create([
+            'name'          => $request->name,
+            'slug'          => Str::slug($request->name) . '-' . rand(100, 999),
             'business_type' => $request->business_type,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'address' => $request->address,
-            'img_logo' => $logoPath,
-            'status' => 'active',
+            'email'         => $request->email,
+            'phone'         => $request->phone,
+            'address'       => $request->address,
+            'img_logo'      => $logoPath,
+            'status'        => 'active',
         ]);
 
-        auth()->user()->update([
+        $currentUser->update([
             'tenant_id' => $tenant->id
         ]);
 
         return redirect()->route('tenants.index')->with('success', 'Bisnis berhasil didaftarkan!');
     }
-
     public function edit(Tenant $tenant)
     {
         if ($tenant->user_id !== auth()->id()) {

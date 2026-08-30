@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Setting;
-
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Http\Request;
 
 class SettingController extends Controller
@@ -66,6 +66,9 @@ class SettingController extends Controller
 
     public function updatePoints(Request $request)
     {
+        if (Gate::denies('feature-crm')) {
+            return back()->with('warning', 'Fitur Sistem Poin & Member hanya tersedia pada Paket Growth & Scale.');
+        }
         $tenantId = auth()->user()->tenant_id;
 
         $configs = [

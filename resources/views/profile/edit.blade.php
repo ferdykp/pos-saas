@@ -3,6 +3,14 @@
 
     <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-desktop">
 
+        @php
+            $tenant = auth()->user()->tenant;
+            $currentPlan = $tenant?->currentPlan();
+            $maxOutlets = $currentPlan?->max_outlets ?? 1;
+            $ownedTenantsCount = count($tenants);
+            $isOutletFull = $ownedTenantsCount >= $maxOutlets;
+        @endphp
+
         <!-- Header Halaman -->
         <div class="pb-6 mb-8 border-b border-border-200">
             <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
@@ -44,33 +52,45 @@
                                 Daftar Unit Bisnis (Tenant)
                             </h3>
                             <p class="font-body text-xs text-ink-700 mt-0.5">
-                                Pilih outlet aktif atau daftarkan cabang bisnis baru.
+                                Terpakai <strong
+                                    class="{{ $isOutletFull ? 'text-semantic-danger' : 'text-primary-600' }}">{{ $ownedTenantsCount }}</strong>
+                                dari {{ $maxOutlets }} kuota cabang (Paket {{ $currentPlan?->name ?? 'Starter' }}).
                             </p>
                         </div>
-                        <a href="{{ route('tenants.create') }}"
-                            class="inline-flex items-center justify-center gap-2 px-4 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body shrink-0">
-                            <i class="text-xs fa-solid fa-plus"></i>
-                            <span>Tambah Tenant</span>
-                        </a>
+
+                        @if ($isOutletFull)
+                            <a href="{{ route('billing.index') }}"
+                                class="inline-flex items-center justify-center gap-2 px-4 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-amber-600 hover:bg-amber-700 font-body shrink-0"
+                                title="Kuota cabang penuh, upgrade paket Anda">
+                                <i class="text-xs fa-solid fa-arrow-up-right-from-square"></i>
+                                <span>Upgrade Cabang</span>
+                            </a>
+                        @else
+                            <a href="{{ route('tenants.create') }}"
+                                class="inline-flex items-center justify-center gap-2 px-4 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body shrink-0">
+                                <i class="text-xs fa-solid fa-plus"></i>
+                                <span>Tambah Tenant</span>
+                            </a>
+                        @endif
                     </div>
 
                     <!-- List Tenant -->
                     <div class="space-y-3">
-                        @foreach ($tenants as $tenant)
+                        @foreach ($tenants as $tenantItem)
                             <div
-                                class="flex items-center justify-between p-4 rounded-md border transition-colors {{ auth()->user()->tenant_id == $tenant->id ? 'border-primary-600 bg-primary-50/30' : 'border-border-200 bg-surface-100/50' }}">
+                                class="flex items-center justify-between p-4 rounded-md border transition-colors {{ auth()->user()->tenant_id == $tenantItem->id ? 'border-primary-600 bg-primary-50/30' : 'border-border-200 bg-surface-100/50' }}">
                                 <div class="flex items-center gap-3.5 min-w-0 pr-2">
                                     <div
                                         class="flex items-center justify-center w-10 h-10 text-sm font-bold text-white rounded-md bg-primary-600 font-heading shrink-0">
-                                        {{ strtoupper(substr($tenant->name, 0, 1)) }}
+                                        {{ strtoupper(substr($tenantItem->name, 0, 1)) }}
                                     </div>
                                     <div class="min-w-0">
                                         <div class="flex items-center gap-2">
                                             <p
                                                 class="text-xs font-semibold truncate font-heading md:text-sm text-ink-900">
-                                                {{ $tenant->name }}
+                                                {{ $tenantItem->name }}
                                             </p>
-                                            @if (auth()->user()->tenant_id == $tenant->id)
+                                            @if (auth()->user()->tenant_id == $tenantItem->id)
                                                 <span
                                                     class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-primary-100 text-primary-700">
                                                     Aktif
@@ -78,15 +98,15 @@
                                             @endif
                                         </div>
                                         <p class="font-mono text-[11px] text-ink-400 truncate mt-0.5">
-                                            {{ $tenant->email }} • {{ $tenant->phone ?? '-' }}
+                                            {{ $tenantItem->email }} • {{ $tenantItem->phone ?? '-' }}
                                         </p>
                                     </div>
                                 </div>
 
                                 <!-- Action Buttons -->
                                 <div class="flex items-center gap-1.5 shrink-0">
-                                    @if (auth()->user()->tenant_id != $tenant->id)
-                                        <form action="{{ route('tenants.switch', $tenant->id) }}" method="POST">
+                                    @if (auth()->user()->tenant_id != $tenantItem->id)
+                                        <form action="{{ route('tenants.switch', $tenantItem->id) }}" method="POST">
                                             @csrf
                                             <button type="submit"
                                                 class="p-2 transition-colors border rounded-md text-ink-700 hover:text-primary-600 bg-surface-0 border-border-200 hover:bg-primary-50"
@@ -96,13 +116,13 @@
                                         </form>
                                     @endif
 
-                                    <a href="{{ route('tenants.edit', $tenant->id) }}"
+                                    <a href="{{ route('tenants.edit', $tenantItem->id) }}"
                                         class="p-2 transition-colors border rounded-md text-ink-700 hover:text-primary-600 bg-surface-0 border-border-200 hover:bg-primary-50"
                                         title="Edit Tenant">
                                         <i class="text-xs fa-solid fa-pen-to-square"></i>
                                     </a>
 
-                                    <form action="{{ route('tenants.destroy', $tenant->id) }}" method="POST"
+                                    <form action="{{ route('tenants.destroy', $tenantItem->id) }}" method="POST"
                                         onsubmit="return confirm('Hapus tenant ini? Semua data penjualan di dalamnya akan hilang!')">
                                         @csrf @method('DELETE')
                                         <button type="submit"
@@ -125,10 +145,17 @@
                             Satu akun pemilik dapat mendaftarkan dan berpindah cabang toko dengan mudah tanpa perlu
                             login ulang.
                         </p>
-                        <a href="{{ route('tenants.create') }}"
-                            class="inline-flex items-center justify-center px-4 text-xs font-semibold transition-colors rounded-md h-9 bg-surface-0 hover:bg-surface-100 text-primary-600 font-body">
-                            + Tambah Cabang Baru
-                        </a>
+                        @if ($isOutletFull)
+                            <a href="{{ route('billing.index') }}"
+                                class="inline-flex items-center justify-center px-4 text-xs font-semibold text-white transition-colors rounded-md h-9 bg-amber-500 hover:bg-amber-600 font-body">
+                                <i class="fa-solid fa-crown mr-1.5 text-[10px]"></i> Upgrade Kuota Cabang
+                            </a>
+                        @else
+                            <a href="{{ route('tenants.create') }}"
+                                class="inline-flex items-center justify-center px-4 text-xs font-semibold transition-colors rounded-md h-9 bg-surface-0 hover:bg-surface-100 text-primary-600 font-body">
+                                + Tambah Cabang Baru
+                            </a>
+                        @endif
                     </div>
                     <i class="fa-solid fa-store text-primary-700/50 text-9xl absolute right-[-20px] bottom-[-20px]"></i>
                 </div>

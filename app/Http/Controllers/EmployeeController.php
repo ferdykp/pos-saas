@@ -24,6 +24,19 @@ class EmployeeController extends Controller
     // Simpan Pegawai Baru ke Database
     public function store(Request $request)
     {
+        $tenant = auth()->user()->tenant;
+        $plan = $tenant?->currentPlan();
+
+        if (!$plan) {
+            return back()->with('error', 'Masa langganan Anda telah habis.');
+        }
+
+        // Hitung total staf/karyawan yang sudah didaftarkan
+        $currentEmployeeCount = \App\Models\User::where('tenant_id', $tenant->id)->count();
+
+        if ($currentEmployeeCount >= $plan->max_users) {
+            return back()->with('error', "Gagal menambah staf! Paket {$plan->name} dibatasi maksimal {$plan->max_users} pengguna/kasir. Upgrade paket Anda di menu Billing untuk menambah tim.");
+        }
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],

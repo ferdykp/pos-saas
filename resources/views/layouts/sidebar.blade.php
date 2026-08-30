@@ -106,12 +106,26 @@
                     <span x-show="!sidebarCollapsed" class="truncate">Riwayat Transaksi</span>
                 </a>
 
-                <a href="{{ route('customers.index') }}"
-                    class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('customers.*') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
-                    :title="sidebarCollapsed ? 'Pelanggan / CRM' : ''">
-                    <i class="w-5 text-base text-center fa-solid fa-users"></i>
-                    <span x-show="!sidebarCollapsed" class="truncate">Pelanggan / CRM</span>
-                </a>
+                {{-- MENU CRM / PELANGGAN (PROTEKSI GATE) --}}
+                @can('feature-crm')
+                    <a href="{{ route('customers.index') }}"
+                        class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('customers.*') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
+                        :title="sidebarCollapsed ? 'Pelanggan / CRM' : ''">
+                        <i class="w-5 text-base text-center fa-solid fa-users"></i>
+                        <span x-show="!sidebarCollapsed" class="truncate">Pelanggan / CRM</span>
+                    </a>
+                @else
+                    <a href="{{ route('billing.index') }}"
+                        class="flex items-center justify-between px-3 text-xs font-semibold rounded-md h-11 text-ink-400 hover:bg-surface-100 opacity-60"
+                        :title="sidebarCollapsed ? 'Pelanggan / CRM (Upgrade Growth)' : ''">
+                        <div class="flex items-center gap-3 truncate">
+                            <i class="w-5 text-base text-center fa-solid fa-users"></i>
+                            <span x-show="!sidebarCollapsed" class="truncate">Pelanggan / CRM</span>
+                        </div>
+                        <span x-show="!sidebarCollapsed"
+                            class="px-1.5 py-0.5 text-[9px] font-bold text-amber-800 bg-amber-100 rounded uppercase">GROWTH</span>
+                    </a>
+                @endcan
 
                 <a href="{{ route('discounts.index') }}"
                     class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('discounts.*') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
@@ -187,12 +201,26 @@
                     <span x-show="!sidebarCollapsed" class="truncate">Laporan Penjualan</span>
                 </a>
 
-                <a href="{{ route('reports.ai') }}"
-                    class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('reports.ai') ? 'bg-accent-100 text-accent-700 font-bold' : 'text-ink-700 hover:bg-accent-100/50 hover:text-accent-700' }}"
-                    :title="sidebarCollapsed ? 'Tanya GrowPOS AI' : ''">
-                    <i class="w-5 text-base text-center fa-solid fa-wand-magic-sparkles text-accent-500"></i>
-                    <span x-show="!sidebarCollapsed" class="truncate">Tanya GrowPOS AI</span>
-                </a>
+                {{-- MENU ANALITIK AI (PROTEKSI GATE) --}}
+                @can('feature-ai-analytics')
+                    <a href="{{ route('reports.ai') }}"
+                        class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('reports.ai') ? 'bg-accent-100 text-accent-700 font-bold' : 'text-ink-700 hover:bg-accent-100/50 hover:text-accent-700' }}"
+                        :title="sidebarCollapsed ? 'Tanya GrowPOS AI' : ''">
+                        <i class="w-5 text-base text-center fa-solid fa-wand-magic-sparkles text-accent-500"></i>
+                        <span x-show="!sidebarCollapsed" class="truncate">Tanya GrowPOS AI</span>
+                    </a>
+                @else
+                    <a href="{{ route('billing.index') }}"
+                        class="flex items-center justify-between px-3 text-xs font-semibold rounded-md h-11 text-ink-400 hover:bg-surface-100 opacity-60"
+                        :title="sidebarCollapsed ? 'Tanya GrowPOS AI (Upgrade Scale)' : ''">
+                        <div class="flex items-center gap-3 truncate">
+                            <i class="w-5 text-base text-center text-purple-400 fa-solid fa-wand-magic-sparkles"></i>
+                            <span x-show="!sidebarCollapsed" class="truncate">Tanya GrowPOS AI</span>
+                        </div>
+                        <span x-show="!sidebarCollapsed"
+                            class="px-1.5 py-0.5 text-[9px] font-bold text-purple-800 bg-purple-100 rounded uppercase">SCALE</span>
+                    </a>
+                @endcan
 
                 <a href="{{ route('finance.index') }}"
                     class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('finance.*') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"

@@ -3,6 +3,27 @@
 
     <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-desktop">
 
+        @php
+            $tenant = auth()->user()->tenant;
+            $currentSubscription = $tenant
+                ? $tenant
+                    ->subscriptions()
+                    ->where('status', 'active')
+                    ->where('end_date', '>=', now())
+                    ->latest('id')
+                    ->first()
+                : null;
+
+            $currentPlan = $currentSubscription?->plan ?? $tenant?->currentPlan();
+            $maxOutlets = $currentPlan?->max_outlets ?? 1;
+            $ownedTenantsCount = auth()->user()->tenants()->count();
+
+            // Perhitungan Sisa Hari Integer Presisi (Tanpa Koma)
+            $remainingDays = $currentSubscription
+                ? (int) ceil(now()->diffInHours(\Carbon\Carbon::parse($currentSubscription->end_date)) / 24)
+                : 0;
+        @endphp
+
         {{-- Banner Notifikasi Verifikasi Email Berhasil --}}
         @if (request()->has('verified') && request()->get('verified') == 1)
             <div
@@ -48,12 +69,22 @@
         <!-- ==================== HEADER & QUICK ACTIONS ==================== -->
         <div class="flex flex-col justify-between gap-4 mb-8 xl:flex-row xl:items-center">
             <div>
-                <div class="flex items-center gap-2 mb-1">
+                <div class="flex flex-wrap items-center gap-2 mb-1">
                     <span
                         class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-primary-100 text-primary-700">
                         <span class="w-1.5 h-1.5 rounded-full bg-primary-600 animate-pulse"></span>
                         Status Toko: Buka
                     </span>
+
+                    <a href="{{ route('billing.index') }}"
+                        class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-300 hover:bg-amber-200 transition">
+                        <i class="fa-solid fa-crown text-amber-600 text-[10px]"></i>
+                        <span>Paket {{ $currentPlan?->name ?? 'Starter' }}</span>
+                        @if ($currentSubscription && $remainingDays > 0)
+                            <span class="text-[10px] font-mono text-amber-800">({{ $remainingDays }} Hari)</span>
+                        @endif
+                    </a>
+
                     <span class="text-xs text-ink-400">•
                         {{ auth()->user()->tenant->business_type ?? 'Retail & UMKM' }}</span>
                 </div>
@@ -105,7 +136,7 @@
             </div>
         </div>
 
-        <!-- ==================== 1. AI BUSINESS INSIGHT CARD ==================== -->
+        <!-- ==================== 1. AI BUSINESS INSIGHT CARD (PROTEKSI GATE AI) ==================== -->
         <div
             class="relative p-5 mb-8 overflow-hidden border rounded-lg shadow-sm md:p-6 bg-gradient-to-br from-primary-50/80 via-surface-0 to-accent-100/30 border-primary-100">
             <div class="flex flex-col justify-between gap-5 lg:flex-row lg:items-center">
@@ -120,39 +151,54 @@
                                 class="font-heading font-bold text-[11px] uppercase tracking-wider text-primary-700 bg-primary-100 px-2.5 py-0.5 rounded-full">
                                 GrowPOS AI Insight
                             </span>
-                            <span class="text-[11px] text-ink-400">• Asisten Bisnis Anda</span>
+                            <span class="text-[11px] text-ink-400">• Asisten Bisnis Pintar</span>
                         </div>
                         <h3 class="text-base font-bold font-heading text-ink-900">
                             "Omzet Anda stabil minggu ini, tapi ada 3 barang yang stoknya menipis!"
                         </h3>
                         <p class="max-w-3xl mt-1 text-xs leading-relaxed font-body md:text-sm text-ink-700">
-                            Penjualan produk kategori terlaris meningkat 15% dibanding hari kemarin. Pertimbangkan
-                            untuk
+                            Penjualan produk kategori terlaris meningkat 15% dibanding hari kemarin. Pertimbangkan untuk
                             restock barang sebelum jam sibuk nanti sore.
                         </p>
 
                         <!-- Quick Chat Suggestion Chips -->
                         <div class="flex flex-wrap items-center gap-2 mt-3.5">
                             <span class="text-[11px] font-semibold text-ink-400">Tanya AI cepat:</span>
-                            <a href="{{ route('reports.ai', ['prompt' => 'Kenapa omzet turun?']) }}"
-                                class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-surface-0 border border-primary-100 hover:border-primary-600 text-primary-700 font-body text-xs rounded-full shadow-sm transition-all hover:scale-[1.02]">
-                                <i class="fa-regular fa-lightbulb text-accent-500"></i>
-                                <span>Rekomendasi Restock</span>
-                            </a>
-                            <a href="{{ route('reports.ai', ['prompt' => 'Produk apa yang paling laris?']) }}"
-                                class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-surface-0 border border-primary-100 hover:border-primary-600 text-primary-700 font-body text-xs rounded-full shadow-sm transition-all hover:scale-[1.02]">
-                                <i class="fa-solid fa-chart-line text-semantic-success"></i>
-                                <span>Produk Terlaris</span>
-                            </a>
+                            @can('feature-ai-analytics')
+                                <a href="{{ route('reports.ai', ['prompt' => 'Kenapa omzet turun?']) }}"
+                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-surface-0 border border-primary-100 hover:border-primary-600 text-primary-700 font-body text-xs rounded-full shadow-sm transition-all hover:scale-[1.02]">
+                                    <i class="fa-regular fa-lightbulb text-accent-500"></i>
+                                    <span>Rekomendasi Restock</span>
+                                </a>
+                                <a href="{{ route('reports.ai', ['prompt' => 'Produk apa yang paling laris?']) }}"
+                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-surface-0 border border-primary-100 hover:border-primary-600 text-primary-700 font-body text-xs rounded-full shadow-sm transition-all hover:scale-[1.02]">
+                                    <i class="fa-solid fa-chart-line text-semantic-success"></i>
+                                    <span>Produk Terlaris</span>
+                                </a>
+                            @else
+                                <a href="{{ route('billing.index') }}"
+                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-surface-100 border border-border-200 text-ink-400 font-body text-xs rounded-full shadow-sm hover:border-purple-300">
+                                    <i class="fa-solid fa-lock text-purple-400 text-[10px]"></i>
+                                    <span>Fitur Terkunci (Upgrade Scale)</span>
+                                </a>
+                            @endcan
                         </div>
                     </div>
                 </div>
 
-                <a href="{{ route('reports.ai') }}"
-                    class="inline-flex items-center self-start justify-center gap-2 px-5 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-accent-500 hover:bg-accent-700 font-body shrink-0 lg:self-center">
-                    <i class="fa-solid fa-comments"></i>
-                    <span>Buka Chat AI</span>
-                </a>
+                @can('feature-ai-analytics')
+                    <a href="{{ route('reports.ai') }}"
+                        class="inline-flex items-center self-start justify-center gap-2 px-5 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-accent-500 hover:bg-accent-700 font-body shrink-0 lg:self-center">
+                        <i class="fa-solid fa-comments"></i>
+                        <span>Buka Chat AI</span>
+                    </a>
+                @else
+                    <a href="{{ route('billing.index') }}"
+                        class="inline-flex items-center self-start justify-center gap-2 px-4 text-xs font-bold text-white transition-colors bg-purple-600 rounded-md shadow-sm h-11 hover:bg-purple-700 font-body shrink-0 lg:self-center">
+                        <i class="fa-solid fa-crown text-amber-300 text-[11px]"></i>
+                        <span>Upgrade ke Scale</span>
+                    </a>
+                @endcan
             </div>
         </div>
 
@@ -182,8 +228,7 @@
             <div
                 class="p-5 transition-shadow border rounded-lg shadow-sm bg-surface-0 border-border-200 hover:shadow-md">
                 <div class="flex items-center justify-between mb-3">
-                    <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Total
-                        Piutang
+                    <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Total Piutang
                         (Bon)</span>
                     <div class="flex items-center justify-center rounded-md w-9 h-9 bg-red-50 text-semantic-danger">
                         <i class="text-base fa-solid fa-hand-holding-dollar"></i>
@@ -260,8 +305,7 @@
                 class="flex flex-col justify-between p-5 border rounded-lg shadow-sm lg:col-span-1 bg-surface-0 md:p-6 border-border-200">
                 <div>
                     <h3 class="text-lg font-semibold font-heading text-ink-900">Metode Pembayaran</h3>
-                    <p class="mb-4 text-xs font-body text-ink-700">Perbandingan transaksi Tunai vs QRIS/Transfer
-                    </p>
+                    <p class="mb-4 text-xs font-body text-ink-700">Perbandingan transaksi Tunai vs QRIS/Transfer</p>
                 </div>
                 <div class="relative flex items-center justify-center w-full h-56 my-auto">
                     <canvas id="paymentChart"></canvas>
@@ -330,8 +374,7 @@
                             class="flex items-center justify-center mb-3 rounded-full w-14 h-14 bg-primary-50 text-primary-600">
                             <i class="text-xl fa-solid fa-store-slash"></i>
                         </div>
-                        <h4 class="text-base font-semibold font-heading text-ink-900">Belum ada transaksi hari ini
-                        </h4>
+                        <h4 class="text-base font-semibold font-heading text-ink-900">Belum ada transaksi hari ini</h4>
                         <p class="max-w-sm mt-1 mb-4 text-xs font-body text-ink-700">
                             Yuk, mulai layani pelanggan pertama Anda hari ini dan catat penjualannya!
                         </p>

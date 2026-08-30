@@ -37,6 +37,19 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
+        $tenant = auth()->user()->tenant;
+        $plan = $tenant?->currentPlan();
+
+        if (!$plan) {
+            return back()->with('error', 'Masa langganan Anda telah habis.');
+        }
+
+        // Cek Batas Maksimal Produk
+        $currentProductCount = \App\Models\Product::where('tenant_id', $tenant->id)->count();
+
+        if ($currentProductCount >= $plan->max_products) {
+            return back()->with('error', "Gagal menambah produk! Paket {$plan->name} dibatasi maksimal {$plan->max_products} produk. Silakan upgrade paket Anda di menu Billing.");
+        }
         $request->validate([
             'category_id' => 'required|exists:categories,id',
             'sku' => 'required|unique:products,sku',

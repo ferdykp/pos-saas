@@ -3,24 +3,83 @@
 
     <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-desktop" x-data="{ showDeleteModal: false, deleteUrl: '', productName: '' }">
 
+        @php
+            $productCount = $products->count();
+            $currentPlan = auth()->user()->tenant?->currentPlan();
+            $maxProducts = $currentPlan?->max_products ?? 100;
+            $isProductFull = $productCount >= $maxProducts;
+        @endphp
+
+        <!-- Banner Flash Notification -->
+        @if (session('success'))
+            <div
+                class="flex items-center gap-3 p-4 mb-6 text-sm font-medium border-l-4 rounded-md shadow-sm bg-primary-50 border-primary-600 text-ink-900">
+                <i class="text-base fa-solid fa-circle-check text-primary-600"></i>
+                <span>{{ session('success') }}</span>
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div
+                class="flex items-center gap-3 p-4 mb-6 text-sm font-medium border-l-4 rounded-md shadow-sm bg-red-50 border-semantic-danger text-ink-900">
+                <i class="text-base fa-solid fa-circle-exclamation text-semantic-danger"></i>
+                <span>{{ session('error') }}</span>
+            </div>
+        @endif
+
+        <!-- Banner Kuota Produk Real-Time -->
+        <div
+            class="flex flex-col justify-between gap-3 p-4 mb-6 border rounded-lg shadow-sm sm:flex-row sm:items-center bg-surface-0 border-border-200">
+            <div class="flex items-center gap-3">
+                <div
+                    class="flex items-center justify-center w-10 h-10 rounded-full bg-primary-50 text-primary-600 shrink-0">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold text-ink-900">Kuota Katalog Produk (Paket
+                        {{ $currentPlan?->name ?? 'Starter' }})</h4>
+                    <p class="text-[11px] text-ink-700 mt-0.5">
+                        Terpakai <strong
+                            class="{{ $isProductFull ? 'text-semantic-danger' : 'text-primary-600' }}">{{ $productCount }}</strong>
+                        dari maksimal <strong class="text-ink-900">{{ $maxProducts }}</strong> produk terdaftar.
+                    </p>
+                </div>
+            </div>
+
+            @if ($isProductFull)
+                <a href="{{ route('billing.index') }}"
+                    class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-md transition shrink-0">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                    <span>Upgrade Kuota Produk</span>
+                </a>
+            @endif
+        </div>
+
         <!-- Header Halaman & Action Button -->
         <div
             class="flex flex-col justify-between gap-4 pb-6 mb-8 border-b sm:flex-row sm:items-center border-border-200">
             <div>
                 <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
-                    Inventaris Produk
+                    Daftar Produk & Stok
                 </h1>
                 <p class="mt-1 text-xs font-body md:text-sm text-ink-700">
-                    Kelola ketersediaan stok, harga modal, harga jual, dan varian kategori menu usaha Anda.
+                    Kelola item jualan, harga, varian produk, dan ketersediaan stok fisik di kasir.
                 </p>
             </div>
 
-            <!-- Primary Action Button -->
-            <a href="{{ route('products.create') }}"
-                class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body md:text-sm shrink-0">
-                <i class="text-xs fa-solid fa-plus"></i>
-                <span>Tambah Produk Baru</span>
-            </a>
+            @if ($isProductFull)
+                <button disabled title="Kuota produk paket {{ $currentPlan?->name }} sudah penuh"
+                    class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold border rounded-md cursor-not-allowed text-ink-400 bg-surface-100 border-border-200 h-11 opacity-60 font-body md:text-sm shrink-0">
+                    <i class="text-xs fa-solid fa-lock"></i>
+                    <span>Kuota Produk Penuh</span>
+                </button>
+            @else
+                <a href="{{ route('products.create') }}"
+                    class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body md:text-sm shrink-0">
+                    <i class="text-xs fa-solid fa-plus"></i>
+                    <span>Tambah Produk Baru</span>
+                </a>
+            @endif
         </div>
 
         <!-- Metric Stat Cards Produk & Stok -->

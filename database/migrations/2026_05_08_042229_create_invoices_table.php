@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tenant_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('subscription_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('plan_id')->nullable();
+            $table->foreignId('subscription_id')->nullable()->constrained()->cascadeOnDelete();
 
             $table->string('invoice_number')->unique();
             $table->decimal('amount', 15, 2);
@@ -22,7 +23,8 @@ return new class extends Migration
             $table->enum('status', [
                 'pending',
                 'paid',
-                'expired'
+                'expired',
+                'cancelled'
             ])->default('pending');
 
             $table->string('snap_token')->nullable();

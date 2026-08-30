@@ -57,10 +57,54 @@ class Tenant extends Model
     {
         return $this->hasMany(Subscription::class);
     }
-    // app/Models/Tenant.php
+
     public function getSetting($key, $default = null)
     {
         $setting = $this->settings()->where('key', $key)->first();
         return $setting ? $setting->value : $default;
+    }
+
+    // =========================================================================
+    // HELPER SUBSCRIPTION & PAKET
+    // =========================================================================
+
+    /**
+     * Mendapatkan objek Plan yang sedang aktif digunakan tenant
+     */
+    public function currentPlan(): ?Plan
+    {
+        $activeSubscription = $this->subscriptions()
+            ->where('status', 'active')
+            ->where('end_date', '>=', now()->startOfDay())
+            ->latest()
+            ->first();
+
+        return $activeSubscription ? $activeSubscription->plan : null;
+    }
+
+    /**
+     * Cek apakah tenant melebihi kuota transaksi bulanan (Khusus Paket Starter: Max 100)
+     */
+    public function isTransactionLimitReached(): bool
+    {
+        $plan = $this->currentPlan();
+
+        // Jika tidak memiliki paket aktif sama sekali, anggap terblokir
+        if (!$plan) {
+            return true;
+        }
+
+        // Pembatasan Khusus Paket Starter (Maksimal 100 Transaksi / Bulan)
+        if ($plan->slug === 'starter') {
+            $monthlyOrdersCount = $this->orders()
+                ->whereMonth('created_at', now()->month)
+                ->whereYear('created_at', now()->year)
+                ->count();
+
+            return $monthlyOrdersCount >= 100;
+        }
+
+        // Paket Growth & Scale = Unlimited Transaction
+        return false;
     }
 }

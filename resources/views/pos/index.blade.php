@@ -1,29 +1,67 @@
 <x-app-layout>
     @section('title', 'POS Kasir Terminal')
 
+    @php
+        $tenant = auth()->user()->tenant;
+        $currentPlan = $tenant?->currentPlan();
+
+        // Hitung Transaksi Bulan Ini
+        $monthlyOrderCount = \App\Models\Order::where('tenant_id', $tenant->id)
+            ->where('created_at', '>=', now()->startOfMonth())
+            ->count();
+
+        // Limit Kuota Transaksi (Starter = 100, Growth & Scale = Unlimited / 999999)
+        $maxMonthlyOrders = $currentPlan?->slug === 'starter' || $currentPlan?->price == 0 ? 100 : 999999;
+        $isOrderLimitReached = $monthlyOrderCount >= $maxMonthlyOrders;
+    @endphp
+
     <!-- POS Main Wrapper with Alpine Cart Drawer state for Mobile -->
     <div class="flex flex-col lg:flex-row h-[calc(100vh-64px)] overflow-hidden bg-surface-100" x-data="{ mobileCartOpen: false }">
 
         <!-- ==================== LEFT AREA: PRODUCT CATALOG ==================== -->
-        <div class="flex flex-col flex-1 h-full min-w-0 p-4 overflow-hidden md:p-6">
+        <div class="flex flex-col flex-1 h-full min-w-0 p-3 overflow-hidden sm:p-4">
+
+            {{-- Banner Notifikasi Kuota Transaksi Bulanan (Starter Limit) --}}
+            @if (($currentPlan?->slug === 'starter' || $currentPlan?->price == 0) && $monthlyOrderCount >= 80)
+                <div
+                    class="flex items-center justify-between gap-3 p-3 mb-3 border rounded-lg shadow-sm bg-amber-50 border-amber-300 text-amber-900 shrink-0">
+                    <div class="flex items-center gap-2.5">
+                        <i class="text-base fa-solid fa-triangle-exclamation text-amber-600"></i>
+                        <p class="text-xs font-semibold">
+                            Kuota Transaksi Bulan Ini: <strong>{{ $monthlyOrderCount }} /
+                                {{ $maxMonthlyOrders }}</strong> Nota.
+                            @if ($isOrderLimitReached)
+                                <span class="font-bold text-semantic-danger">Kuota Habis! Upgrade untuk melayani
+                                    transaksi.</span>
+                            @else
+                                <span class="text-amber-800">Mendekati batas maksimal Paket Starter.</span>
+                            @endif
+                        </p>
+                    </div>
+                    <a href="{{ route('billing.index') }}"
+                        class="px-3 py-1.5 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-md transition shrink-0">
+                        Upgrade Paket
+                    </a>
+                </div>
+            @endif
 
             <!-- Filter & Search Action Bar -->
-            <div class="flex flex-col items-stretch justify-between gap-3 mb-5 sm:flex-row sm:items-center shrink-0">
+            <div class="flex flex-col items-stretch justify-between gap-3 mb-3 sm:flex-row sm:items-center shrink-0">
 
                 <!-- Search Product Input Field -->
                 <div class="relative flex-1 max-w-md">
-                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-ink-400">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-ink-400">
                         <i class="text-xs fa-solid fa-magnifying-glass"></i>
                     </div>
                     <input type="text" id="searchProduct" onkeyup="filterProducts()"
                         placeholder="Cari nama produk, SKU, atau scan barcode..."
-                        class="w-full pr-4 text-xs transition-all border rounded-sm outline-none h-11 pl-9 font-body text-ink-900 placeholder-ink-400 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100">
+                        class="w-full pl-8 pr-3 text-xs transition-all border rounded-sm outline-none h-9 font-body text-ink-900 placeholder-ink-400 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-1 focus:ring-primary-100">
                 </div>
 
                 <!-- Category Filter Dropdown -->
                 <div class="relative shrink-0" x-data="{ openCategory: false }">
                     <button @click="openCategory = !openCategory" @click.away="openCategory = false"
-                        class="flex items-center justify-between w-full gap-3 px-4 text-xs font-semibold transition-colors border rounded-sm sm:w-auto h-11 bg-surface-0 border-border-200 text-ink-900 hover:border-primary-600">
+                        class="flex items-center justify-between w-full gap-2 px-3 text-xs font-semibold transition-colors border rounded-sm sm:w-auto h-9 bg-surface-0 border-border-200 text-ink-900 hover:border-primary-600">
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-layer-group text-primary-600"></i>
                             <span id="activeCategoryName">Semua Kategori</span>
@@ -35,16 +73,16 @@
                     <!-- Dropdown Content -->
                     <div x-show="openCategory" x-cloak x-transition:enter="transition ease-out duration-150"
                         x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
-                        class="absolute right-0 z-40 mt-1.5 w-56 bg-surface-0 border border-border-200 rounded-md shadow-lg p-1 max-h-64 overflow-y-auto custom-scrollbar">
+                        class="absolute right-0 z-40 w-56 p-1 mt-1 overflow-y-auto border rounded-md shadow-lg bg-surface-0 border-border-200 max-h-64 custom-scrollbar">
                         <button onclick="filterCategory('all', 'Semua Kategori')" @click="openCategory = false"
-                            class="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-ink-700 hover:bg-primary-50 hover:text-primary-600 rounded-md transition-colors text-left">
+                            class="w-full flex items-center gap-2.5 px-3 py-1.5 text-xs font-medium text-ink-700 hover:bg-primary-50 hover:text-primary-600 rounded-md transition-colors text-left">
                             <i class="w-4 fa-solid fa-border-all text-ink-400"></i>
                             <span>Semua Kategori</span>
                         </button>
                         @foreach ($categories as $cat)
                             <button onclick="filterCategory('{{ $cat->name }}', '{{ $cat->name }}')"
                                 @click="openCategory = false"
-                                class="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-ink-700 hover:bg-primary-50 hover:text-primary-600 rounded-md transition-colors text-left">
+                                class="w-full flex items-center gap-2.5 px-3 py-1.5 text-xs font-medium text-ink-700 hover:bg-primary-50 hover:text-primary-600 rounded-md transition-colors text-left">
                                 <i class="w-4 fa-solid fa-tag text-ink-400"></i>
                                 <span>{{ $cat->name }}</span>
                             </button>
@@ -55,27 +93,27 @@
 
             <!-- Product Cards Grid -->
             <div id="productGrid"
-                class="grid flex-1 grid-cols-2 gap-3 pb-24 pr-1 overflow-y-auto custom-scrollbar sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 md:gap-4 lg:pb-6">
+                class="grid flex-1 grid-cols-2 gap-2.5 pb-20 pr-1 overflow-y-auto custom-scrollbar sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 content-start lg:pb-3">
                 @foreach ($products as $p)
                     <div onclick="addToCart({{ $p->id }}, '{{ addslashes($p->product_name) }}', {{ $p->sell_price }}, {{ $p->final_price }}, {{ $p->discount_applied }}, '{{ addslashes($p->discount_name ?? '') }}', {{ $p->manage_stock ?? 0 }}, {{ $p->stock ?? 0 }})"
                         data-category="{{ $p->category ? $p->category->name : '' }}"
                         data-name="{{ strtolower($p->product_name) }}"
-                        class="product-item group relative bg-surface-0 border border-border-200 rounded-lg shadow-sm hover:shadow-md hover:border-primary-600 cursor-pointer transition-all flex flex-col justify-between overflow-hidden p-2.5 aspect-[1/1.1]">
+                        class="relative flex flex-col justify-between p-2 overflow-hidden transition-all border rounded-lg shadow-sm cursor-pointer product-item group bg-surface-0 border-border-200 hover:shadow-md hover:border-primary-600">
 
                         @if ($p->discount_applied > 0)
                             <span
-                                class="absolute top-2 right-2 z-10 inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-accent-500 text-white shadow-sm">
+                                class="absolute top-1.5 right-1.5 z-10 inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-accent-500 text-white shadow-sm">
                                 {{ $p->discount_name }}
                             </span>
                         @endif
 
                         <div
-                            class="h-[68%] w-full rounded-md bg-surface-100 flex items-center justify-center overflow-hidden mb-2 relative">
+                            class="h-28 w-full rounded bg-surface-100 flex items-center justify-center overflow-hidden mb-1.5 relative shrink-0">
                             @if ($p->image)
                                 <img src="{{ asset('storage/' . $p->image) }}" alt="{{ $p->product_name }}"
                                     class="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105">
                             @else
-                                <i class="text-2xl fa-solid fa-box text-ink-400 opacity-40"></i>
+                                <i class="text-xl fa-solid fa-box text-ink-400 opacity-40"></i>
                             @endif
                         </div>
 
@@ -88,7 +126,7 @@
                             <div class="flex items-center justify-between mt-1">
                                 <div class="flex flex-col">
                                     @if ($p->discount_applied > 0)
-                                        <span class="font-mono text-[10px] text-ink-400 line-through leading-none">
+                                        <span class="font-mono text-[9px] text-ink-400 line-through leading-none">
                                             Rp {{ number_format($p->sell_price, 0, ',', '.') }}
                                         </span>
                                         <span
@@ -127,7 +165,7 @@
             </div>
 
             <button @click="mobileCartOpen = true"
-                class="inline-flex items-center gap-2 px-5 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 font-body">
+                class="inline-flex items-center h-10 gap-2 px-5 text-xs font-semibold text-white transition-colors rounded-md shadow-sm bg-primary-600 hover:bg-primary-700 font-body">
                 <i class="fa-solid fa-basket-shopping"></i>
                 <span>Lihat Cart (<span id="mobileItemCount">0</span>)</span>
             </button>
@@ -138,34 +176,37 @@
             class="fixed lg:static inset-0 z-40 lg:z-0 w-full lg:w-[380px] xl:w-[420px] bg-surface-0 border-l border-border-200 flex flex-col h-full shadow-lg lg:shadow-none transition-transform duration-300">
 
             <!-- Cart Header & Shift Controls -->
-            <div class="p-4 space-y-3 border-b border-border-200 shrink-0 bg-surface-100/50">
+            <div class="p-3 space-y-2 border-b border-border-200 shrink-0 bg-surface-100/50">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <button @click="mobileCartOpen = false" class="lg:hidden p-1.5 text-ink-400 hover:text-ink-900">
                             <i class="text-lg fa-solid fa-xmark"></i>
                         </button>
-                        <h3 class="text-base font-bold font-heading text-ink-900">Daftar Pesanan</h3>
+                        <h3 class="text-sm font-bold font-heading text-ink-900">Daftar Pesanan</h3>
                     </div>
 
                     <!-- Shift & Customer Actions -->
                     <div class="flex items-center gap-2">
                         @if (!$hasShift)
                             <button type="button" onclick="openOpenShiftModal()"
-                                class="inline-flex items-center gap-1.5 h-8 px-3 text-[11px] font-semibold text-primary-700 bg-primary-100 hover:bg-primary-600 hover:text-white rounded-md transition-colors">
+                                class="inline-flex items-center gap-1.5 h-7 px-2.5 text-[11px] font-semibold text-primary-700 bg-primary-100 hover:bg-primary-600 hover:text-white rounded-md transition-colors">
                                 <i class="fa-solid fa-cash-register"></i> Buka Shift
                             </button>
                         @else
                             <button type="button" onclick="openCloseShiftModal()"
-                                class="inline-flex items-center gap-1.5 h-8 px-3 text-[11px] font-semibold text-semantic-danger bg-red-50 hover:bg-semantic-danger hover:text-white rounded-md transition-colors">
+                                class="inline-flex items-center gap-1.5 h-7 px-2.5 text-[11px] font-semibold text-semantic-danger bg-red-50 hover:bg-semantic-danger hover:text-white rounded-md transition-colors">
                                 <i class="fa-solid fa-power-off"></i> Tutup Shift
                             </button>
                         @endif
 
-                        <button type="button" onclick="openCustomerModal()"
-                            class="flex items-center justify-center w-8 h-8 transition-colors rounded-md text-primary-600 bg-primary-50 hover:bg-primary-100"
-                            title="Tambah Pelanggan Baru">
-                            <i class="text-xs fa-solid fa-user-plus"></i>
-                        </button>
+                        {{-- DILINDUNGI GATE CRM (Khusus Growth & Scale) --}}
+                        @can('feature-crm')
+                            <button type="button" onclick="openCustomerModal()"
+                                class="flex items-center justify-center transition-colors rounded-md w-7 h-7 text-primary-600 bg-primary-50 hover:bg-primary-100"
+                                title="Tambah Pelanggan Baru">
+                                <i class="text-xs fa-solid fa-user-plus"></i>
+                            </button>
+                        @endcan
                     </div>
                 </div>
 
@@ -173,7 +214,7 @@
                 <div class="grid grid-cols-12 gap-2">
                     <div class="col-span-7">
                         <select id="orderTypeSelect" onchange="toggleTableInput()"
-                            class="w-full h-10 px-3 text-xs font-semibold border rounded-sm outline-none font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
+                            class="w-full h-8 px-2 text-xs font-semibold border rounded-sm outline-none font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                             <option value="dine_in">🍽️ Dine-In (Makan di Tempat)</option>
                             <option value="takeaway">🛍️ Takeaway (Bawa Pulang)</option>
                             <option value="delivery">🛵 Delivery (Layanan Antar)</option>
@@ -181,27 +222,29 @@
                     </div>
                     <div class="col-span-5" id="tableInputContainer">
                         <input type="text" id="tableNumberInput" placeholder="No. Meja"
-                            class="w-full h-10 px-3 font-mono text-xs font-bold text-center border rounded-sm outline-none text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
+                            class="w-full h-8 px-2 font-mono text-xs font-bold text-center border rounded-sm outline-none text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                     </div>
                 </div>
 
                 <!-- Customer Selection Field -->
                 <div class="relative">
-                    <select id="customerSelect" class="w-full">
+                    <select id="customerSelect" class="w-full" @cannot('feature-crm') disabled @endcannot>
                         <option value="guest">Pelanggan Umum (Guest)</option>
-                        @foreach ($customers as $c)
-                            <option value="{{ $c->id }}">
-                                {{ $c->name }} {{ $c->phone ? '(' . $c->phone . ')' : '' }}
-                            </option>
-                        @endforeach
+                        @can('feature-crm')
+                            @foreach ($customers as $c)
+                                <option value="{{ $c->id }}">
+                                    {{ $c->name }} {{ $c->phone ? '(' . $c->phone . ')' : '' }}
+                                </option>
+                            @endforeach
+                        @endcan
                     </select>
                 </div>
             </div>
 
             <!-- Cart Items Scrollable List -->
-            <div id="cartItems" class="flex-1 p-4 space-y-2.5 overflow-y-auto custom-scrollbar">
-                <div class="flex flex-col items-center justify-center py-16 text-center text-ink-400">
-                    <i class="mb-2 text-3xl opacity-50 fa-solid fa-cart-flatbed"></i>
+            <div id="cartItems" class="flex-1 p-3 space-y-2 overflow-y-auto custom-scrollbar">
+                <div class="flex flex-col items-center justify-center py-12 text-center text-ink-400">
+                    <i class="mb-2 text-2xl opacity-50 fa-solid fa-cart-flatbed"></i>
                     <p class="text-xs font-semibold font-body">Keranjang masih kosong</p>
                     <p class="font-body text-[11px] text-ink-400 mt-0.5">Pilih produk di sebelah kiri untuk
                         ditambahkan.</p>
@@ -209,8 +252,8 @@
             </div>
 
             <!-- Cart Calculation Summary & Checkout Action -->
-            <div class="p-4 border-t bg-surface-100 border-border-200 shrink-0">
-                <div class="mb-4 space-y-2">
+            <div class="p-3 border-t bg-surface-100 border-border-200 shrink-0">
+                <div class="mb-3 space-y-1.5">
                     <div class="flex justify-between text-xs font-medium text-ink-700">
                         <span>Subtotal Item</span>
                         <span id="subtotalText" class="font-mono font-semibold text-ink-900">Rp 0</span>
@@ -230,15 +273,23 @@
 
                     <div class="flex items-center justify-between pt-2 border-t border-border-200">
                         <span class="text-sm font-bold font-heading text-ink-900">Total Tagihan</span>
-                        <span id="totalText" class="font-mono text-lg font-bold text-primary-600">Rp 0</span>
+                        <span id="totalText" class="font-mono text-base font-bold text-primary-600">Rp 0</span>
                     </div>
                 </div>
 
-                <button onclick="openPaymentModal()"
-                    class="flex items-center justify-center w-full gap-2 text-xs font-semibold text-white transition-all rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body md:text-sm">
-                    <i class="fa-solid fa-credit-card"></i>
-                    <span>PROSES PEMBAYARAN</span>
-                </button>
+                @if ($isOrderLimitReached)
+                    <a href="{{ route('billing.index') }}"
+                        class="flex items-center justify-center w-full h-10 gap-2 text-xs font-bold text-white transition-all rounded-md shadow-sm bg-amber-600 hover:bg-amber-700 font-body">
+                        <i class="fa-solid fa-crown"></i>
+                        <span>KUOTA NOTA HABIS (UPGRADE PAKET)</span>
+                    </a>
+                @else
+                    <button onclick="openPaymentModal()"
+                        class="flex items-center justify-center w-full h-10 gap-2 text-xs font-semibold text-white transition-all rounded-md shadow-sm bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body">
+                        <i class="fa-solid fa-credit-card"></i>
+                        <span>PROSES PEMBAYARAN</span>
+                    </button>
+                @endif
             </div>
         </div>
     </div>
@@ -262,14 +313,14 @@
                     <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Uang Modal Awal
                         (Cash)</label>
                     <input type="text" id="input_cash_start" oninput="formatCurrencyInput(this)" required
-                        class="w-full px-3 font-mono text-sm font-bold text-center border rounded-sm outline-none h-11 text-ink-900 bg-surface-100 border-border-200 focus:border-primary-600"
+                        class="w-full h-10 px-3 font-mono text-sm font-bold text-center border rounded-sm outline-none text-ink-900 bg-surface-100 border-border-200 focus:border-primary-600"
                         placeholder="Rp 0">
                 </div>
                 <div class="flex gap-3 pt-2">
                     <button type="button" onclick="document.getElementById('openShiftModal').classList.add('hidden')"
-                        class="flex-1 text-xs font-semibold transition-colors rounded-md h-11 bg-surface-100 hover:bg-border-200 text-ink-900 font-body">Batal</button>
+                        class="flex-1 h-10 text-xs font-semibold transition-colors rounded-md bg-surface-100 hover:bg-border-200 text-ink-900 font-body">Batal</button>
                     <button type="submit"
-                        class="flex-1 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 font-body">Mulai
+                        class="flex-1 h-10 text-xs font-semibold text-white transition-colors rounded-md shadow-sm bg-primary-600 hover:bg-primary-700 font-body">Mulai
                         Shift</button>
                 </div>
             </form>
@@ -304,7 +355,7 @@
                     <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Total Uang Fisik Kasir
                         (Cash)</label>
                     <input type="text" id="input_cash_actual" oninput="formatCurrencyInput(this)" required
-                        class="w-full px-3 font-mono text-sm font-bold border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600"
+                        class="w-full h-10 px-3 font-mono text-sm font-bold border rounded-sm outline-none text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600"
                         placeholder="Masukkan hitungan uang fisik...">
                 </div>
                 <div>
@@ -317,9 +368,9 @@
                 <div class="flex gap-3 pt-2">
                     <button type="button"
                         onclick="document.getElementById('closeShiftModal').classList.add('hidden')"
-                        class="flex-1 text-xs font-semibold transition-colors rounded-md h-11 bg-surface-100 hover:bg-border-200 text-ink-900 font-body">Batal</button>
+                        class="flex-1 h-10 text-xs font-semibold transition-colors rounded-md bg-surface-100 hover:bg-border-200 text-ink-900 font-body">Batal</button>
                     <button type="submit"
-                        class="flex-1 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-semantic-danger hover:bg-red-700 font-body">Konfirmasi
+                        class="flex-1 h-10 text-xs font-semibold text-white transition-colors rounded-md shadow-sm bg-semantic-danger hover:bg-red-700 font-body">Konfirmasi
                         Tutup</button>
                 </div>
             </form>
@@ -327,41 +378,43 @@
     </div>
 
     <!-- Modal 3: Tambah Pelanggan Baru -->
-    <div id="customerModal"
-        class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 bg-ink-900/40 backdrop-blur-sm">
-        <div class="w-full p-6 border rounded-lg shadow-lg bg-surface-0 max-w-modal-sm border-border-200">
-            <h3 class="mb-4 text-lg font-semibold font-heading text-ink-900">Tambah Pelanggan Baru</h3>
+    @can('feature-crm')
+        <div id="customerModal"
+            class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 bg-ink-900/40 backdrop-blur-sm">
+            <div class="w-full p-6 border rounded-lg shadow-lg bg-surface-0 max-w-modal-sm border-border-200">
+                <h3 class="mb-4 text-lg font-semibold font-heading text-ink-900">Tambah Pelanggan Baru</h3>
 
-            <form id="addCustomerForm" class="space-y-4">
-                <div>
-                    <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Nama Lengkap</label>
-                    <input type="text" id="cust_name" required
-                        class="w-full px-3 text-xs border rounded-sm outline-none h-11 font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600"
-                        placeholder="Contoh: Budi Santoso">
-                </div>
-                <div>
-                    <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">No. WhatsApp / HP</label>
-                    <input type="text" id="cust_phone"
-                        class="w-full px-3 text-xs border rounded-sm outline-none h-11 font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600"
-                        placeholder="0812xxxx">
-                </div>
-                <div class="flex items-center gap-2.5 p-3 bg-primary-50 rounded-md">
-                    <input type="checkbox" id="cust_member" value="1"
-                        class="w-4 h-4 rounded text-primary-600 border-border-200 focus:ring-primary-600">
-                    <label for="cust_member" class="text-xs font-semibold font-body text-primary-700">Daftarkan
-                        sebagai Member Toko</label>
-                </div>
+                <form id="addCustomerForm" class="space-y-4">
+                    <div>
+                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Nama Lengkap</label>
+                        <input type="text" id="cust_name" required
+                            class="w-full h-10 px-3 text-xs border rounded-sm outline-none font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600"
+                            placeholder="Contoh: Budi Santoso">
+                    </div>
+                    <div>
+                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">No. WhatsApp / HP</label>
+                        <input type="text" id="cust_phone"
+                            class="w-full h-10 px-3 text-xs border rounded-sm outline-none font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600"
+                            placeholder="0812xxxx">
+                    </div>
+                    <div class="flex items-center gap-2.5 p-3 bg-primary-50 rounded-md">
+                        <input type="checkbox" id="cust_member" value="1"
+                            class="w-4 h-4 rounded text-primary-600 border-border-200 focus:ring-primary-600">
+                        <label for="cust_member" class="text-xs font-semibold font-body text-primary-700">Daftarkan
+                            sebagai Member Toko</label>
+                    </div>
 
-                <div class="flex gap-3 pt-2">
-                    <button type="button" onclick="closeCustomerModal()"
-                        class="flex-1 text-xs font-semibold transition-colors rounded-md h-11 bg-surface-100 hover:bg-border-200 text-ink-900 font-body">Batal</button>
-                    <button type="submit"
-                        class="flex-1 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 font-body">Simpan
-                        Pelanggan</button>
-                </div>
-            </form>
+                    <div class="flex gap-3 pt-2">
+                        <button type="button" onclick="closeCustomerModal()"
+                            class="flex-1 h-10 text-xs font-semibold transition-colors rounded-md bg-surface-100 hover:bg-border-200 text-ink-900 font-body">Batal</button>
+                        <button type="submit"
+                            class="flex-1 h-10 text-xs font-semibold text-white transition-colors rounded-md shadow-sm bg-primary-600 hover:bg-primary-700 font-body">Simpan
+                            Pelanggan</button>
+                    </div>
+                </form>
+            </div>
         </div>
-    </div>
+    @endcan
 
     <!-- Modal 4: Payment Confirmation -->
     <div id="paymentModal"
@@ -424,17 +477,26 @@
                                 <input type="radio" name="payment_method" value="cash" class="hidden peer"
                                     checked onchange="toggleCashInput(true)">
                                 <div
-                                    class="flex items-center justify-center text-xs font-semibold transition-all border rounded-md h-11 font-body text-ink-700 bg-surface-0 border-border-200 peer-checked:border-primary-600 peer-checked:bg-primary-50 peer-checked:text-primary-600">
+                                    class="flex items-center justify-center h-10 text-xs font-semibold transition-all border rounded-md font-body text-ink-700 bg-surface-0 border-border-200 peer-checked:border-primary-600 peer-checked:bg-primary-50 peer-checked:text-primary-600">
                                     <i class="mr-2 fa-solid fa-money-bill-wave"></i> Tunai (Cash)
                                 </div>
                             </label>
 
+                            {{-- DILINDUNGI GATE QRIS (Khusus Growth & Scale) --}}
                             <label class="cursor-pointer">
                                 <input type="radio" name="payment_method" value="midtrans" class="hidden peer"
-                                    onchange="toggleCashInput(false)">
-                                <div
-                                    class="flex items-center justify-center text-xs font-semibold transition-all border rounded-md h-11 font-body text-ink-700 bg-surface-0 border-border-200 peer-checked:border-primary-600 peer-checked:bg-primary-50 peer-checked:text-primary-600">
+                                    @cannot('feature-qris') disabled @endcannot onchange="toggleCashInput(false)">
+                                <div @class([
+                                    'flex items-center justify-center text-xs font-semibold transition-all border rounded-md h-10 font-body text-ink-700 bg-surface-0 border-border-200',
+                                    'peer-checked:border-primary-600 peer-checked:bg-primary-50 peer-checked:text-primary-600' => Gate::allows(
+                                        'feature-qris'),
+                                    'opacity-50 bg-gray-100 cursor-not-allowed' => Gate::denies('feature-qris'),
+                                ])>
                                     <i class="mr-2 fa-solid fa-qrcode"></i> QRIS / Transfer
+                                    @cannot('feature-qris')
+                                        <span
+                                            class="ml-1.5 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-amber-800 bg-amber-100 rounded">GROWTH</span>
+                                    @endcannot
                                 </div>
                             </label>
                         </div>
@@ -445,7 +507,7 @@
                             <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Uang Tunai
                                 Diterima</label>
                             <input type="text" id="cashAmount" oninput="formatCurrencyInput(this)"
-                                class="w-full px-3 font-mono text-base font-bold border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600"
+                                class="w-full h-10 px-3 font-mono text-base font-bold border rounded-sm outline-none text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600"
                                 placeholder="0">
                         </div>
 
@@ -493,9 +555,9 @@
 
             <div class="flex gap-3">
                 <button onclick="document.getElementById('paymentModal').classList.add('hidden')"
-                    class="flex-1 text-xs font-semibold transition-colors rounded-md h-11 bg-surface-100 hover:bg-border-200 text-ink-900 font-body">Batal</button>
+                    class="flex-1 h-10 text-xs font-semibold transition-colors rounded-md bg-surface-100 hover:bg-border-200 text-ink-900 font-body">Batal</button>
                 <button onclick="submitOrder('paid')"
-                    class="flex-1 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 font-body">Konfirmasi
+                    class="flex-1 h-10 text-xs font-semibold text-white transition-colors rounded-md shadow-sm bg-primary-600 hover:bg-primary-700 font-body">Konfirmasi
                     & Cetak</button>
             </div>
         </div>
@@ -520,9 +582,9 @@
 
             <div class="flex gap-3">
                 <button onclick="tutupModalQris()"
-                    class="flex-1 text-xs font-semibold transition-colors rounded-md h-11 bg-surface-100 hover:bg-border-200 text-ink-900 font-body">Tutup</button>
+                    class="flex-1 h-10 text-xs font-semibold transition-colors rounded-md bg-surface-100 hover:bg-border-200 text-ink-900 font-body">Tutup</button>
                 <button id="btnCheckStatus" onclick="cekStatusManual()"
-                    class="flex-1 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 font-body">Cek
+                    class="flex-1 h-10 text-xs font-semibold text-white transition-colors rounded-md shadow-sm bg-primary-600 hover:bg-primary-700 font-body">Cek
                     Status</button>
             </div>
         </div>
@@ -541,7 +603,7 @@
 
             <div class="space-y-2">
                 <button id="btnPrintReceipt"
-                    class="flex items-center justify-center w-full gap-2 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 font-body">
+                    class="flex items-center justify-center w-full h-10 gap-2 text-xs font-semibold text-white transition-colors rounded-md shadow-sm bg-primary-600 hover:bg-primary-700 font-body">
                     <i class="fa-solid fa-print"></i>
                     <span>Cetak Struk Belanja</span>
                 </button>
@@ -565,11 +627,13 @@
         let qrisInterval = null;
 
         $(document).ready(function() {
-            $('#customerSelect').select2({
-                placeholder: "Cari nama atau nomor HP...",
-                allowClear: false,
-                width: '100%'
-            });
+            if ($('#customerSelect').length) {
+                $('#customerSelect').select2({
+                    placeholder: "Cari nama atau nomor HP...",
+                    allowClear: false,
+                    width: '100%'
+                });
+            }
             toggleTableInput();
         });
 
@@ -605,7 +669,6 @@
         function addToCart(id, name, originalPrice, finalPrice, discountApplied, discountName, manageStock, currentStock) {
             const existingItem = cart.find(item => item.id === id);
 
-            // Validasi Stok Maksimum di Frontend
             if (manageStock === 1) {
                 const currentQtyInCart = existingItem ? existingItem.quantity : 0;
                 if (currentQtyInCart + 1 > currentStock) {
@@ -673,23 +736,23 @@
 
             if (cart.length === 0) {
                 cartContainer.innerHTML = `
-                    <div class="flex flex-col items-center justify-center py-16 text-center text-ink-400">
-                        <i class="mb-2 text-3xl opacity-50 fa-solid fa-cart-flatbed"></i>
+                    <div class="flex flex-col items-center justify-center py-12 text-center text-ink-400">
+                        <i class="mb-2 text-2xl opacity-50 fa-solid fa-cart-flatbed"></i>
                         <p class="text-xs font-semibold font-body">Keranjang masih kosong</p>
                         <p class="font-body text-[11px] text-ink-400 mt-0.5">Pilih produk di sebelah kiri untuk ditambahkan.</p>
                     </div>`;
             } else {
                 cartContainer.innerHTML = cart.map(item => `
-                    <div class="flex items-center justify-between p-3 border rounded-md shadow-sm bg-surface-0 border-border-200">
+                    <div class="flex items-center justify-between p-2.5 border rounded-md shadow-sm bg-surface-0 border-border-200">
                         <div class="flex-1 min-w-0 pr-2 text-left">
                             <p class="text-xs font-semibold leading-tight truncate font-body text-ink-900">${item.name}</p>
                             ${item.discountApplied > 0 ? `<p class="font-body text-[10px] text-accent-500 font-semibold">${item.discountName}</p>` : ''}
                             <p class="font-mono text-xs font-semibold text-primary-600 mt-0.5">Rp ${new Intl.NumberFormat('id-ID').format(item.finalPrice)}</p>
                         </div>
                         <div class="flex items-center gap-1.5 shrink-0">
-                            <button onclick="updateQty(${item.id}, -1)" class="flex items-center justify-center text-xs font-bold transition-colors rounded-md w-7 h-7 bg-surface-100 hover:bg-border-200 text-ink-900">-</button>
-                            <span class="w-6 font-mono text-xs font-semibold text-center text-ink-900">${item.quantity}</span>
-                            <button onclick="updateQty(${item.id}, 1)" class="flex items-center justify-center text-xs font-bold transition-colors rounded-md w-7 h-7 bg-surface-100 hover:bg-border-200 text-ink-900">+</button>
+                            <button onclick="updateQty(${item.id}, -1)" class="flex items-center justify-center w-6 h-6 text-xs font-bold transition-colors rounded-md bg-surface-100 hover:bg-border-200 text-ink-900">-</button>
+                            <span class="w-5 font-mono text-xs font-semibold text-center text-ink-900">${item.quantity}</span>
+                            <button onclick="updateQty(${item.id}, 1)" class="flex items-center justify-center w-6 h-6 text-xs font-bold transition-colors rounded-md bg-surface-100 hover:bg-border-200 text-ink-900">+</button>
                         </div>
                     </div>
                 `).join('');
@@ -757,7 +820,8 @@
                 tax,
                 total
             } = calculateTotals();
-            const customerData = $('#customerSelect').select2('data')[0];
+            const customerSelect = $('#customerSelect');
+            const customerData = customerSelect.length ? customerSelect.select2('data')[0] : null;
             document.getElementById('reviewCustomer').innerText = customerData ? customerData.text :
                 'Pelanggan Umum (Guest)';
 
@@ -798,9 +862,11 @@
 
             if (method === 'cash' && cashAmount < total) return alert('Uang tunai kurang!');
 
+            const customerSelectVal = document.getElementById('customerSelect') ? document.getElementById(
+                'customerSelect').value : 'guest';
+
             const data = {
-                customer_id: document.getElementById('customerSelect').value === 'guest' ? null : document
-                    .getElementById('customerSelect').value,
+                customer_id: customerSelectVal === 'guest' ? null : customerSelectVal,
                 order_type: document.getElementById('orderTypeSelect').value,
                 table_number: document.getElementById('tableNumberInput').value || null,
                 payment_method: method,
@@ -963,55 +1029,61 @@
         }
 
         function openCustomerModal() {
-            document.getElementById('customerModal').classList.remove('hidden');
+            const modal = document.getElementById('customerModal');
+            if (modal) modal.classList.remove('hidden');
         }
 
         function closeCustomerModal() {
-            document.getElementById('customerModal').classList.add('hidden');
-            document.getElementById('addCustomerForm').reset();
+            const modal = document.getElementById('customerModal');
+            if (modal) modal.classList.add('hidden');
+            const form = document.getElementById('addCustomerForm');
+            if (form) form.reset();
         }
 
         function openOpenShiftModal() {
             document.getElementById('openShiftModal').classList.remove('hidden');
         }
 
-        document.getElementById('addCustomerForm').onsubmit = async function(e) {
-            e.preventDefault();
-            const name = document.getElementById('cust_name').value;
-            const phone = document.getElementById('cust_phone').value;
-            const is_member = document.getElementById('cust_member').checked ? '1' : '0';
+        const addCustForm = document.getElementById('addCustomerForm');
+        if (addCustForm) {
+            addCustForm.onsubmit = async function(e) {
+                e.preventDefault();
+                const name = document.getElementById('cust_name').value;
+                const phone = document.getElementById('cust_phone').value;
+                const is_member = document.getElementById('cust_member').checked ? '1' : '0';
 
-            try {
-                const response = await fetch('/customers', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({
-                        name,
-                        phone,
-                        is_member
-                    })
-                });
+                try {
+                    const response = await fetch('/customers', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            name,
+                            phone,
+                            is_member
+                        })
+                    });
 
-                const res = await response.json();
+                    const res = await response.json();
 
-                if (res.success) {
-                    const displayPhone = res.phone ? ` (${res.phone})` : '';
-                    const newOption = new Option(`${res.name}${displayPhone}`, res.id, true, true);
+                    if (res.success) {
+                        const displayPhone = res.phone ? ` (${res.phone})` : '';
+                        const newOption = new Option(`${res.name}${displayPhone}`, res.id, true, true);
 
-                    $('#customerSelect').append(newOption).trigger('change');
-                    closeCustomerModal();
-                    alert('Pelanggan berhasil ditambahkan!');
-                } else {
-                    alert('Gagal: ' + (res.message || 'Terjadi kesalahan.'));
+                        $('#customerSelect').append(newOption).trigger('change');
+                        closeCustomerModal();
+                        alert('Pelanggan berhasil ditambahkan!');
+                    } else {
+                        alert('Gagal: ' + (res.message || 'Terjadi kesalahan.'));
+                    }
+                } catch (error) {
+                    alert('Gagal menambah pelanggan.');
                 }
-            } catch (error) {
-                alert('Gagal menambah pelanggan.');
-            }
-        };
+            };
+        }
 
         document.getElementById('openShiftForm').onsubmit = async function(e) {
             e.preventDefault();
@@ -1113,7 +1185,6 @@
             if (amount === 'exact') {
                 cashInput.value = new Intl.NumberFormat('id-ID').format(total);
             } else if (amount === 'next_round') {
-                // Pembulatan ke kelipatan 10.000 / 50.000 terdekat di atas total
                 let rounded = total;
                 if (total % 10000 !== 0) {
                     rounded = Math.ceil(total / 10000) * 10000;

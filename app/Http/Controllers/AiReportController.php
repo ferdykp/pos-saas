@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Gate;
 
 class AiReportController extends Controller
 {
@@ -25,6 +26,11 @@ class AiReportController extends Controller
 
     public function index()
     {
+        if (Gate::denies('feature-ai-analytics')) {
+            return redirect()->route('billing.index')
+                ->with('warning', 'Fitur Analitik AI & Prediksi Bisnis hanya tersedia pada Paket Scale.');
+        }
+
         $tenantId = auth()->user()->tenant_id;
 
         if (!$tenantId) {
@@ -283,6 +289,13 @@ Jika data_memadai_untuk_insight_kuat bernilai false, WAJIB sertakan satu kalimat
 
     public function chat(Request $request)
     {
+
+        if (Gate::denies('feature-ai-analytics')) {
+            return response()->json([
+                'reply' => 'Fitur AI Chat Advisor hanya tersedia pada Paket Scale. Silakan upgrade paket Anda di menu Billing.',
+                'suggestions' => [],
+            ], 403);
+        }
         // Validasi (cukup sekali) — sekarang termasuk histori percakapan untuk multi-turn context
         $request->validate([
             'message' => 'required|string|max:1000',

@@ -1,41 +1,48 @@
 <?php
 
-// app/Models/Invoice.php
-
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Models\Concerns\BelongsToTenant;
+use Illuminate\Database\Eloquent\Model;
 
 class Invoice extends Model
 {
-    use HasFactory, BelongsToTenant;
+    use HasFactory;
 
     protected $fillable = [
         'tenant_id',
         'subscription_id',
+        'plan_id',
         'invoice_number',
         'amount',
         'status',
-        'due_date',
+        'payment_method',
+        'snap_token',
         'paid_at',
-        'snap_token',      // add this
-        'payment_method',  // add this — also written in applyMidtransStatus()
+        'due_date',
     ];
 
-    protected $casts = [
-        'due_date' => 'date',
-        'paid_at' => 'datetime',
-    ];
-
-    public function tenant()
+    /**
+     * Relasi ke Plan / Paket yang dibeli
+     */
+    public function plan()
     {
-        return $this->belongsTo(Tenant::class);
+        return $this->belongsTo(Plan::class);
     }
 
+    /**
+     * Relasi ke Subscription (Hanya terisi saat invoice sudah LUNAS)
+     */
     public function subscription()
     {
         return $this->belongsTo(Subscription::class);
+    }
+
+    /**
+     * Relasi ke Tenant
+     */
+    public function tenant()
+    {
+        return $this->belongsTo(Tenant::class);
     }
 }

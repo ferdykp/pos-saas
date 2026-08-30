@@ -38,11 +38,22 @@
                     <span>Laci Unduhan</span>
                 </a>
 
-                <a href="{{ route('reports.export-excel', ['start_date' => $startDate, 'end_date' => $endDate]) }}"
-                    class="h-10 px-4 inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-body font-semibold text-xs rounded-sm shadow-sm transition-colors">
-                    <i class="text-xs fa-solid fa-file-excel"></i>
-                    <span>Export Excel</span>
-                </a>
+                {{-- DILINDUNGI GATE EXPORT EXCEL (Khusus Paket Growth & Scale) --}}
+                @can('feature-crm')
+                    <a href="{{ route('reports.export-excel', ['start_date' => $startDate, 'end_date' => $endDate]) }}"
+                        class="h-10 px-4 inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-body font-semibold text-xs rounded-sm shadow-sm transition-colors">
+                        <i class="text-xs fa-solid fa-file-excel"></i>
+                        <span>Export Excel</span>
+                    </a>
+                @else
+                    <a href="{{ route('billing.index') }}" title="Fitur Export Excel membutuhkan Paket Growth / Scale"
+                        class="h-10 px-3 inline-flex items-center gap-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 font-body font-bold text-xs rounded-sm transition-colors">
+                        <i class="fa-solid fa-lock text-amber-600 text-[10px]"></i>
+                        <span>Export Excel</span>
+                        <span
+                            class="px-1.5 py-0.5 text-[9px] font-extrabold uppercase bg-amber-200 text-amber-900 rounded">GROWTH</span>
+                    </a>
+                @endcan
             </form>
         </div>
 

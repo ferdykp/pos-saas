@@ -125,9 +125,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/subscribe', [SubscriptionController::class, 'subscribe'])->name('subscribe');
         Route::get('/invoices/{invoice}', [SubscriptionController::class, 'showInvoice'])->name('invoice');
         Route::get('/invoices/{invoice}/check-status', [SubscriptionController::class, 'checkStatus'])->name('check-status');
+        Route::post('/invoice/{invoice}/cancel', [SubscriptionController::class, 'cancelInvoice'])->name('invoice.cancel');
     });
 
 
+    // ==========================================
+    // C. CORE OPERATIONAL ROUTES (TERPROTEKSI KETAT)
+    // Wajib: (1) Memiliki Tenant ID & (2) Langganan Aktif
+    // ==========================================
     // ==========================================
     // C. CORE OPERATIONAL ROUTES (TERPROTEKSI KETAT)
     // Wajib: (1) Memiliki Tenant ID & (2) Langganan Aktif
@@ -169,9 +174,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/inventory/history', [InventoryController::class, 'history'])->name('inventory.history');
         Route::resource('stock-movements', StockMovementController::class)->only(['index', 'create', 'store']);
 
-        // --- CRM & CUSTOMERS ---
-        Route::resource('customers', CustomerController::class);
-        Route::post('/customers/api', [CustomerController::class, 'storeApi'])->name('customers.storeApi');
+        // --- CRM & CUSTOMERS (TERPROTEKSI: Khusus Growth & Scale) ---
+        Route::middleware('can:feature-crm')->group(function () {
+            Route::resource('customers', CustomerController::class);
+            Route::post('/customers/api', [CustomerController::class, 'storeApi'])->name('customers.storeApi');
+        });
 
         // --- DISCOUNTS & PROMOS ---
         Route::resource('discounts', DiscountController::class);
@@ -203,10 +210,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/reports/exports/download/{id}', [ReportController::class, 'downloadFile'])->name('reports.download-file');
         Route::get('/reports/exports/status-json', [ReportController::class, 'getExportsStatusJson'])->name('reports.exports-status-json');
 
-        // --- AI ADVISOR ENGINE & CHAT REAL-TIME ---
-        Route::get('/reports/ai-analysis', [AiReportController::class, 'index'])->name('reports.ai');
-        Route::post('/reports/ai-chat', [AiReportController::class, 'chat'])->name('reports.ai-chat');
-        Route::get('/api/pos/recommendation', [PosApiController::class, 'getRecommendation'])->name('api.pos.recommendation');
+        // --- AI ADVISOR ENGINE & CHAT REAL-TIME (TERPROTEKSI: Khusus Scale) ---
+        Route::middleware('can:feature-ai-analytics')->group(function () {
+            Route::get('/reports/ai-analysis', [AiReportController::class, 'index'])->name('reports.ai');
+            Route::post('/reports/ai-chat', [AiReportController::class, 'chat'])->name('reports.ai-chat');
+            Route::get('/api/pos/recommendation', [PosApiController::class, 'getRecommendation'])->name('api.pos.recommendation');
+        });
 
         // --- AUDIT TRAIL ACTIVITY LOG ---
         Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');

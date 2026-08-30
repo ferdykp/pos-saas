@@ -3,7 +3,7 @@
     class="fixed z-50 w-full transition-all duration-300">
     <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
         <div class="flex justify-between h-20">
-            <div class="flex items-center">
+            <div class="flex items-center gap-3">
                 <a href="/" class="flex items-center space-x-2">
                     <div
                         class="flex items-center justify-center w-10 h-10 bg-blue-600 shadow-lg rounded-xl shadow-blue-200">
@@ -17,6 +17,18 @@
                         POS<span class="text-blue-600">SaaS</span>
                     </span>
                 </a>
+
+                <!-- Badge Paket Langganan Aktif -->
+                @auth
+                    @php
+                        $activePlan = auth()->user()->tenant?->currentPlan();
+                    @endphp
+                    <a href="{{ route('billing.index') }}" title="Kelola Paket Langganan"
+                        class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-300 hover:bg-amber-200 transition">
+                        <i class="fa-solid fa-crown text-amber-600"></i>
+                        <span>Paket {{ $activePlan?->name ?? 'Starter' }}</span>
+                    </a>
+                @endauth
             </div>
 
             <div class="items-center hidden space-x-8 md:flex">

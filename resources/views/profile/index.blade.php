@@ -3,6 +3,27 @@
 
     <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-desktop">
 
+        @php
+            $tenant = auth()->user()->tenant;
+            $currentSubscription = $tenant
+                ? $tenant
+                    ->subscriptions()
+                    ->where('status', 'active')
+                    ->where('end_date', '>=', now())
+                    ->latest('id')
+                    ->first()
+                : null;
+
+            $currentPlan = $currentSubscription?->plan ?? $tenant?->currentPlan();
+            $maxOutlets = $currentPlan?->max_outlets ?? 1;
+            $ownedTenantsCount = auth()->user()->tenants()->count();
+
+            // Perhitungan Sisa Hari Integer Presisi (Tanpa Koma)
+            $remainingDays = $currentSubscription
+                ? (int) ceil(now()->diffInHours(\Carbon\Carbon::parse($currentSubscription->end_date)) / 24)
+                : 0;
+        @endphp
+
         <!-- Banner Header Profil Utama -->
         <div class="relative mb-8 overflow-hidden border rounded-lg shadow-sm bg-surface-0 border-border-200">
             <div class="h-28 bg-primary-600"></div>
@@ -23,11 +44,17 @@
                         <p class="font-mono text-xs text-ink-400 mt-0.5">
                             {{ auth()->user()->email }}
                         </p>
-                        <div class="flex items-center justify-center mt-2 sm:justify-start">
+                        <div class="flex items-center justify-center gap-2 mt-2 sm:justify-start">
                             <span
                                 class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary-100 text-primary-700">
                                 <span class="w-1.5 h-1.5 rounded-full bg-primary-600"></span>
                                 Akun Terverifikasi
+                            </span>
+
+                            <span
+                                class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-300">
+                                <i class="fa-solid fa-crown text-amber-600 text-[10px]"></i>
+                                Paket {{ $currentPlan?->name ?? 'Starter' }}
                             </span>
                         </div>
                     </div>
@@ -43,10 +70,54 @@
             </div>
         </div>
 
-        <!-- 2 Column Overview Grid -->
-        <div class="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2">
+        <!-- 3 Column Overview Grid -->
+        <div class="grid grid-cols-1 gap-6 mb-8 md:grid-cols-3">
 
-            <!-- Card 1: Bisnis Aktif -->
+            <!-- Card 1: Status Berlangganan (SaaS Status & Sisa Hari Integer) -->
+            <div class="flex flex-col justify-between p-6 border rounded-lg shadow-sm bg-surface-0 border-border-200">
+                <div>
+                    <div class="flex items-center justify-between pb-4 mb-4 border-b border-border-200">
+                        <h3 class="text-base font-semibold font-heading text-ink-900">Paket Langganan</h3>
+                        <div
+                            class="flex items-center justify-center w-8 h-8 text-xs rounded-md bg-amber-50 text-amber-600">
+                            <i class="fa-solid fa-crown"></i>
+                        </div>
+                    </div>
+
+                    @if ($currentSubscription && $remainingDays > 0)
+                        <div class="p-4 space-y-2 border rounded-md bg-emerald-50/50 border-emerald-200">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold tracking-wider uppercase text-emerald-900">
+                                    {{ $currentPlan?->name ?? 'Pro Plan' }}
+                                </span>
+                                <span
+                                    class="px-2 py-0.5 text-[10px] font-extrabold bg-emerald-100 text-emerald-800 rounded-full">
+                                    Aktif
+                                </span>
+                            </div>
+                            <p class="text-xs text-ink-700">
+                                Masa berlaku hingga:
+                                <strong>{{ \Carbon\Carbon::parse($currentSubscription->end_date)->translatedFormat('d M Y') }}</strong>
+                            </p>
+                        </div>
+                    @else
+                        <div class="p-4 space-y-1 border rounded-md bg-rose-50 border-rose-200">
+                            <span class="text-xs font-bold uppercase text-rose-900">Starter / Non-Aktif</span>
+                            <p class="text-xs text-rose-700">Fitur terbatas pada kuota gratis.</p>
+                        </div>
+                    @endif
+                </div>
+
+                <div class="flex items-center justify-between pt-4 mt-6 text-xs border-t border-border-200 font-body">
+                    <span class="text-ink-700">Masa Aktif Tersisa:</span>
+                    <span
+                        class="font-mono font-bold {{ $remainingDays <= 5 ? 'text-semantic-danger' : 'text-primary-600' }}">
+                        {{ $remainingDays }} Hari
+                    </span>
+                </div>
+            </div>
+
+            <!-- Card 2: Bisnis Aktif & Kuota Cabang -->
             <div class="flex flex-col justify-between p-6 border rounded-lg shadow-sm bg-surface-0 border-border-200">
                 <div>
                     <div class="flex items-center justify-between pb-4 mb-4 border-b border-border-200">
@@ -78,13 +149,14 @@
                 </div>
 
                 <div class="flex items-center justify-between pt-4 mt-6 text-xs border-t border-border-200 font-body">
-                    <span class="text-ink-700">Total Unit Bisnis Terdaftar:</span>
-                    <span class="font-mono font-semibold text-ink-900">{{ auth()->user()->tenants->count() }}
-                        Outlet</span>
+                    <span class="text-ink-700">Penggunaan Outlet:</span>
+                    <span class="font-mono font-semibold text-ink-900">
+                        {{ $ownedTenantsCount }} / {{ $maxOutlets }} Kuota Cabang
+                    </span>
                 </div>
             </div>
 
-            <!-- Card 2: Keamanan Akun -->
+            <!-- Card 3: Keamanan Akun -->
             <div class="flex flex-col justify-between p-6 border rounded-lg shadow-sm bg-surface-0 border-border-200">
                 <div>
                     <div class="flex items-center justify-between pb-4 mb-4 border-b border-border-200">
@@ -122,7 +194,7 @@
                 </div>
 
                 <div class="pt-4 mt-6 border-t border-border-200 font-mono text-[11px] text-ink-400">
-                    Aktivitas Sesi: {{ now()->diffForHumans() }} (WIB)
+                    Aktivitas Sesi: Sesi Aktif (WIB)
                 </div>
             </div>
 
@@ -130,6 +202,15 @@
 
         <!-- Quick Nav Buttons Grid -->
         <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <a href="{{ route('billing.index') }}"
+                class="p-4 text-center transition-colors border rounded-lg shadow-sm bg-surface-0 border-border-200 hover:border-amber-500 group">
+                <p
+                    class="font-heading text-[11px] font-semibold text-ink-400 group-hover:text-amber-600 uppercase tracking-wider">
+                    Langganan
+                </p>
+                <p class="mt-1 text-sm font-semibold font-heading text-ink-900">Billing & Upgrade</p>
+            </a>
+
             <a href="{{ route('profile.edit') }}"
                 class="p-4 text-center transition-colors border rounded-lg shadow-sm bg-surface-0 border-border-200 hover:border-primary-600 group">
                 <p
@@ -137,6 +218,15 @@
                     Kelola
                 </p>
                 <p class="mt-1 text-sm font-semibold font-heading text-ink-900">Tenant & Outlet</p>
+            </a>
+
+            <a href="{{ route('tenants.index') }}"
+                class="p-4 text-center transition-colors border rounded-lg shadow-sm bg-surface-0 border-border-200 hover:border-primary-600 group">
+                <p
+                    class="font-heading text-[11px] font-semibold text-ink-400 group-hover:text-primary-600 uppercase tracking-wider">
+                    Daftar
+                </p>
+                <p class="mt-1 text-sm font-semibold font-heading text-ink-900">Manajemen Toko</p>
             </a>
 
             <div
