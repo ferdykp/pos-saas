@@ -4,8 +4,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Support\BusinessProfile;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Tenant extends Model
 {
@@ -14,7 +15,8 @@ class Tenant extends Model
     protected $fillable = [
         'user_id',
         'name',
-        'business_type', // <-- Pastikan ini ada!
+        'business_type',
+        'business_modules',
         'slug',
         'email',
         'phone',
@@ -22,6 +24,28 @@ class Tenant extends Model
         'img_logo',
         'status',
     ];
+
+    protected $casts = ['business_modules' => 'array'];
+
+    public function businessType(): string
+    {
+        return BusinessProfile::normalize($this->business_type);
+    }
+
+    public function businessModules(): array
+    {
+        return $this->business_modules ?? BusinessProfile::defaults($this->businessType());
+    }
+
+    public function hasBusinessModule(string $module): bool
+    {
+        return in_array($module, $this->businessModules(), true);
+    }
+
+    public function catalogLabel(): string
+    {
+        return BusinessProfile::catalog($this->businessType());
+    }
 
     public function users()
     {
@@ -61,6 +85,7 @@ class Tenant extends Model
     public function getSetting($key, $default = null)
     {
         $setting = $this->settings()->where('key', $key)->first();
+
         return $setting ? $setting->value : $default;
     }
 
@@ -90,7 +115,7 @@ class Tenant extends Model
         $plan = $this->currentPlan();
 
         // Jika tidak memiliki paket aktif sama sekali, anggap terblokir
-        if (!$plan) {
+        if (! $plan) {
             return true;
         }
 

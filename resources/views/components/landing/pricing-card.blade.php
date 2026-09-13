@@ -6,6 +6,7 @@
     'period',
     'cta',
     'features' => [],
+    'capacity' => null,
     'popular' => false,
     'actionUrl' => null,
 ])
@@ -18,7 +19,7 @@
     @if ($popular)
         <div
             class="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary-600 text-white text-body-sm font-bold px-4 py-1.5 rounded-full tracking-wider uppercase whitespace-nowrap">
-            Paling Populer
+            Untuk usaha berkembang
         </div>
     @endif
 
@@ -29,12 +30,13 @@
             <span class="text-h2">{{ $price }}</span>
             <span class="font-normal text-body-sm text-ink-400">/{{ $period }}</span>
         </div>
+        @if($capacity)<p class="gp-muted">{{ $capacity }}</p>@endif
         <ul class="pt-2 space-y-3 text-body-sm text-ink-700">
             @foreach ($features as $feature => $included)
                 <li class="flex items-center gap-3 {{ !$included ? 'text-ink-400' : '' }}">
                     <i
                         class="text-lg fa-regular {{ $included ? 'fa-circle-check text-primary-600' : 'fa-circle-xmark' }}"></i>
-                    <span>{{ $feature }}</span>
+                    <span>{{ is_int($feature) ? $included : $feature }}</span>
                 </li>
             @endforeach
         </ul>
@@ -65,7 +67,7 @@
         @endif
     @else
         {{-- Redirect ke Halaman Register/Login jika Belum Auth --}}
-        <a href="{{ route('login') }}" @class([
+        <a href="{{ route('register') }}" @class([
             'w-full py-3 rounded-md font-bold text-body-sm transition text-center block mt-6',
             'bg-primary-600 text-white hover:bg-primary-900 shadow-md' => $popular,
             'border-2 border-primary-600 text-primary-600 hover:bg-primary-600 hover:text-white' => !$popular,

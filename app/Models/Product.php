@@ -4,16 +4,17 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Models\Concerns\BelongsToTenant;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Product extends Model
 {
-    use HasFactory, BelongsToTenant;
+    use BelongsToTenant, HasFactory;
 
     protected $fillable = [
+        'requires_preparation',
         'tenant_id',
         'category_id',
         'sku',
@@ -24,6 +25,7 @@ class Product extends Model
         'cost_price',
         'sell_price',
         'stock',
+        'manage_stock',
         'min_stock',
         'desc',
         'is_active',
@@ -31,6 +33,8 @@ class Product extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'requires_preparation' => 'boolean',
+        'manage_stock' => 'boolean',
     ];
 
     // protected static function booted()
@@ -81,9 +85,20 @@ class Product extends Model
     {
         return $this->hasOne(Inventory::class);
     }
+
     public function discounts(): BelongsToMany
     {
         // Parameter kedua adalah nama tabel pivot yang kita buat di migration
         return $this->belongsToMany(Discount::class, 'discount_product');
+    }
+
+    public function addons()
+    {
+        return $this->hasMany(ProductAddon::class);
+    }
+
+    public function materials()
+    {
+        return $this->belongsToMany(Material::class, 'product_material')->withPivot('quantity');
     }
 }

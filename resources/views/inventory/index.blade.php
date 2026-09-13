@@ -30,15 +30,20 @@
                             <td class="px-6 py-4">
                                 <p class="text-sm font-bold text-gray-900">{{ $product->product_name }}</p>
                                 <p class="text-xs text-gray-400">SKU: {{ $product->sku }}</p>
+                                @foreach($product->variants as $variant)
+                                    <div class="mt-2 text-sm">{{ $variant->name }}: {{ $variant->stock }}
+                                        <button type="button" class="text-blue-700 underline" data-product-id="{{ $product->id }}" data-product-name="{{ $product->product_name }} / {{ $variant->name }}" data-variant-id="{{ $variant->id }}" onclick="openModal(this.dataset.productId, this.dataset.productName, this.dataset.variantId)">Ubah stok varian</button>
+                                    </div>
+                                @endforeach
                             </td>
                             <td class="px-6 py-4 text-center">
                                 <span
-                                    class="text-lg font-black {{ ($product->inventory->quantity ?? 0) <= $product->min_stock ? 'text-red-600' : 'text-gray-900' }}">
-                                    {{ $product->inventory->quantity ?? 0 }}
+                                    class="text-lg font-black {{ $product->stock <= $product->min_stock ? 'text-red-600' : 'text-gray-900' }}">
+                                    {{ $product->stock }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-center">
-                                @if (($product->inventory->quantity ?? 0) <= $product->min_stock)
+                                @if ($product->stock <= $product->min_stock)
                                     <span
                                         class="px-3 py-1 bg-red-100 text-red-600 rounded-lg text-[10px] font-black uppercase">Stok
                                         Menipis</span>
@@ -48,7 +53,7 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 text-right">
-                                <button onclick="openModal('{{ $product->id }}', '{{ $product->product_name }}')"
+                                <button data-product-id="{{ $product->id }}" data-product-name="{{ $product->product_name }}" onclick="openModal(this.dataset.productId, this.dataset.productName)"
                                     class="text-sm font-bold text-blue-600 hover:underline">
                                     Update Stok
                                 </button>
@@ -58,6 +63,7 @@
                 </tbody>
             </table>
         </div>
+        <div class="mt-4">{{ $products->links() }}</div>
     </div>
 
     <div id="stockModal"
@@ -67,6 +73,7 @@
             <form action="{{ route('inventory.adjust') }}" method="POST">
                 @csrf
                 <input type="hidden" name="product_id" id="modalProductId">
+                <input type="hidden" name="variant_id" id="modalVariantId">
 
                 <div class="space-y-4">
                     <div>
@@ -75,17 +82,17 @@
                             class="w-full px-4 py-3 font-bold border-gray-100 rounded-2xl bg-gray-50 focus:border-blue-500">
                             <option value="stock_in">Stok Masuk (+)</option>
                             <option value="stock_out">Stok Keluar (-)</option>
-                            <option value="adjustment">Penyesuaian (Minus)</option>
+                            <option value="adjustment">Hitung fisik (jumlah stok akhir)</option>
                         </select>
                     </div>
                     <div>
                         <label class="block mb-2 text-xs font-black text-gray-400 uppercase">Jumlah</label>
-                        <input type="number" name="quantity" required min="1"
+                        <input type="number" name="quantity" required min="0"
                             class="w-full px-4 py-3 font-bold border-gray-100 rounded-2xl bg-gray-50 focus:border-blue-500">
                     </div>
                     <div>
                         <label class="block mb-2 text-xs font-black text-gray-400 uppercase">Catatan</label>
-                        <textarea name="note" class="w-full px-4 py-3 text-sm border-gray-100 rounded-2xl bg-gray-50 focus:border-blue-500"
+                        <textarea name="note" required maxlength="255" class="w-full px-4 py-3 text-sm border-gray-100 rounded-2xl bg-gray-50 focus:border-blue-500"
                             placeholder="Contoh: Restock bulanan atau barang rusak"></textarea>
                     </div>
                 </div>
@@ -101,7 +108,8 @@
     </div>
 
     <script>
-        function openModal(id, name) {
+        function openModal(id, name, variantId = '') {
+            document.getElementById('modalVariantId').value = variantId;
             document.getElementById('modalProductId').value = id;
             document.getElementById('modalTitle').innerText = 'Update: ' + name;
             document.getElementById('stockModal').classList.remove('hidden');

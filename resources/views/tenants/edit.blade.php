@@ -75,26 +75,10 @@
                         </label>
                         <select name="business_type" required
                             class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600 focus:ring-2 focus:ring-primary-100">
-                            <option value="F&B / Resto / Cafe"
-                                {{ $tenant->business_type == 'F&B / Resto / Cafe' ? 'selected' : '' }}>
-                                Makanan & Minuman (F&B / Kafe / Resto)
-                            </option>
-                            <option value="Retail / Toko Pakaian"
-                                {{ $tenant->business_type == 'Retail / Toko Pakaian' ? 'selected' : '' }}>
-                                Retail (Toko Pakaian, Sepatu, Aksesoris)
-                            </option>
-                            <option value="Minimarket / Sembako"
-                                {{ $tenant->business_type == 'Minimarket / Sembako' ? 'selected' : '' }}>
-                                Minimarket / Kelontong / Toko Sembako
-                            </option>
-                            <option value="Jasa / Service"
-                                {{ $tenant->business_type == 'Jasa / Service' ? 'selected' : '' }}>
-                                Penyedia Jasa (Laundry, Salon, Barbershop)
-                            </option>
-                            <option value="Lainnya" {{ $tenant->business_type == 'Lainnya' ? 'selected' : '' }}>
-                                Lainnya
-                            </option>
-                        </select>
+                            @foreach(\App\Support\BusinessProfile::TYPES as $value => $label)
+<option value="{{ $value }}" @selected(old('business_type', $tenant->businessType()) === $value)>{{ $label }}</option>
+@endforeach
+</select>
                     </div>
 
                     <!-- Email & Phone Grid -->

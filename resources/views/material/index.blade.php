@@ -277,7 +277,7 @@
                         class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                         <option value="stock_in">Barang Masuk / Restock (+)</option>
                         <option value="stock_out">Barang Keluar / Pemakaian (-)</option>
-                        <option value="adjustment">Penyesuaian / Rusak / Expired (-)</option>
+                        <option value="adjustment">Hitung fisik (jumlah stok akhir)</option>
                     </select>
                 </div>
 
@@ -307,13 +307,13 @@
                         <label class="text-xs font-semibold font-body text-ink-900">Jumlah Qty Mutasi</label>
                         <span id="displayUnit" class="font-mono text-xs font-semibold text-primary-600"></span>
                     </div>
-                    <input type="number" name="quantity" required min="1" placeholder="0"
+                    <input type="number" name="quantity" required min="0" placeholder="0"
                         class="w-full px-3 font-mono text-sm font-bold transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                 </div>
 
                 <div>
                     <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Catatan Mutasi</label>
-                    <textarea name="note" rows="2" placeholder="Contoh: Restock mingguan pasar atau kemasan bocor"
+                    <textarea name="note" required maxlength="255" rows="2" placeholder="Contoh: Restock mingguan pasar atau kemasan bocor"
                         class="w-full p-3 text-xs transition-all border rounded-sm outline-none font-body text-ink-900 placeholder-ink-400 bg-surface-0 border-border-200 focus:border-primary-600"></textarea>
                 </div>
 

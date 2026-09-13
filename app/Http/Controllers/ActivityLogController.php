@@ -12,6 +12,6 @@ class ActivityLogController extends Controller
     {
         return ActivityLog::with('user')
             ->latest()
-            ->get();
+            ->paginate(30);
     }
 }

@@ -4,22 +4,27 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class OrderItem extends Model
 {
     use HasFactory;
 
     protected $fillable = [
+        'requires_preparation', 'discount_amount',
         'order_id',
         'product_id',
         'variant_id',
         'product_name',
         'quantity',
+        'reserved_stock',
+        'note', 'addons', 'reserved_materials', 'unit_cost',
         'price',
         'subtotal',
     ];
+
+    protected $casts = ['requires_preparation' => 'boolean', 'addons' => 'array', 'reserved_materials' => 'array'];
 
     public function order()
     {

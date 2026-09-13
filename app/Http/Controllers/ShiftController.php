@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Shift;
-use App\Models\Order;
+use App\Models\Tenant;
+use App\Services\CashLedger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class ShiftController extends Controller
 {
@@ -17,7 +18,7 @@ class ShiftController extends Controller
         // Filter Nama Staf / Kasir
         if ($request->filled('search')) {
             $query->whereHas('user', function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%');
+                $q->where('name', 'like', '%'.$request->search.'%');
             });
         }
 
@@ -37,133 +38,67 @@ class ShiftController extends Controller
         return view('shifts.index', compact('shifts'));
     }
 
-    // Helper untuk mengambil shift aktif kasir yang sedang login
-    private function getActiveShift()
+    private function activeShift(bool $lock = false): ?Shift
     {
-        $shiftId = session('active_shift_id');
+        $query = Shift::where('tenant_id', Auth::user()->tenant_id)
+            ->where('user_id', Auth::id())->where('status', 'open')->orderBy('id');
 
-        if ($shiftId) {
-            $shift = Shift::where('tenant_id', Auth::user()->tenant_id)
-                ->where('id', $shiftId)
-                ->where('status', 'open')
-                ->first();
-            if ($shift) return $shift;
-        }
-
-        // Fallback jika session terhapus/expired: Cari shift open di DB
-        return Shift::where('tenant_id', Auth::user()->tenant_id)
-            ->where('user_id', Auth::id())
-            ->where('status', 'open')
-            ->first();
+        return ($lock ? $query->lockForUpdate() : $query)->first();
     }
 
-    // Buka Shift Baru
+    private function cashSales(Shift $shift): float
+    {
+        return app(CashLedger::class)->net($shift);
+    }
+
+    public function current()
+    {
+        return response()->json(['success' => true, 'shift' => $this->activeShift()]);
+    }
+
     public function open(Request $request)
     {
-        $request->validate([
-            'cash_start' => 'required|numeric|min:0',
-        ]);
+        $data = $request->validate(['cash_start' => 'required|numeric|min:0|max:9999999999']);
 
-        // Cek apakah ada shift yang masih open untuk user ini
-        $activeShift = $this->getActiveShift();
+        return DB::transaction(function () use ($data) {
+            // Lock a stable row even when no open shift exists yet.
+            Tenant::lockForUpdate()->findOrFail(Auth::user()->tenant_id);
+            if ($this->activeShift(true)) {
+                return response()->json(['success' => false, 'message' => 'Anda masih memiliki shift aktif.'], 422);
+            }
+            $shift = Shift::create(['tenant_id' => Auth::user()->tenant_id, 'user_id' => Auth::id(), 'start_time' => now(), 'cash_start' => $data['cash_start'], 'cash_expected' => $data['cash_start'], 'status' => 'open']);
+            session(['active_shift_id' => $shift->id]);
 
-        if ($activeShift) {
-            return response()->json(['success' => false, 'message' => 'Anda masih memiliki shift yang aktif!']);
-        }
-
-        $shift = Shift::create([
-            'tenant_id' => Auth::user()->tenant_id,
-            'user_id' => Auth::id(),
-            'start_time' => Carbon::now(),
-            'cash_start' => $request->cash_start,
-            'cash_expected' => $request->cash_start,
-            'status' => 'open'
-        ]);
-
-        // Simpan ID shift ke dalam session kasir
-        session(['active_shift_id' => $shift->id]);
-
-        return response()->json(['success' => true, 'message' => 'Shift berhasil dibuka!']);
+            return response()->json(['success' => true, 'message' => 'Shift berhasil dibuka!']);
+        });
     }
 
-    // Mendapatkan summary berjalan sebelum tutup shift (Dipanggil via AJAX)
     public function summary()
     {
-        $shift = $this->getActiveShift();
-
-        if (!$shift) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Tidak ada shift aktif yang ditemukan. Silakan buka shift terlebih dahulu.'
-            ], 404);
+        $shift = $this->activeShift();
+        if (! $shift) {
+            return response()->json(['success' => false, 'message' => 'Tidak ada shift aktif.'], 404);
         }
+        $sales = $this->cashSales($shift);
 
-        // Refresh session jika sempat hilang
-        session(['active_shift_id' => $shift->id]);
-
-        // Hitung total penjualan tunai (cash) selama shift ini berlangsung
-        // Bisa dihitung berdasarkan shift_id OR rentang waktu jika order belum mencatat shift_id
-        $totalCashSales = Order::where('tenant_id', Auth::user()->tenant_id)
-            ->where(function ($query) use ($shift) {
-                $query->where('shift_id', $shift->id)
-                    ->orWhereBetween('created_at', [$shift->start_time, now()]);
-            })
-            ->where('payment_method', 'cash')
-            ->where('payment_status', 'paid')
-            ->sum('grand_total');
-
-        $cashExpected = $shift->cash_start + $totalCashSales;
-
-        return response()->json([
-            'success' => true,
-            'cash_start' => (float) $shift->cash_start,
-            'cash_sales' => (float) $totalCashSales,
-            'cash_expected' => (float) $cashExpected
-        ]);
+        return response()->json(['success' => true, 'cash_start' => (float) $shift->cash_start, 'cash_sales' => $sales, 'cash_expected' => $shift->cash_start + $sales]);
     }
 
-    // Tutup Shift
     public function close(Request $request)
     {
-        $request->validate([
-            'cash_actual' => 'required|numeric|min:0',
-            'notes' => 'nullable|string'
-        ]);
+        $data = $request->validate(['cash_actual' => 'required|numeric|min:0|max:9999999999', 'notes' => 'nullable|string|max:2000']);
 
-        $shift = $this->getActiveShift();
+        return DB::transaction(function () use ($data) {
+            Tenant::lockForUpdate()->findOrFail(Auth::user()->tenant_id);
+            $shift = $this->activeShift(true);
+            if (! $shift) {
+                return response()->json(['success' => false, 'message' => 'Tidak ada shift aktif.'], 404);
+            }
+            $expected = $shift->cash_start + $this->cashSales($shift);
+            $shift->update(['end_time' => now(), 'cash_expected' => $expected, 'cash_actual' => $data['cash_actual'], 'cash_difference' => $data['cash_actual'] - $expected, 'status' => 'closed', 'notes' => $data['notes'] ?? null]);
+            session()->forget('active_shift_id');
 
-        if (!$shift) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menutup shift: Tidak ada shift aktif!'
-            ], 404);
-        }
-
-        $totalCashSales = Order::where('tenant_id', Auth::user()->tenant_id)
-            ->where(function ($query) use ($shift) {
-                $query->where('shift_id', $shift->id)
-                    ->orWhereBetween('created_at', [$shift->start_time, now()]);
-            })
-            ->where('payment_method', 'cash')
-            ->where('payment_status', 'paid')
-            ->sum('grand_total');
-
-        $cashExpected = $shift->cash_start + $totalCashSales;
-        $cashActual = $request->cash_actual;
-        $difference = $cashActual - $cashExpected;
-
-        $shift->update([
-            'end_time' => Carbon::now(),
-            'cash_expected' => $cashExpected,
-            'cash_actual' => $cashActual,
-            'cash_difference' => $difference,
-            'status' => 'closed',
-            'notes' => $request->notes
-        ]);
-
-        // Hapus session shift aktif
-        session()->forget('active_shift_id');
-
-        return response()->json(['success' => true, 'message' => 'Shift berhasil ditutup!']);
+            return response()->json(['success' => true, 'message' => 'Shift berhasil ditutup!']);
+        });
     }
 }

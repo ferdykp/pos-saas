@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
+use App\Models\Order;
+use App\Models\Shift;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,19 +30,19 @@ class EmployeeController extends Controller
         $tenant = auth()->user()->tenant;
         $plan = $tenant?->currentPlan();
 
-        if (!$plan) {
+        if (! $plan) {
             return back()->with('error', 'Masa langganan Anda telah habis.');
         }
 
         // Hitung total staf/karyawan yang sudah didaftarkan
-        $currentEmployeeCount = \App\Models\User::where('tenant_id', $tenant->id)->count();
+        $currentEmployeeCount = User::where('tenant_id', $tenant->id)->count();
 
         if ($currentEmployeeCount >= $plan->max_users) {
             return back()->with('error', "Gagal menambah staf! Paket {$plan->name} dibatasi maksimal {$plan->max_users} pengguna/kasir. Upgrade paket Anda di menu Billing untuk menambah tim.");
         }
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'role' => ['required', 'in:admin,manager,kasir'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
@@ -65,7 +68,11 @@ class EmployeeController extends Controller
             return redirect()->route('employees.index')->with('error', 'Anda tidak bisa menghapus akun Anda sendiri.');
         }
 
+        if (Order::where('user_id', $employee->id)->exists() || Shift::where('user_id', $employee->id)->exists() || ActivityLog::where('user_id', $employee->id)->exists()) {
+            return back()->withErrors(['employee' => 'Pegawai memiliki riwayat operasional dan tidak dapat dihapus.']);
+        }
         $employee->delete();
+
         return redirect()->route('employees.index')->with('success', 'Akun pegawai berhasil dihapus.');
     }
 }

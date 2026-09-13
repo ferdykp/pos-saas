@@ -3,87 +3,68 @@
 namespace App\Http\Controllers;
 
 use App\Models\Setting;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class SettingController extends Controller
 {
     public function index()
     {
-        // Ambil semua setting untuk tenant ini dan ubah jadi key-value pair
-        $settings = Setting::where('tenant_id', auth()->user()->tenant_id)
-            ->pluck('value', 'key');
+        $settings = Setting::where('tenant_id', auth()->user()->tenant_id)->pluck('value', 'key');
 
         return view('settings.index', compact('settings'));
     }
 
-    // public function store(Request $request)
-    // {
-    //     $data = $request->except('_token');
-
-    //     // Pastikan tax_active tetap tersimpan sebagai 0 jika tidak dicentang
-    //     if (!$request->has('tax_active')) {
-    //         $data['tax_active'] = '0';
-    //     }
-
-    //     foreach ($data as $key => $value) {
-    //         Setting::updateOrCreate(
-    //             ['tenant_id' => auth()->user()->tenant_id, 'key' => $key],
-    //             ['value' => $value]
-    //         );
-    //     }
-
-    //     return back()->with('success', 'Pengaturan berhasil disimpan');
-    // }
     public function store(Request $request)
     {
-        $data = $request->except('_token');
-
-        // Pastikan tax_active tetap tersimpan sebagai 0 jika tidak dicentang
-        if (!$request->has('tax_active')) {
-            $data['tax_active'] = '0';
+        $data = $request->validate([
+            'tax_active' => 'sometimes|boolean',
+            'tax_percentage' => 'required|numeric|min:0|max:100',
+            ...$this->pointRules(),
+        ]);
+        $data['tax_active'] = $request->boolean('tax_active') ? '1' : '0';
+        if (isset($data['point_mode'])) {
+            Gate::authorize('feature-crm');
+            $data = $this->normalizePoints($request, $data);
         }
+        $this->save($request, $data);
 
-        // FIX: Pastikan point_member_only tetap tersimpan sebagai 0 jika tidak dicentang
-        if (!$request->has('point_member_only')) {
-            $data['point_member_only'] = '0';
-        }
-
-        // Jika point_mode diset ke disabled, otomatis nol-kan nilai aturan agar database bersih
-        if ($request->point_mode === 'disabled') {
-            $data['point_rule_value'] = '0';
-        }
-
-        foreach ($data as $key => $value) {
-            Setting::updateOrCreate(
-                ['tenant_id' => auth()->user()->tenant_id, 'key' => $key],
-                ['value' => $value]
-            );
-        }
-
-        return back()->with('success', 'Semua pengaturan berhasil disimpan');
+        return back()->with('success', 'Pengaturan berhasil disimpan.');
     }
 
     public function updatePoints(Request $request)
     {
-        if (Gate::denies('feature-crm')) {
-            return back()->with('warning', 'Fitur Sistem Poin & Member hanya tersedia pada Paket Growth & Scale.');
-        }
-        $tenantId = auth()->user()->tenant_id;
+        Gate::authorize('feature-crm');
+        $data = $request->validate(['point_mode' => 'required|in:disabled,per_investment,flat,percentage', ...array_diff_key($this->pointRules(), ['point_mode' => true])]);
+        $this->save($request, $this->normalizePoints($request, $data));
 
-        $configs = [
-            'point_mode'         => $request->point_mode,
-            'point_rule_value'   => $request->point_rule_value ?? 0,
-            'point_member_only'  => $request->has('point_member_only') ? '1' : '0',
+        return back()->with('success', 'Pengaturan poin berhasil diperbarui.');
+    }
+
+    private function pointRules(): array
+    {
+        return [
+            'point_mode' => 'sometimes|in:disabled,per_investment,flat,percentage',
+            'point_rule_value' => 'nullable|numeric|min:0|max:1000000000',
+            'point_member_only' => 'sometimes|boolean',
         ];
+    }
 
-        foreach ($configs as $key => $value) {
-            \App\Models\Setting::updateOrCreate(
-                ['tenant_id' => $tenantId, 'key' => $key],
-                ['value' => $value]
-            );
-        }
+    private function normalizePoints(Request $request, array $data): array
+    {
+        $data['point_rule_value'] = $data['point_mode'] === 'disabled' ? 0 : ($data['point_rule_value'] ?? 0);
+        $data['point_member_only'] = $request->boolean('point_member_only') ? '1' : '0';
 
-        return redirect()->back()->with('success', 'Pengaturan poin berhasil diperbarui!');
+        return $data;
+    }
+
+    private function save(Request $request, array $data): void
+    {
+        DB::transaction(function () use ($request, $data) {
+            foreach ($data as $key => $value) {
+                Setting::updateOrCreate(['tenant_id' => $request->user()->tenant_id, 'key' => $key], ['value' => $value]);
+            }
+        });
     }
 }

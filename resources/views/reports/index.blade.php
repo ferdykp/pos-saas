@@ -11,7 +11,7 @@
                     Laporan Operasional
                 </h1>
                 <p class="mt-1 text-xs font-body md:text-sm text-ink-700">
-                    Pantau seluruh performa omzet penjualan, HPP, laba bersih, komisi platform, dan audit laci kasir
+                    Pantau seluruh performa omzet penjualan, HPP, estimasi laba sebelum retur/biaya, komisi platform, dan audit laci kasir
                     secara langsung.
                 </p>
             </div>
@@ -71,6 +71,7 @@
             $marginPercent = $storeNetSales > 0 ? number_format(($calculatedNetProfit / $storeNetSales) * 100, 1) : 0;
         @endphp
 
+        @include('reports.partials.cash-summary')
         <!-- Stat Summary Cards Grid (Ringkasan Keuangan & Laba Bersih) -->
         <div class="grid grid-cols-1 gap-4 mb-8 sm:grid-cols-2 lg:grid-cols-3 md:gap-6">
 
@@ -113,7 +114,7 @@
             <!-- Card 3: Laba Bersih (Net Profit) -->
             <div class="flex flex-col justify-between p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Laba Bersih (Net
+                    <span class="text-xs font-semibold tracking-wider uppercase font-body text-ink-700">Estimasi sebelum retur/biaya (
                         Profit)</span>
                     <div
                         class="flex items-center justify-center w-8 h-8 rounded-md bg-emerald-100 text-emerald-700 shrink-0">

@@ -10,6 +10,10 @@ class EnsureSubscriptionIsActive
 {
     public function handle(Request $request, Closure $next): Response
     {
+        // Historical records remain readable/exportable after subscription expiry.
+        if ($request->isMethod('GET') && $request->routeIs('help', 'orders.index', 'orders.show', 'orders.print', 'reports.index', 'reports.export-excel', 'reports.exports-list', 'reports.download-file', 'reports.exports-status-json', 'menu.export', 'cash.index')) {
+            return $next($request);
+        }
         $user = auth()->user();
 
         if ($user && $user->tenant) {
@@ -22,7 +26,7 @@ class EnsureSubscriptionIsActive
                 ->exists();
 
             // Jika tidak ada paket aktif / sudah habis masa berlakunya
-            if (!$hasActiveSubscription) {
+            if (! $hasActiveSubscription) {
                 // Kecualikan rute billing, setup bisnis, dan logout agar pengguna tetap bisa bayar
                 if ($request->routeIs('billing.*') || $request->routeIs('tenants.*') || $request->is('logout')) {
                     return $next($request);

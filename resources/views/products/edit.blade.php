@@ -88,9 +88,11 @@
                         </select>
                     </div>
 
+                    <label class="gp-field md:col-span-2">Barcode barang (opsional, terpisah dari SKU)
+                        <input name="barcode" maxlength="100" value="{{ old('barcode', $product->barcode) }}" placeholder="Pindai barcode kemasan">
+                    </label>
                     <div class="md:col-span-2">
-                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Kode SKU /
-                            Barcode</label>
+                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Kode SKU</label>
                         <div class="relative">
                             <input type="text" name="sku" id="sku_input" value="{{ old('sku', $product->sku) }}"
                                 required
@@ -135,6 +137,9 @@
                     </div>
 
                     <!-- Manage Stock Toggle Box -->
+                    @if(auth()->user()->tenant->hasBusinessModule('food'))
+                        <label class="block my-4"><input type="checkbox" name="requires_preparation" value="1" @checked(old('requires_preparation', $product->requires_preparation ?? (auth()->user()->tenant->businessType() === 'food')))> Kirim barang ini ke dapur / bar setelah pembayaran</label>
+                    @endif
                     <div id="manage_stock_container"
                         class="p-4 border rounded-md md:col-span-2 bg-surface-100 border-border-200">
                         <div class="flex items-center justify-between">

@@ -17,26 +17,16 @@
 
                 {{-- Headline --}}
                 <h1 class="font-bold leading-tight text-white text-display lg:text-5xl">
-                    Berdayakan UMKM Anda menuju pertumbuhan digital.
+                    Usaha berjalan. Kamu lebih tenang.
                 </h1>
 
                 {{-- Sub-headline --}}
                 <p class="max-w-xl font-normal text-md text-white/90">
-                    Solusi kasir pintar yang didesain khusus untuk lanskap bisnis Indonesia yang dinamis dan berkembang.
+                    Catat penjualan barang dan jasa, kelola persediaan, dan pantau hasil usaha dari satu tempat.
                 </p>
             </div>
 
-            {{-- Testimonial Card --}}
-            <div class="max-w-md p-6 mt-12 border rounded-lg shadow-lg border-white/20 bg-white/10 backdrop-blur-sm">
-                <div class="flex gap-1 mb-4 text-xl text-accent-500">★ ★ ★ ★ ★</div>
-                <blockquote class="mb-4 italic leading-relaxed text-white text-body-lg">
-                    "GrowPOS membantu pencatatan stok kami menjadi jauh lebih akurat dan profesional. Transaksi jadi
-                    lebih cepat!"
-                </blockquote>
-                <p class="font-semibold text-white">
-                    — Budi Santoso, <span class="font-normal opacity-80">Pemilik Warung Sejahtera</span>
-                </p>
-            </div>
+            <div class="max-w-md p-6 mt-12 border rounded-lg border-white/20 bg-white/10"><h2 class="font-semibold text-white">Dari transaksi pertama sampai tutup shift.</h2><p class="mt-3 text-white/80">Kasir untuk pesanan hari ini. Ringkasan untuk keputusan berikutnya.</p></div>
         </div>
 
         {{-- Bagian Kanan (Form Login) --}}

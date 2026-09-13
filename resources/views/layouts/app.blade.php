@@ -93,7 +93,7 @@
     window.addEventListener('offline', () => isOffline = true);" x-show="isOffline" x-cloak
         class="fixed top-0 inset-x-0 z-[110] bg-accent-500 text-white text-xs font-semibold py-2 px-4 text-center flex items-center justify-center gap-2 shadow-sm">
         <i class="fa-solid fa-wifi-slash"></i>
-        <span>Offline — transaksi tetap tersimpan lokal dan akan disinkronkan saat online kembali.</span>
+        <span>Koneksi terputus. Buka layar kasir untuk melihat draft dan antrean transaksi di perangkat ini.</span>
     </div>
 
     <div class="flex h-screen overflow-hidden" x-data="{ sidebarOpen: false, sidebarCollapsed: false }">

@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ExportReportJob;
+use App\Models\Order;
+use App\Models\ReportExport;
+use App\Models\Shift;
+use App\Services\CashPeriodSummary;
+use App\Services\GeminiService;
+// Tambahkan import service AI Anda
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Models\Order;
-use App\Models\Shift;
-use Carbon\Carbon;
-use App\Models\ReportExport;
 use Illuminate\Support\Facades\Storage;
-use App\Exports\OrdersReportExport;
-use Maatwebsite\Excel\Facades\Excel;
-// Tambahkan import service AI Anda
-use App\Services\GeminiService;
+use Carbon\Carbon;
 
 class ReportController extends Controller
 {
@@ -26,29 +26,30 @@ class ReportController extends Controller
 
     public function index(Request $request)
     {
+        $request->validate(['start_date' => 'nullable|date_format:Y-m-d', 'end_date' => 'nullable|date_format:Y-m-d|after_or_equal:start_date']);
         $tenantId = auth()->user()->tenant_id;
         $startDate = $request->start_date ?? now()->startOfMonth()->toDateString();
         $endDate = $request->end_date ?? now()->endOfMonth()->toDateString();
 
         // 1. Query Dasar Order Lunas
         $ordersQuery = Order::where('tenant_id', $tenantId)
-            ->where('payment_status', 'paid')
-            ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+            ->where('payment_status', 'paid')->where('order_status', 'completed')
+            ->whereBetween(DB::raw('COALESCE(sold_at, created_at)'), [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
 
         // 2. Sales Summary (Total Transaksi, Net Sales, Diskon, Pajak)
         $salesSummary = (object) [
-            'total_gross'        => (float) $ordersQuery->sum('subtotal'),
-            'total_discount'     => (float) $ordersQuery->sum('discount'),
-            'total_tax'          => (float) $ordersQuery->sum('tax'),
-            'total_net'          => (float) $ordersQuery->sum('grand_total'),
+            'total_gross' => (float) $ordersQuery->sum('subtotal'),
+            'total_discount' => (float) $ordersQuery->sum('discount'),
+            'total_tax' => (float) $ordersQuery->sum('tax'),
+            'total_net' => (float) $ordersQuery->sum('grand_total'),
             'total_transactions' => $ordersQuery->count(),
         ];
 
         // 3. Breakdown Metode Pembayaran (Cash vs QRIS) -> Solusi Error $paymentMethods
         $paymentMethods = Order::select('payment_method', DB::raw('SUM(grand_total) as total_amount'))
             ->where('tenant_id', $tenantId)
-            ->where('payment_status', 'paid')
-            ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+            ->where('payment_status', 'paid')->where('order_status', 'completed')
+            ->whereBetween(DB::raw('COALESCE(sold_at, created_at)'), [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
             ->groupBy('payment_method')
             ->get();
 
@@ -57,9 +58,9 @@ class ReportController extends Controller
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
             ->leftJoin('products', 'order_items.product_id', '=', 'products.id')
             ->where('orders.tenant_id', $tenantId)
-            ->where('orders.payment_status', 'paid')
-            ->whereBetween('orders.created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
-            ->sum(DB::raw('order_items.quantity * COALESCE(products.cost_price, 0)'));
+            ->where('orders.payment_status', 'paid')->where('orders.order_status', 'completed')
+            ->whereBetween(DB::raw('COALESCE(orders.sold_at, orders.created_at)'), [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+            ->sum(DB::raw('order_items.quantity * COALESCE(order_items.unit_cost, 0)'));
 
         $totalQrisOmzet = $paymentMethods->where('payment_method', '!=', 'cash')->sum('total_amount');
         $totalPlatformFee = ($totalQrisOmzet * 1.5) / 100;
@@ -71,8 +72,8 @@ class ReportController extends Controller
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
             ->select('order_items.product_name', DB::raw('SUM(order_items.quantity) as total_qty'), DB::raw('SUM(order_items.subtotal) as total_sales'))
             ->where('orders.tenant_id', $tenantId)
-            ->where('orders.payment_status', 'paid')
-            ->whereBetween('orders.created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+            ->where('orders.payment_status', 'paid')->where('orders.order_status', 'completed')
+            ->whereBetween(DB::raw('COALESCE(orders.sold_at, orders.created_at)'), [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
             ->groupBy('order_items.product_name')
             ->orderByDesc('total_qty')
             ->limit(5)
@@ -80,17 +81,17 @@ class ReportController extends Controller
 
         // 6. Audit Shift Kasir
         $shifts = Shift::where('tenant_id', $tenantId)
-            ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+            ->whereBetween('start_time', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
             ->with('user')
             ->latest()
             ->get();
 
         // 7. Data Grafik Tren Penjualan
-        $dailySales = Order::select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(grand_total) as total'))
+        $dailySales = Order::select(DB::raw('DATE(COALESCE(sold_at, created_at)) as date'), DB::raw('SUM(grand_total) as total'))
             ->where('tenant_id', $tenantId)
-            ->where('payment_status', 'paid')
-            ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
-            ->groupBy(DB::raw('DATE(created_at)'))
+            ->where('payment_status', 'paid')->where('order_status', 'completed')
+            ->whereBetween(DB::raw('COALESCE(sold_at, created_at)'), [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+            ->groupBy(DB::raw('DATE(COALESCE(sold_at, created_at))'))
             ->orderBy('date', 'asc')
             ->get();
 
@@ -100,7 +101,10 @@ class ReportController extends Controller
         // 8. Tabel Transaksi Lunas dengan Pagination
         $orders = $ordersQuery->with(['customer', 'user'])->latest()->paginate(15);
 
+        $cashSummary = app(CashPeriodSummary::class)->forTenant($tenantId, Carbon::parse($startDate)->startOfDay(), Carbon::parse($endDate)->endOfDay());
+
         return view('reports.index', compact(
+            'cashSummary',
             'startDate',
             'endDate',
             'salesSummary',
@@ -117,29 +121,31 @@ class ReportController extends Controller
 
     public function exportExcel(Request $request)
     {
+        $request->validate(['start_date' => 'nullable|date_format:Y-m-d', 'end_date' => 'nullable|date_format:Y-m-d|after_or_equal:start_date']);
         $startDate = $request->get('start_date', now()->toDateString());
         $endDate = $request->get('end_date', now()->toDateString());
 
         // Buat data rekam berkas berstatus pending di database
         $reportExport = ReportExport::create([
+            'tenant_id' => auth()->user()->tenant_id,
             'user_id' => auth()->id(),
-            'report_type' => 'Laporan Ringkasan Finansial & AI',
+            'report_type' => 'Laporan Ringkasan Finansial',
             'start_date' => $startDate,
             'end_date' => $endDate,
-            'status' => 'pending'
+            'status' => 'pending',
         ]);
 
         // Kirim ID ke antrean Job
-        \App\Jobs\ExportReportJob::dispatch($startDate, $endDate, $reportExport->id);
+        ExportReportJob::dispatch($startDate, $endDate, $reportExport->id);
 
         // Alihkan langsung ke halaman daftar unduhan laporan
-        return redirect()->route('reports.exports-list')->with('success', 'Permintaan laporan berhasil dibuat dan sedang dianalisis oleh AI di latar belakang.');
+        return redirect()->route('reports.exports-list')->with('success', 'Permintaan laporan berhasil dibuat dan sedang diproses di latar belakang.');
     }
 
     // 2. Tambahkan fungsi baru untuk melihat riwayat daftar unduhan
     public function exportList()
     {
-        $exports = ReportExport::where('user_id', auth()->id())
+        $exports = ReportExport::where('tenant_id', auth()->user()->tenant_id)->where('user_id', auth()->id())
             ->orderBy('id', 'desc')
             ->paginate(10);
 
@@ -149,19 +155,19 @@ class ReportController extends Controller
     // 3. Tambahkan fungsi unduh file fisik dari folder storage aman
     public function downloadFile($id)
     {
-        $export = ReportExport::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
+        $export = ReportExport::where('tenant_id', auth()->user()->tenant_id)->where('id', $id)->where('user_id', auth()->id())->firstOrFail();
 
-        if ($export->status !== 'completed' || !Storage::disk('public')->exists($export->file_path)) {
+        if ($export->status !== 'completed' || ! Storage::disk('local')->exists($export->file_path)) {
             return redirect()->back()->with('error', 'File laporan belum selesai diproses atau tidak ditemukan.');
         }
 
-        return Storage::disk('public')->download($export->file_path);
+        return Storage::disk('local')->download($export->file_path);
     }
 
     public function getExportsStatusJson()
     {
         // Ambil data id, status, dan link download untuk laporan milik user aktif
-        $exports = ReportExport::where('user_id', auth()->id())
+        $exports = ReportExport::where('tenant_id', auth()->user()->tenant_id)->where('user_id', auth()->id())
             ->orderBy('id', 'desc')
             ->take(10) // Cek 10 data teratas saja demi efisiensi performa server
             ->get()
@@ -169,7 +175,7 @@ class ReportController extends Controller
                 return [
                     'id' => $item->id,
                     'status' => $item->status,
-                    'download_url' => route('reports.download-file', $item->id)
+                    'download_url' => route('reports.download-file', $item->id),
                 ];
             });
 

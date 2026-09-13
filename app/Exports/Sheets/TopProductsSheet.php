@@ -4,18 +4,22 @@ namespace App\Exports\Sheets;
 
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithTitle;
 
-class TopProductsSheet implements FromCollection, WithTitle, WithHeadings, WithMapping, ShouldAutoSize
+class TopProductsSheet implements FromCollection, ShouldAutoSize, WithHeadings, WithMapping, WithTitle
 {
+    protected int $tenantId;
+
     protected $startDate;
+
     protected $endDate;
 
-    public function __construct($startDate, $endDate)
+    public function __construct($startDate, $endDate, int $tenantId)
     {
+        $this->tenantId = $tenantId;
         $this->startDate = $startDate;
         $this->endDate = $endDate;
     }
@@ -31,8 +35,8 @@ class TopProductsSheet implements FromCollection, WithTitle, WithHeadings, WithM
         return DB::table('order_items')
             ->join('products', 'order_items.product_id', '=', 'products.id')
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
-            ->whereBetween('orders.created_at', [$this->startDate . ' 00:00:00', $this->endDate . ' 23:59:59'])
-            ->where('orders.payment_status', 'paid')
+            ->where('orders.tenant_id', $this->tenantId)->whereBetween(DB::raw('COALESCE(orders.sold_at, orders.created_at)'), [$this->startDate.' 00:00:00', $this->endDate.' 23:59:59'])
+            ->where('orders.payment_status', 'paid')->where('orders.order_status', 'completed')
             ->groupBy('products.id', 'products.product_name')
             ->orderBy('total_qty', 'desc')
             ->select(
@@ -49,7 +53,7 @@ class TopProductsSheet implements FromCollection, WithTitle, WithHeadings, WithM
         return [
             'Nama Produk',
             'Jumlah Terjual',
-            'Total Omzet Produk'
+            'Total Omzet Produk',
         ];
     }
 
@@ -57,8 +61,8 @@ class TopProductsSheet implements FromCollection, WithTitle, WithHeadings, WithM
     {
         return [
             $row->product_name,
-            $row->total_qty . 'x',
-            'Rp ' . number_format($row->total_sales, 0, ',', '.'),
+            $row->total_qty.'x',
+            'Rp '.number_format($row->total_sales, 0, ',', '.'),
         ];
     }
 }

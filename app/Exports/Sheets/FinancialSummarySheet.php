@@ -5,19 +5,25 @@ namespace App\Exports\Sheets;
 use App\Models\Order;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\FromArray;
-use Maatwebsite\Excel\Concerns\WithTitle;
-use Maatwebsite\Excel\Concerns\WithStyles;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithTitle;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class FinancialSummarySheet implements FromArray, WithTitle, WithStyles, ShouldAutoSize
+class FinancialSummarySheet implements FromArray, ShouldAutoSize, WithStyles, WithTitle
 {
+    protected int $tenantId;
+
     protected $startDate;
+
     protected $endDate;
+
     protected $aiAnalysisText;
 
-    public function __construct($startDate, $endDate, $aiAnalysisText)
+    public function __construct($startDate, $endDate, $aiAnalysisText, int $tenantId)
     {
+        $this->tenantId = $tenantId;
         $this->startDate = $startDate;
         $this->endDate = $endDate;
         $this->aiAnalysisText = $aiAnalysisText;
@@ -31,8 +37,8 @@ class FinancialSummarySheet implements FromArray, WithTitle, WithStyles, ShouldA
     public function array(): array
     {
         // 1. Ambil data finansial dari database
-        $dataData = Order::whereBetween('created_at', [$this->startDate . ' 00:00:00', $this->endDate . ' 23:59:59'])
-            ->where('payment_status', 'paid')
+        $dataData = Order::withoutGlobalScopes()->where('tenant_id', $this->tenantId)->whereBetween(DB::raw('COALESCE(sold_at, created_at)'), [$this->startDate.' 00:00:00', $this->endDate.' 23:59:59'])
+            ->where('payment_status', 'paid')->where('order_status', 'completed')
             ->select(
                 DB::raw('COUNT(id) as total_tx'),
                 DB::raw('SUM(subtotal) as total_gross'),
@@ -55,7 +61,7 @@ class FinancialSummarySheet implements FromArray, WithTitle, WithStyles, ShouldA
 
         foreach ($aiLines as $line) {
             $trimmed = trim($line);
-            if (!empty($trimmed)) {
+            if (! empty($trimmed)) {
                 $output[] = [$trimmed];
             }
         }
@@ -72,17 +78,17 @@ class FinancialSummarySheet implements FromArray, WithTitle, WithStyles, ShouldA
             'Total Transaksi (Nota)',
             'Omzet Kotor (Subtotal)',
             'Total Potongan Diskon',
-            'Pajak Resto Terkumpul',
-            'Pendapatan Bersih (Grand Total)'
+            'Pajak Outlet Terkumpul',
+            'Penjualan Lunas Sebelum Retur (termasuk pajak)',
         ];
 
         if ($dataData) {
             $output[] = [
-                $dataData->total_tx . ' Transaksi',
-                'Rp ' . number_format($dataData->total_gross, 0, ',', '.'),
-                'Rp ' . number_format($dataData->total_discount, 0, ',', '.'),
-                'Rp ' . number_format($dataData->total_tax, 0, ',', '.'),
-                'Rp ' . number_format($dataData->total_net, 0, ',', '.'),
+                $dataData->total_tx.' Transaksi',
+                'Rp '.number_format($dataData->total_gross, 0, ',', '.'),
+                'Rp '.number_format($dataData->total_discount, 0, ',', '.'),
+                'Rp '.number_format($dataData->total_tax, 0, ',', '.'),
+                'Rp '.number_format($dataData->total_net, 0, ',', '.'),
             ];
         } else {
             $output[] = ['0 Transaksi', 'Rp 0', 'Rp 0', 'Rp 0', 'Rp 0'];
@@ -96,7 +102,7 @@ class FinancialSummarySheet implements FromArray, WithTitle, WithStyles, ShouldA
         // --- Styling Bagian AI (Atas) ---
         $sheet->mergeCells('A1:E1');
         $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(12)->getColor()->setARGB('FFFFFF');
-        $sheet->getStyle('A1')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('1E3A8A'); // Navy
+        $sheet->getStyle('A1')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('1E3A8A'); // Navy
 
         $sheet->mergeCells('A2:E2');
         $sheet->getStyle('A2')->getFont()->setItalic(true)->setSize(9)->getColor()->setARGB('6B7280'); // Abu-abu
@@ -113,15 +119,15 @@ class FinancialSummarySheet implements FromArray, WithTitle, WithStyles, ShouldA
         $judulTabelRow = $highestRow - 2;
 
         // Gaya Judul Tabel Operasional
-        $sheet->getStyle('A' . $judulTabelRow)->getFont()->setBold(true)->setSize(11)->getColor()->setARGB('111827');
+        $sheet->getStyle('A'.$judulTabelRow)->getFont()->setBold(true)->setSize(11)->getColor()->setARGB('111827');
 
         // Gaya Header Tabel (Hijau Emerald Mewah)
-        $sheet->getStyle('A' . $headerTabelRow . ':E' . $headerTabelRow)->getFont()->setBold(true)->getColor()->setARGB('FFFFFF');
-        $sheet->getStyle('A' . $headerTabelRow . ':E' . $headerTabelRow)->getFill()
-            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('047857');
+        $sheet->getStyle('A'.$headerTabelRow.':E'.$headerTabelRow)->getFont()->setBold(true)->getColor()->setARGB('FFFFFF');
+        $sheet->getStyle('A'.$headerTabelRow.':E'.$headerTabelRow)->getFill()
+            ->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('047857');
 
         // Gaya Baris Angka Keuangan
-        $sheet->getStyle('A' . $dataTabelRow . ':E' . $dataTabelRow)->getFont()->setBold(true)->getColor()->setARGB('111827');
+        $sheet->getStyle('A'.$dataTabelRow.':E'.$dataTabelRow)->getFont()->setBold(true)->getColor()->setARGB('111827');
 
         // Lebarkan Kolom A agar teks narasi AI memiliki ruang baca yang sangat luas dan nyaman
         $sheet->getColumnDimension('A')->setWidth(85);

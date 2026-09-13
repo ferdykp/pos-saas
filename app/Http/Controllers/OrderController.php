@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -26,6 +27,7 @@ class OrderController extends Controller
     public function print($id)
     {
         $order = Order::with(['items', 'customer', 'user'])->findOrFail($id);
+
         return view('orders.print', compact('order'));
     }
 
@@ -40,8 +42,9 @@ class OrderController extends Controller
         }
 
         $order->load(['customer', 'items.product', 'user']);
+        $returns = DB::table('order_returns')->where('tenant_id', $order->tenant_id)->where('order_id', $order->id)->orderBy('id')->get();
 
-        return view('orders.show', compact('order'));
+        return view('orders.show', compact('order', 'returns'));
         // return view('orders.print', compact('order'));
     }
 }

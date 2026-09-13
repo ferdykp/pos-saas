@@ -4,18 +4,22 @@ namespace App\Exports\Sheets;
 
 use App\Models\Shift;
 use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithTitle;
 
-class ShiftLogsSheet implements FromCollection, WithTitle, WithHeadings, WithMapping, ShouldAutoSize
+class ShiftLogsSheet implements FromCollection, ShouldAutoSize, WithHeadings, WithMapping, WithTitle
 {
+    protected int $tenantId;
+
     protected $startDate;
+
     protected $endDate;
 
-    public function __construct($startDate, $endDate)
+    public function __construct($startDate, $endDate, int $tenantId)
     {
+        $this->tenantId = $tenantId;
         $this->startDate = $startDate;
         $this->endDate = $endDate;
     }
@@ -27,7 +31,7 @@ class ShiftLogsSheet implements FromCollection, WithTitle, WithHeadings, WithMap
 
     public function collection()
     {
-        return Shift::whereBetween('start_time', [$this->startDate . ' 00:00:00', $this->endDate . ' 23:59:59'])
+        return Shift::withoutGlobalScopes()->where('tenant_id', $this->tenantId)->whereBetween('start_time', [$this->startDate.' 00:00:00', $this->endDate.' 23:59:59'])
             ->with('user')
             ->orderBy('id', 'desc')
             ->get();
@@ -42,7 +46,7 @@ class ShiftLogsSheet implements FromCollection, WithTitle, WithHeadings, WithMap
             'Uang Modal Awal',
             'Uang Fisik di Laci',
             'Status',
-            'Catatan Audit'
+            'Catatan Audit',
         ];
     }
 
@@ -52,10 +56,10 @@ class ShiftLogsSheet implements FromCollection, WithTitle, WithHeadings, WithMap
             $row->user->name ?? 'Tidak Diketahui',
             $row->start_time,
             $row->end_time ?? 'Sedang Aktif',
-            'Rp ' . number_format($row->cash_start, 0, ',', '.'),
-            $row->cash_actual ? 'Rp ' . number_format($row->cash_actual, 0, ',', '.') : '-',
+            'Rp '.number_format($row->cash_start, 0, ',', '.'),
+            $row->cash_actual ? 'Rp '.number_format($row->cash_actual, 0, ',', '.') : '-',
             strtoupper($row->status),
-            $row->notes ?? '-'
+            $row->notes ?? '-',
         ];
     }
 }

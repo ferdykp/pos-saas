@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tenant;
+use App\Support\BusinessProfile;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class TenantController extends Controller
 {
@@ -51,43 +52,46 @@ class TenantController extends Controller
         // PROSES SIMPAN TENANT BARU (Kode Bawaan Anda)
         // -------------------------------------------------------------------------
         $request->validate([
-            'name'          => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'business_type' => 'required|string|max:100',
-            'email'         => 'required|email|max:255',
-            'phone'         => 'required|string|max:20',
-            'address'       => 'required|string',
-            'img_logo'      => 'nullable|file|mimes:jpeg,png,jpg,webp|max:2048',
+            'email' => 'required|email|max:255',
+            'phone' => 'required|string|max:20',
+            'address' => 'required|string',
+            'img_logo' => 'nullable|file|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         $logoPath = null;
         if ($request->hasFile('img_logo')) {
             $file = $request->file('img_logo');
-            $fileName = time() . '_' . Str::slug($request->name) . '.' . $file->getClientOriginalExtension();
+            $fileName = time().'_'.Str::slug($request->name).'.'.$file->getClientOriginalExtension();
             $logoPath = $file->storeAs('logos', $fileName, 'public');
         }
 
         $tenant = $currentUser->tenants()->create([
-            'name'          => $request->name,
-            'slug'          => Str::slug($request->name) . '-' . rand(100, 999),
+            'name' => $request->name,
+            'slug' => Str::slug($request->name).'-'.rand(100, 999),
             'business_type' => $request->business_type,
-            'email'         => $request->email,
-            'phone'         => $request->phone,
-            'address'       => $request->address,
-            'img_logo'      => $logoPath,
-            'status'        => 'active',
+            'business_modules' => BusinessProfile::defaults(BusinessProfile::normalize($request->business_type)),
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'address' => $request->address,
+            'img_logo' => $logoPath,
+            'status' => 'active',
         ]);
 
         $currentUser->update([
-            'tenant_id' => $tenant->id
+            'tenant_id' => $tenant->id,
         ]);
 
-        return redirect()->route('tenants.index')->with('success', 'Bisnis berhasil didaftarkan!');
+        return redirect()->route('getting-started')->with('success', 'Bisnis berhasil didaftarkan! Lanjutkan persiapan kedai.');
     }
+
     public function edit(Tenant $tenant)
     {
         if ($tenant->user_id !== auth()->id()) {
             abort(403);
         }
+
         return view('tenants.edit', compact('tenant'));
     }
 
@@ -109,6 +113,9 @@ class TenantController extends Controller
         $data = [
             'name' => $request->name,
             'business_type' => $request->business_type,
+            'business_modules' => $tenant->businessType() === BusinessProfile::normalize($request->business_type)
+                ? $tenant->businessModules()
+                : BusinessProfile::defaults(BusinessProfile::normalize($request->business_type)),
             'email' => $request->email,
             'phone' => $request->phone,
             'address' => $request->address,
@@ -121,7 +128,7 @@ class TenantController extends Controller
             }
 
             $file = $request->file('img_logo');
-            $fileName = time() . '_' . Str::slug($request->name) . '.' . $file->getClientOriginalExtension();
+            $fileName = time().'_'.Str::slug($request->name).'.'.$file->getClientOriginalExtension();
             $data['img_logo'] = $file->storeAs('logos', $fileName, 'public');
         }
 
@@ -147,7 +154,7 @@ class TenantController extends Controller
         if (auth()->user()->tenant_id == $tenant->id) {
             $nextTenant = auth()->user()->tenants()->first();
             auth()->user()->update([
-                'tenant_id' => $nextTenant ? $nextTenant->id : null
+                'tenant_id' => $nextTenant ? $nextTenant->id : null,
             ]);
         }
 

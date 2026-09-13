@@ -2,94 +2,50 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Material;
 use App\Models\Order;
 use App\Models\Product;
-use App\Models\Customer;
-use Illuminate\Http\Request;
+use App\Models\Shift;
+use App\Services\CashPeriodSummary;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
-
-
-// use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        // 1. Filter Tanggal (Default ke Hari Ini jika kosong)
-        $startDate = $request->get('start_date', Carbon::today()->toDateString());
-        $endDate = $request->get('end_date', Carbon::today()->toDateString());
+        if (auth()->user()->role === 'kasir') {
+            return redirect()->route('pos.index');
+        }
+        $data = $request->validate(['start_date' => 'nullable|date_format:Y-m-d', 'end_date' => 'nullable|date_format:Y-m-d|after_or_equal:start_date']);
+        $start = Carbon::parse($data['start_date'] ?? today()->toDateString())->startOfDay();
+        $end = Carbon::parse($data['end_date'] ?? $start->toDateString())->endOfDay();
+        abort_if($end->lt($start) || $start->diffInDays($end) > 366, 422, 'Pilih periode maksimal satu tahun.');
+        $base = Order::where('payment_status', 'paid')->where('order_status', 'completed');
+        $period = (clone $base)->whereBetween(DB::raw('COALESCE(sold_at, created_at)'), [$start, $end]);
+        $revenue = (float) (clone $period)->sum('grand_total');
+        $orderCount = (clone $period)->count();
+        $days = (int) $start->diffInDays($end->copy()->startOfDay()) + 1;
+        $previousRevenue = (float) (clone $base)->whereBetween(DB::raw('COALESCE(sold_at, created_at)'), [$start->copy()->subDays($days), $start->copy()->subMicrosecond()])->sum('grand_total');
+        $change = $previousRevenue > 0 ? round(($revenue - $previousRevenue) / $previousRevenue * 100, 1) : null;
+        $recentOrders = (clone $period)->with(['user', 'customer'])->latest()->limit(6)->get();
+        $costItems = DB::table('order_items')->whereIn('order_id', (clone $period)->select('id'));
+        $missingCosts = (clone $costItems)->whereNull('unit_cost')->count();
+        $grossProfit = $orderCount && ! $missingCosts ? (float) (clone $period)->selectRaw('SUM(subtotal - discount) as net')->value('net') - (float) (clone $costItems)->selectRaw('SUM(unit_cost * quantity) as cost')->value('cost') : null;
+        $lowStock = Product::where('is_active', true)->where('manage_stock', true)->where('type', 'product')->whereColumn('stock', '<=', 'min_stock')->orderBy('stock')->limit(6)->get();
+        $lowMaterials = Material::whereColumn('stock', '<=', 'min_stock')->orderBy('stock')->limit(6)->get();
+        $shifts = Shift::where('status', 'closed')->whereBetween('end_time', [$start, $end]);
+        $cashDifference = (float) (clone $shifts)->sum('cash_difference');
+        $shiftIssueCount = (clone $shifts)->where('cash_difference', '!=', 0)->count();
+        $shiftIssues = (clone $shifts)->where('cash_difference', '!=', 0)->with('user')->latest('end_time')->limit(3)->get();
+        $paymentMethods = (clone $period)->select('payment_method')->selectRaw('SUM(grand_total) as amount')->groupBy('payment_method')->get();
+        $topProducts = (clone $costItems)->select('product_name')->selectRaw('SUM(quantity) as quantity')->groupBy('product_name')->orderByDesc('quantity')->limit(5)->get();
+        $hasMenu = Product::exists();
+        $hasSale = Order::where('payment_status', 'paid')->exists();
 
-        // Format ke timestamp penuh untuk query database
-        $startDateTime = Carbon::parse($startDate)->startOfDay();
-        $endDateTime = Carbon::parse($endDate)->endOfDay();
+        $cashSummary = app(CashPeriodSummary::class)->forTenant($request->user()->tenant_id, $start, $end);
 
-        $tenantId = auth()->user()->tenant_id;
-
-        // 1. Total Penjualan (Uang masuk dari semua pesanan yang lunas/paid)
-        $totalRevenue = Order::where('tenant_id', $tenantId)
-            ->where('payment_status', 'paid')
-            ->sum('grand_total');
-
-        // 2. Total Pesanan (Jumlah invoice)
-        $totalOrders = Order::where('tenant_id', $tenantId)->count();
-
-        // 3. Total Pelanggan
-        $totalCustomers = Customer::where('tenant_id', $tenantId)->count();
-
-        // 4. Total Produk
-        $totalProducts = Product::where('tenant_id', $tenantId)->count();
-
-        // 5. Transaksi Terbaru
-        $recentOrders = Order::with(['user', 'customer'])
-            ->where('tenant_id', $tenantId)
-            ->latest()
-            ->take(5)
-            ->get();
-
-        // Tambahan: Total Piutang (Bon yang belum dibayar)
-        $totalDebt = Customer::where('tenant_id', $tenantId)->sum('total_debt');
-
-        // 6. Query untuk Grafik Tren Penjualan Harian
-        $dailySalesData = Order::where('tenant_id', $tenantId) // Ditambahkan proteksi tenant_id
-            ->whereBetween('created_at', [$startDateTime, $endDateTime])
-            ->where('payment_status', 'paid')
-            ->select(
-                DB::raw('DATE(created_at) as date'),
-                DB::raw('SUM(grand_total) as total_sales')
-            )
-            ->groupBy(DB::raw('DATE(created_at)'))
-            ->orderBy('date', 'asc')
-            ->get();
-
-        // Format data agar siap dibaca oleh JavaScript Chart.js
-        $chartLabels = $dailySalesData->pluck('date')->map(function ($date) {
-            return \Carbon\Carbon::parse($date)->translatedFormat('d M');
-        })->toArray();
-
-        $chartValues = $dailySalesData->pluck('total_sales')->toArray();
-
-        // === TAMBAHKAN QUERY INI UNTUK GRAFIK PROPORSI PEMBAYARAN ===
-        $paymentMethods = Order::where('tenant_id', $tenantId)
-            ->whereBetween('created_at', [$startDateTime, $endDateTime])
-            ->where('payment_status', 'paid')
-            ->groupBy('payment_method')
-            ->select('payment_method', DB::raw('SUM(grand_total) as total_amount'))
-            ->get();
-
-
-        // Jangan lupa masukkan 'paymentMethods' ke dalam fungsi compact() di bawah ini
-        return view('dashboard.index', compact(
-            'totalRevenue',
-            'totalOrders',
-            'totalCustomers',
-            'totalProducts',
-            'recentOrders',
-            'totalDebt',
-            'chartLabels',
-            'chartValues',
-            'paymentMethods' // <-- Kirim variabel ini ke view dashboard
-        ));
+        return view('dashboard.index', compact('cashSummary', 'start', 'end', 'revenue', 'orderCount', 'change', 'previousRevenue', 'recentOrders', 'grossProfit', 'missingCosts', 'lowStock', 'lowMaterials', 'cashDifference', 'shiftIssueCount', 'shiftIssues', 'paymentMethods', 'topProducts', 'hasMenu', 'hasSale'));
     }
 }

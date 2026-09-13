@@ -4,16 +4,22 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Concerns\BelongsToTenant;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
-    use HasFactory, BelongsToTenant;
+    use BelongsToTenant, HasFactory;
 
     protected $fillable = [
+        'service_due_at',
+        'points_awarded', 'cash_tracked', 'cancellation_reason', 'cancelled_by', 'cancelled_at',
         'tenant_id',
+        'shift_id',
+        'checkout_key', 'request_hash', 'qr_url', 'kitchen_status', 'sold_at',
+        'withdrawal_status',
+        'service_status', 'assigned_user_id',
         'customer_id',
         'user_id',
         'order_type',
@@ -30,6 +36,8 @@ class Order extends Model
         'order_status',
         'note',
     ];
+
+    protected $casts = ['sold_at' => 'datetime', 'service_due_at' => 'datetime'];
 
     public function tenant()
     {
@@ -49,6 +57,11 @@ class Order extends Model
     public function items()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function assignedUser()
+    {
+        return $this->belongsTo(User::class, 'assigned_user_id');
     }
 
     public function payments()

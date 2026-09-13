@@ -1,4 +1,4 @@
-<footer class="bg-primary-100/50">
+<footer id="about-growpos" class="bg-primary-100/50">
     <div class="grid grid-cols-2 gap-8 px-6 py-12 mx-auto max-w-7xl md:grid-cols-12">
         <div class="col-span-2 md:col-span-3">
             <a href="/" class="inline-block transition duration-500 scale-100 hover:scale-105">
@@ -8,13 +8,16 @@
                 </div>
             </a>
             <p class="text-body-sm text-ink-700">
-                Solusi Kasir Digital No.1 di Indonesia untuk UMKM yang visioner.
+                GrowPOS membantu toko, jasa, dan usaha kuliner mencatat penjualan, mengatur pesanan, dan memantau stok.
             </p>
         </div>
 
-        <x-landing.footer-column title="Produk" :links="['Fitur POS', 'Inventaris', 'Laporan Keuangan', 'Hardware Kasir']" />
-        <x-landing.footer-column title="Perusahaan" :links="['Tentang Kami', 'Karir', 'Blog', 'Kontak']" />
-        <x-landing.footer-column title="Bantuan" :links="['Pusat Bantuan', 'Kebijakan Privasi', 'Syarat dan Ketentuan', 'Keamanan Data']" />
+        <x-landing.footer-column title="Produk" :links="['Fitur POS' => '#fitur', 'Paket & harga' => '#harga']" />
+        <x-landing.footer-column title="Mulai" :links="['Buat akun' => route('register'), 'Masuk' => route('login')]" />
+        <div class="col-span-1 md:col-span-3">
+            <p class="mb-4 font-bold text-primary-500">Untuk usahamu</p>
+            <p class="text-body-sm text-ink-700">Panduan operasional tersedia di aplikasi setelah masuk.</p>
+        </div>
     </div>
     <hr class="border-border-200">
     <div class="px-6 py-5 mx-auto text-center text-body-sm text-ink-700 max-w-7xl md:text-left">

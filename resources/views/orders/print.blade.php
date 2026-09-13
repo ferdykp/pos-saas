@@ -156,7 +156,7 @@
     <table class="item-table">
         @foreach ($order->items as $item)
             <tr>
-                <td colspan="2" class="font-bold uppercase">{{ $item->product_name }}</td>
+                <td colspan="2" class="font-bold uppercase">{{ $item->product_name }}@foreach($item->addons ?? [] as $addon)<div style="font-size:10px;font-weight:normal">+ {{ $addon['name'] }}</div>@endforeach @if($item->note)<div style="font-size:10px;font-weight:normal">{{ $item->note }}</div>@endif</td>
             </tr>
             <tr>
                 <td style="font-size: 10px;">{{ $item->quantity }}x @ Rp{{ number_format($item->price, 0, ',', '.') }}

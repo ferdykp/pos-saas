@@ -19,14 +19,7 @@
             </svg>
         </button>
 
-        <!-- Global Search Field -->
-        <div class="relative items-center hidden w-full max-w-sm md:flex">
-            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-ink-400">
-                <i class="text-xs fa-solid fa-magnifying-glass"></i>
-            </div>
-            <input type="text" placeholder="Cari transaksi, produk, atau pelanggan..."
-                class="w-full pr-4 text-xs transition-all border rounded-sm outline-none h-11 pl-9 font-body text-ink-900 placeholder-ink-400 bg-surface-100 border-border-200 focus:bg-surface-0 focus:border-primary-600 focus:ring-2 focus:ring-primary-100">
-        </div>
+        <a href="{{ route('getting-started') }}" class="hidden md:flex text-sm font-semibold text-primary-600">Mulai berjualan →</a>
     </div>
 
     <!-- Right Section: Quick Actions & Profile Menu -->

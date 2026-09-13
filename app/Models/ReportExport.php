@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ReportExport extends Model
 {
-    protected $fillable = ['user_id', 'report_type', 'start_date', 'end_date', 'status', 'file_path'];
+    protected $fillable = ['tenant_id', 'user_id', 'report_type', 'start_date', 'end_date', 'status', 'file_path'];
 
     public function user()
     {

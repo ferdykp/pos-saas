@@ -79,14 +79,16 @@
                         <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Tipe Produk</label>
                         <select name="type" id="type_select"
                             class="w-full px-3 text-xs transition-all border rounded-sm outline-none h-11 font-body text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
-                            <option value="product">Barang Fisik (Stok Dihitung)</option>
-                            <option value="service">Jasa / Layanan (Non-Stok)</option>
+                            <option value="product" @selected(old('type', auth()->user()->tenant->businessType() === 'service' ? 'service' : 'product') === 'product')>Barang Fisik (Stok Dihitung)</option>
+                            <option value="service" @selected(old('type', auth()->user()->tenant->businessType() === 'service' ? 'service' : 'product') === 'service')>Jasa / Layanan (Non-Stok)</option>
                         </select>
                     </div>
 
+                    <label class="gp-field md:col-span-2">Barcode barang (opsional, terpisah dari SKU)
+                        <input name="barcode" maxlength="100" value="{{ old('barcode') }}" placeholder="Pindai barcode kemasan">
+                    </label>
                     <div class="md:col-span-2">
-                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Kode SKU /
-                            Barcode</label>
+                        <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Kode SKU</label>
                         <div class="relative">
                             <input type="text" name="sku" id="sku_input" required
                                 class="w-full pl-3 pr-24 font-mono text-xs font-semibold transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
@@ -130,6 +132,9 @@
                     </div>
 
                     <!-- Manage Stock Toggle Box -->
+                    @if(auth()->user()->tenant->hasBusinessModule('food'))
+                        <label class="block my-4"><input type="checkbox" name="requires_preparation" value="1" @checked(old('requires_preparation', auth()->user()->tenant->businessType() === 'food'))> Kirim barang ini ke dapur / bar setelah pembayaran</label>
+                    @endif
                     <div id="manage_stock_container"
                         class="p-4 border rounded-md md:col-span-2 bg-surface-100 border-border-200">
                         <div class="flex items-center justify-between">

@@ -215,18 +215,10 @@
                                                 class="mb-1.5 ml-1 text-body-base font-medium text-ink-700" />
                                             <select name="business_type" required
                                                 class="w-full font-medium transition-all rounded-lg shadow-sm text-ink-900 border-border-200 bg-surface-100 focus:bg-surface-0 focus:border-primary-600 focus:ring-4 focus:ring-primary-600/10">
-                                                <option value="" disabled selected>Pilih jenis operasional bisnis
-                                                    Anda</option>
-                                                <option value="F&B / Resto / Cafe">Makanan & Minuman (F&B / Kafe /
-                                                    Resto)</option>
-                                                <option value="Retail / Toko Pakaian">Retail (Toko Baju, Sepatu,
-                                                    Aksesoris)</option>
-                                                <option value="Minimarket / Sembako">Dagang / Kelontong / Toko Sembako
-                                                </option>
-                                                <option value="Jasa / Service">Penyedia Jasa (Laundry, Salon, Barber)
-                                                </option>
-                                                <option value="Lainnya">Lainnya</option>
-                                            </select>
+                                                @foreach(\App\Support\BusinessProfile::TYPES as $value => $label)
+<option value="{{ $value }}" @selected(old('business_type', 'retail') === $value)>{{ $label }}</option>
+@endforeach
+</select>
                                         </div>
 
                                         <!-- Email & WA Grid -->

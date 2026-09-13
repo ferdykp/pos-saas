@@ -5,7 +5,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <meta name="csrf-token" content="{{ csrf_token() }}">
-      <title>GrowPOS - Solusi Kasir Digital untuk UMKM</title>
+      <title>GrowPOS — Kasir untuk Toko, Jasa & Kuliner</title>
       {{-- <link rel="icon" href="{{ asset('growpos_logo.png') }}" type="image/x-icon"> --}}
       {{-- <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png?v={{ time() }}"> --}}
       <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -22,10 +22,11 @@
       @vite(['resources/css/app.css', 'resources/js/app.js'])
   </head>
 
-  <body class="antialiased text-ink-900" x-cloak>
+  <body class="antialiased text-ink-900">
       <div class="relative min-h-screen bg-surface-0">
 
           <x-landing.navbar />
+          <main id="main-content">
           <x-landing.hero />
 
           {{-- ===================== FITUR ===================== --}}
@@ -35,7 +36,7 @@
                   <div class="flex flex-col items-center justify-center py-16 space-y-4 text-center" data-aos="fade-up">
                       <h2 class="text-5xl font-bold text-primary-900">Fitur Unggulan GrowPOS</h2>
                       <p class="max-w-xl font-normal text-body-lg text-ink-700">
-                          Dirancang khusus untuk ekosistem bisnis Indonesia yang dinamis dan kompetitif.
+                          Dari penjualan barang dan layanan jasa, sampai persediaan dan laporan usaha.
                       </p>
                   </div>
 
@@ -54,15 +55,15 @@
                       </div>
 
                       <div class="md:col-span-4">
-                          <x-landing.feature-card variant="solid" icon="fa-chart-line" title="Analitik Berbasis AI"
-                              desc="Dapatkan rekomendasi stok dan prediksi penjualan bulan depan berdasarkan data historis bisnis Anda secara otomatis."
+                          <x-landing.feature-card variant="solid" icon="fa-chart-line" title="Ringkasan yang Bisa Ditindaklanjuti"
+                              desc="Lihat perbandingan penjualan, menu terlaris, bahan menipis, dan selisih kas dengan sumber transaksi yang bisa diperiksa."
                               bg="bg-accent-100 text-accent-700" icon-bg="bg-accent-700/20"
                               icon-color="text-accent-700" />
                       </div>
 
                       <div class="md:col-span-8">
-                          <x-landing.feature-card variant="large" icon="fa-circle-nodes" title="Multi-Outlet Sync"
-                              desc="Kelola banyak cabang toko hanya dari satu layar ponsel. Semua data tersinkronisasi instan ke cloud."
+                          <x-landing.feature-card variant="large" icon="fa-circle-nodes" title="Pantau Usaha dari HP"
+                              desc="Buka ringkasan setiap toko dari browser. Transaksi yang sudah tersinkron tersedia pada laporan; jumlah outlet mengikuti paket."
                               image="maps.png" />
                       </div>
                   </div>
@@ -70,13 +71,12 @@
           </section>
 
           {{-- ===================== HARGA ===================== --}}
-          {{-- ===================== HARGA ===================== --}}
           <section id="harga" class="py-20 bg-primary-50">
               <div class="px-4 mx-auto max-w-8xl sm:px-6 lg:px-10">
 
                   <div class="flex flex-col items-center justify-center py-16 space-y-4 text-center" data-aos="fade-up">
                       <h2 class="text-5xl font-bold text-primary-900">Pilih Paket Pertumbuhan Anda</h2>
-                      <p class="font-normal text-body-lg text-ink-700">Tanpa biaya tersembunyi. Batalkan kapan saja.</p>
+                      <p class="font-normal text-body-lg text-ink-700">Lihat harga, masa berlaku, dan kapasitas paket sebelum memilih.</p>
                   </div>
 
                   <div class="flex items-center justify-center">
@@ -87,46 +87,24 @@
                                   <x-landing.pricing-card :plan-id="$plan->id" :popular="$plan->slug === 'growth'" :title="$plan->name"
                                       :desc="$plan->description" :price="$plan->price == 0
                                           ? 'Rp 0'
-                                          : 'Rp ' . number_format($plan->price / 1000, 0) . 'rb'" :period="$plan->price == 0 ? 'selamanya' : 'bulan'" :cta="auth()->check()
+                                          : 'Rp ' . number_format($plan->price, 0, ',', '.')" :period="$plan->duration_days . ' hari'" :cta="auth()->check()
                                           ? ($plan->price == 0
                                               ? 'Pilih Starter'
                                               : 'Langganan Sekarang')
                                           : 'Mulai Sekarang'"
-                                      :features="$plan->features ?? []" />
+                                      :capacity="$plan->max_outlets.' outlet · '.$plan->max_users.' pengguna · '.$plan->max_products.' menu'" :features="$plan->features ?? []" />
                               @endforeach
                           @else
-                              {{-- Fallback Statis --}}
-                              <x-landing.pricing-card title="Starter" desc="Cocok untuk pedagang kaki lima & UMKM baru."
-                                  price="Rp 0" period="selamanya" cta="Pilih Starter" :features="[
-                                      '100 Transaksi / Bulan' => true,
-                                      'Manajemen Stok Dasar' => true,
-                                      'Laporan Harian' => true,
-                                      'Analitik AI' => false,
-                                  ]" />
-
-                              <x-landing.pricing-card :popular="true" title="Growth"
-                                  desc="Untuk toko yang mulai berkembang pesat." price="Rp 149rb" period="bulan"
-                                  cta="Coba 14 Hari Gratis" :features="[
-                                      'Transaksi Tanpa Batas' => true,
-                                      'Manajemen Stok Lanjut' => true,
-                                      'CRM & Loyalitas' => true,
-                                      'Support 24/7 Chat' => true,
-                                  ]" />
-
-                              <x-landing.pricing-card title="Scale" desc="Solusi perusahaan untuk bisnis multi-cabang."
-                                  price="Rp 499rb" period="bulan" cta="Hubungi Sales" :features="[
-                                      'Hingga 10 Outlet' => true,
-                                      'Analitik AI Eksklusif' => true,
-                                      'Integrasi API Terbuka' => true,
-                                      'Account Manager Pribadi' => true,
-                                  ]" />
+                              <p class="gp-card gp-muted">Paket belum tersedia. Harga dan kapasitas akan ditampilkan setelah paket diaktifkan.</p>
                           @endif
 
                       </div>
                   </div>
               </div>
           </section>
+          <div class="gp-page"><div class="gp-alert">Pembayaran QRIS mengikuti ketersediaan paket dan konfigurasi payment gateway. Komisi platform saat ini {{ number_format(config('platform.commission_rate', 0.015) * 100, 2, ',', '.') }}% dari transaksi QRIS. Periksa rincian saldo dan pengajuan pencairan di aplikasi.</div></div>
           <x-landing.cta-section />
+          </main>
           <x-landing.footer />
       </div>
   </body>
