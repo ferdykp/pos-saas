@@ -1,58 +1,99 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🌱 GrowPOS
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+> **Satu Sistem, Tumbuh Bersama.**
 
-## About Laravel
+GrowPOS adalah platform **Point of Sale (POS) berbasis SaaS** yang dirancang untuk membantu UMKM dan bisnis mengelola aktivitas operasional dalam satu sistem yang sederhana, modern, dan terintegrasi.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+GrowPOS tidak hanya berfungsi sebagai aplikasi kasir, tetapi juga membantu bisnis mengelola **produk, transaksi, persediaan, pelanggan, keuangan, karyawan, hingga laporan usaha**.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## ✨ Features
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- 🛒 Point of Sale (POS)
+- 📦 Product & Inventory Management
+- 👥 Customer Management
+- 💰 Cash & Finance Management
+- 🕐 Cashier Shift Management
+- 🧾 Transaction History
+- ↩️ Return & Refund
+- 🏷️ Discount & Promotion
+- 👨‍🍳 Kitchen Order Management
+- 🔧 Service Job Management
+- 👨‍💼 Employee & Role Management
+- 📊 Business Reports
+- 💳 Cash & QRIS Payment
+- 🏢 Multi-Tenant Business
+- 💎 SaaS Subscription
 
-## Learning Laravel
+## 🏪 Built for Different Businesses
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+GrowPOS dirancang fleksibel untuk berbagai jenis usaha seperti:
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- Retail
+- Toko & Grocery
+- Café & Restaurant
+- Food & Beverage
+- Service Business
+- Bisnis yang menggabungkan produk dan jasa
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## 🔄 How GrowPOS Works
 
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```text
+Business Setup
+      ↓
+Product & Inventory
+      ↓
+Open Cashier Shift
+      ↓
+POS Transaction
+      ↓
+Cash / QRIS Payment
+      ↓
+Inventory & Cash Update
+      ↓
+Business Reports
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Semua proses saling terintegrasi sehingga transaksi dapat langsung memengaruhi stok, kas, pelanggan, dan laporan bisnis.
 
-## Contributing
+## 🧱 Tech Stack
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+**Backend**
 
-## Code of Conduct
+- Laravel
+- PHP
+- MySQL
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+**Frontend**
 
-## Security Vulnerabilities
+- Blade
+- Tailwind CSS
+- Alpine.js
+- Vite
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+**Integration**
 
-## License
+- Midtrans QRIS
+- Google OAuth
+- Laravel Sanctum
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 🎯 Vision
+
+GrowPOS dikembangkan untuk menjadi platform yang membantu bisnis mengelola operasional dengan lebih **mudah, terstruktur, dan berbasis data**.
+
+```text
+POS → Operations → Management → Analytics → Growth
+```
+
+Tujuannya sederhana: mengurangi pekerjaan manual sehingga pemilik bisnis dapat lebih fokus mengembangkan usahanya.
+
+---
+
+<div align="center">
+
+### 🌱 GrowPOS
+
+**Satu Sistem, Tumbuh Bersama.**
+
+_Manage your business. Understand your data. Grow smarter._
+
+</div>
