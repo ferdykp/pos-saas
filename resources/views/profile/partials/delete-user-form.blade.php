@@ -21,7 +21,7 @@
 
             <div
                 class="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-red-50 text-semantic-danger">
-                <i class="text-xl fa-solid fa-triangle-exclamation"></i>
+                <x-icon class="text-xl fa-solid fa-triangle-exclamation" />
             </div>
 
             <div class="mb-6 text-center">

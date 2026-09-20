@@ -23,8 +23,7 @@
         {{-- Banner Notifikasi Verifikasi Email Sukses / Status System --}}
         <div class="px-4 mx-auto max-w-8xl">
             @if (session('status'))
-                <div class="flex items-center gap-3 p-4 mt-2 mb-2 text-sm font-semibold border rounded-lg shadow-sm text-emerald-800 bg-emerald-50/90 border-emerald-200"
-                    data-aos="fade-down">
+                <div class="flex items-center gap-3 p-4 mt-2 mb-2 text-sm font-semibold border rounded-lg shadow-sm text-emerald-800 bg-emerald-50/90 border-emerald-200">
                     <div class="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 shrink-0">
                         <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
@@ -39,8 +38,7 @@
             @endif
 
             @if (request()->has('verified') && request()->get('verified') == 1)
-                <div class="flex items-center gap-3 p-4 mt-2 mb-2 text-sm font-semibold border rounded-lg shadow-sm text-emerald-800 bg-emerald-50/90 border-emerald-200"
-                    data-aos="fade-down">
+                <div class="flex items-center gap-3 p-4 mt-2 mb-2 text-sm font-semibold border rounded-lg shadow-sm text-emerald-800 bg-emerald-50/90 border-emerald-200">
                     <div class="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 shrink-0">
                         <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
@@ -61,14 +59,13 @@
             <div class="grid items-stretch grid-cols-1 gap-8 py-8 lg:grid-cols-2">
 
                 <!-- KOLOM KIRI -->
-                <div class="flex flex-col justify-between p-6 space-y-4 rounded-lg" data-aos="fade-right"
-                    data-aos-delay="100">
+                <div class="flex flex-col justify-between p-6 space-y-4 rounded-lg">
                     <div>
                         <!-- Badge Telah Dipercaya -->
-                        <div data-aos="fade-down" class="inline-block py-2">
+                        <div class="inline-block py-2">
                             <div
                                 class="text-body-sm rounded-md tracking-wider text-primary-900 font-semibold px-3 py-1.5 bg-accent-500/30">
-                                <i class="mr-1 fa-regular fa-circle-check"></i>Telah dipercaya 5,000+ UMKM Indonesia
+                                <x-icon class="mr-1 fa-regular fa-circle-check" />Telah dipercaya 5,000+ UMKM Indonesia
                             </div>
                         </div>
 
@@ -95,7 +92,7 @@
                     <div class="flex flex-wrap gap-4">
                         <div class="flex-1 px-6 py-3 rounded-md bg-primary-600/10 min-w-[200px]">
                             <div class="flex items-center justify-center">
-                                <i class="mr-3 text-[20px] fa-solid fa-gauge-simple-high"></i>
+                                <x-icon class="mr-3 text-[20px] fa-solid fa-gauge-simple-high" />
                                 <div class="flex-col">
                                     <div class="font-bold text-body-base">Setup Cepat</div>
                                     <div class="font-semibold text-body-sm">Kurang dari 5 Menit</div>
@@ -104,7 +101,7 @@
                         </div>
                         <div class="flex-1 px-6 py-3 rounded-md bg-primary-600/10 min-w-[200px]">
                             <div class="flex items-center justify-center">
-                                <i class="mr-3 text-[20px] fa-solid fa-headset"></i>
+                                <x-icon class="mr-3 text-[20px] fa-solid fa-headset" />
                                 <div class="flex-col">
                                     <div class="font-bold text-body-base">Support 24/7</div>
                                     <div class="font-semibold text-body-sm">Bantuan Kapan Saja</div>
@@ -129,8 +126,8 @@
 
                             <!-- Progress Bar -->
                             <div class="w-full h-2 mb-6 overflow-hidden rounded-full bg-surface-100">
-                                <div class="h-full transition-all duration-500 rounded-full bg-primary-600"
-                                    style="width: 100%"></div>
+                                <div class="h-full transition-all duration-500 rounded-full bg-primary-600 w-full"
+                                   ></div>
                             </div>
 
                             <div class="text-h2 text-ink-900">Siapkan Bisnis Anda</div>
@@ -154,7 +151,7 @@
                                                         <img :src="imgPreview" class="object-cover w-full h-full">
                                                     </template>
                                                     <template x-if="!imgPreview">
-                                                        <i class="text-xl text-ink-400 fa-solid fa-image"></i>
+                                                        <x-icon class="text-xl text-ink-400 fa-solid fa-image" />
                                                     </template>
                                                 </div>
 
@@ -190,7 +187,7 @@
                                             <template x-if="errorMessage">
                                                 <p
                                                     class="mt-1.5 ml-1 text-body-sm font-bold text-semantic-danger flex items-center gap-1">
-                                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                                                    <x-icon class="fa-solid fa-triangle-exclamation" />
                                                     <span x-text="errorMessage"></span>
                                                 </p>
                                             </template>
@@ -254,9 +251,9 @@
                                         <button type="submit" ::disabled="isSubmitting"
                                             class="w-full flex justify-center items-center py-4 bg-primary-600 hover:bg-primary-900 text-white font-semibold rounded-lg text-body-lg shadow-lg shadow-primary-100 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed">
                                             <svg x-show="isSubmitting"
-                                                class="w-5 h-5 mr-3 -ml-1 text-white animate-spin"
+                                                class="w-5 h-5 mr-3 -ml-1 text-white animate-spin [&[x-cloak]]:!hidden"
                                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                style="display: none;">
+                                                x-cloak>
                                                 <circle class="opacity-25" cx="12" cy="12" r="10"
                                                     stroke="currentColor" stroke-width="4"></circle>
                                                 <path class="opacity-75" fill="currentColor"
@@ -335,10 +332,10 @@
                     <div class="mb-4 font-bold text-body-sm text-primary-500">Ikuti Kami</div>
                     <div class="flex space-x-3 text-xl text-primary-600">
                         <div class="flex items-center justify-center rounded-full bg-primary-600/25 w-[36px] h-[36px]">
-                            <i class="fa-solid fa-earth-americas"></i>
+                            <x-icon class="fa-solid fa-earth-americas" />
                         </div>
                         <div class="items-center justify-center flex rounded-full bg-primary-600/25 w-[36px] h-[36px]">
-                            <i class="fa-solid fa-share-nodes"></i>
+                            <x-icon class="fa-solid fa-share-nodes" />
                         </div>
                     </div>
                 </div>

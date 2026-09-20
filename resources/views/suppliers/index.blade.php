@@ -18,7 +18,7 @@
             <!-- Button Primary: Height 44px, Radius-md (10px), Emerald Green -->
             <button onclick="document.getElementById('addSupplierModal').classList.remove('hidden')"
                 class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body md:text-sm shrink-0">
-                <i class="text-xs fa-solid fa-truck-field"></i>
+                <x-icon class="text-xs fa-solid fa-truck-field" />
                 <span>Tambah Supplier</span>
             </button>
         </div>
@@ -36,7 +36,7 @@
                 </div>
                 <div
                     class="flex items-center justify-center text-lg rounded-md w-11 h-11 bg-primary-50 text-primary-600 shrink-0">
-                    <i class="fa-solid fa-truck-ramp-box"></i>
+                    <x-icon class="fa-solid fa-truck-ramp-box" />
                 </div>
             </div>
 
@@ -51,7 +51,7 @@
                 </div>
                 <div
                     class="flex items-center justify-center text-lg rounded-md w-11 h-11 bg-primary-100 text-primary-700 shrink-0">
-                    <i class="fa-solid fa-money-bill-wave"></i>
+                    <x-icon class="fa-solid fa-money-bill-wave" />
                 </div>
             </div>
 
@@ -66,14 +66,14 @@
                 </div>
                 <div
                     class="flex items-center justify-center text-lg rounded-md w-11 h-11 bg-accent-100 text-accent-700 shrink-0">
-                    <i class="fa-solid fa-business-time"></i>
+                    <x-icon class="fa-solid fa-business-time" />
                 </div>
             </div>
         </div>
 
         <!-- Table Container (Spesifikasi GrowPOS: Row Height 48px, bg surface-100 header) -->
         <div class="mb-6 overflow-hidden border rounded-lg shadow-sm bg-surface-0 border-border-200">
-            <div class="w-full overflow-x-auto custom-scrollbar">
+            <div class="w-full overflow-x-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-surface-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-ink-400">
                 <table class="w-full text-left border-collapse whitespace-nowrap">
                     <thead>
                         <tr
@@ -111,7 +111,7 @@
                                     @if ($item->term_of_payment > 0)
                                         <span
                                             class="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold text-accent-700 bg-accent-100 rounded-full">
-                                            <i class="fa-regular fa-clock text-[10px]"></i>
+                                            <x-icon class="fa-regular fa-clock text-[10px]" />
                                             {{ $item->term_of_payment }} Hari
                                         </span>
                                     @else
@@ -126,12 +126,12 @@
                                 <td class="px-5 py-3">
                                     <div class="flex flex-col gap-0.5">
                                         <span class="font-mono text-xs text-ink-900 flex items-center gap-1.5">
-                                            <i class="fa-brands fa-whatsapp text-semantic-success text-[11px]"></i>
+                                            <x-icon class="fa-brands fa-whatsapp text-semantic-success text-[11px]" />
                                             {{ $item->phone ?? 'Tidak ada WhatsApp' }}
                                         </span>
                                         @if ($item->bank_name)
                                             <span class="font-mono text-[11px] font-normal text-ink-400 block truncate">
-                                                <i class="fa-solid fa-building-columns text-[10px] mr-0.5"></i>
+                                                <x-icon class="fa-solid fa-building-columns text-[10px] mr-0.5" />
                                                 {{ strtoupper($item->bank_name) }}: {{ $item->bank_account_number }}
                                             </span>
                                         @endif
@@ -144,7 +144,7 @@
                                         @click="showDeleteModal = true; deleteUrl = '{{ route('suppliers.destroy', $item->id) }}'; supplierName = '{{ addslashes($item->name) }}'"
                                         class="p-2 transition-colors rounded-md text-ink-700 hover:text-semantic-danger bg-surface-100 hover:bg-red-50"
                                         title="Hapus Supplier">
-                                        <i class="text-xs fa-solid fa-trash-can"></i>
+                                        <x-icon class="text-xs fa-solid fa-trash-can" />
                                     </button>
                                 </td>
                             </tr>
@@ -155,7 +155,7 @@
                                     <div class="flex flex-col items-center justify-center">
                                         <div
                                             class="flex items-center justify-center w-12 h-12 mb-2 rounded-full bg-primary-50 text-primary-600">
-                                            <i class="text-xl fa-solid fa-truck-arrow-right"></i>
+                                            <x-icon class="text-xl fa-solid fa-truck-arrow-right" />
                                         </div>
                                         <p class="text-sm font-semibold font-heading text-ink-900">Belum ada supplier
                                             terdaftar</p>
@@ -186,7 +186,7 @@
                     <h3 class="text-lg font-semibold font-heading text-ink-900">Tambah Supplier Baru</h3>
                     <button type="button" onclick="document.getElementById('addSupplierModal').classList.add('hidden')"
                         class="p-1 text-ink-400 hover:text-ink-900">
-                        <i class="text-base fa-solid fa-xmark"></i>
+                        <x-icon class="text-base fa-solid fa-xmark" />
                     </button>
                 </div>
 
@@ -268,14 +268,14 @@
             x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
             x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-900/40 backdrop-blur-[2px]">
+            class="[&[x-cloak]]:!hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-900/40 backdrop-blur-[2px]">
 
             <div class="w-full p-6 border rounded-lg shadow-lg max-w-modal-sm bg-surface-0 border-border-200"
                 @click.away="showDeleteModal = false">
 
                 <div
                     class="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-red-50 text-semantic-danger">
-                    <i class="text-xl fa-solid fa-truck-delete"></i>
+                    <x-icon class="text-xl fa-solid fa-truck-delete" />
                 </div>
 
                 <div class="mb-6 text-center">

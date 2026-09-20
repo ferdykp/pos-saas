@@ -22,7 +22,7 @@
                     <div class="flex items-center gap-2.5 pb-4 mb-4 border-b border-border-200">
                         <div
                             class="flex items-center justify-center w-8 h-8 text-xs font-bold rounded-md bg-primary-50 text-primary-600 font-heading">
-                            <i class="text-xs fa-solid fa-folder-plus"></i>
+                            <x-icon class="text-xs fa-solid fa-folder-plus" />
                         </div>
                         <h3 class="text-base font-semibold font-heading text-ink-900">Tambah Kategori</h3>
                     </div>
@@ -39,7 +39,7 @@
 
                         <button type="submit"
                             class="inline-flex items-center justify-center w-full gap-2 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body">
-                            <i class="text-xs fa-solid fa-check"></i>
+                            <x-icon class="text-xs fa-solid fa-check" />
                             <span>Simpan Kategori</span>
                         </button>
                     </form>
@@ -49,7 +49,7 @@
             <!-- Column 2: Data Table Kategori -->
             <div class="lg:col-span-2">
                 <div class="mb-4 overflow-hidden border rounded-lg shadow-sm bg-surface-0 border-border-200">
-                    <div class="w-full overflow-x-auto custom-scrollbar">
+                    <div class="w-full overflow-x-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-surface-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-ink-400">
                         <table class="w-full text-left border-collapse whitespace-nowrap">
                             <thead>
                                 <tr
@@ -68,7 +68,7 @@
                                             <div class="flex items-center gap-3">
                                                 <div
                                                     class="flex items-center justify-center w-8 h-8 rounded-md bg-primary-100 text-primary-700 shrink-0">
-                                                    <i class="text-xs fa-solid fa-layer-group"></i>
+                                                    <x-icon class="text-xs fa-solid fa-layer-group" />
                                                 </div>
                                                 <div class="min-w-0">
                                                     <span
@@ -97,7 +97,7 @@
                                                 @click="showDeleteModal = true; deleteUrl = '{{ route('categories.destroy', $category) }}'; categoryName = '{{ addslashes($category->name) }}'"
                                                 class="p-2 transition-colors rounded-md text-ink-700 hover:text-semantic-danger bg-surface-100 hover:bg-red-50"
                                                 title="Hapus Kategori">
-                                                <i class="text-xs fa-solid fa-trash-can"></i>
+                                                <x-icon class="text-xs fa-solid fa-trash-can" />
                                             </button>
                                         </td>
                                     </tr>
@@ -108,7 +108,7 @@
                                             <div class="flex flex-col items-center justify-center">
                                                 <div
                                                     class="flex items-center justify-center w-12 h-12 mb-2 rounded-full bg-primary-50 text-primary-600">
-                                                    <i class="text-xl fa-solid fa-folder-open"></i>
+                                                    <x-icon class="text-xl fa-solid fa-folder-open" />
                                                 </div>
                                                 <p class="text-sm font-semibold font-heading text-ink-900">Belum ada
                                                     kategori produk</p>
@@ -139,14 +139,14 @@
             x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
             x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-900/40 backdrop-blur-[2px]">
+            class="[&[x-cloak]]:!hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-900/40 backdrop-blur-[2px]">
 
             <div class="w-full p-6 border rounded-lg shadow-lg max-w-modal-sm bg-surface-0 border-border-200"
                 @click.away="showDeleteModal = false">
 
                 <div
                     class="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-red-50 text-semantic-danger">
-                    <i class="text-xl fa-solid fa-folder-minus"></i>
+                    <x-icon class="text-xl fa-solid fa-folder-minus" />
                 </div>
 
                 <div class="mb-6 text-center">

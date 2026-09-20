@@ -7,13 +7,12 @@ use App\Models\CashEntry;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Payment;
-use App\Models\Product;
 use App\Models\Shift;
 use App\Models\Tenant;
 use App\Services\CashLedger;
 use App\Services\CustomerPoints;
 use App\Services\OrderReturnService;
-use App\Services\RecipeStock;
+use App\Services\OrderStock;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -109,13 +108,7 @@ class CashOperationController extends Controller
             if ($order->payment_method !== 'cash' || $order->payment_status === 'paid' || $order->paid_amount > 0) {
                 throw ValidationException::withMessages(['reason' => 'Pembatalan ini hanya untuk bon tanpa pembayaran. Transaksi yang sudah dibayar memerlukan retur/refund.']);
             }
-            foreach ($order->items()->orderBy('product_id')->get() as $item) {
-                if ($item->reserved_stock) {
-                    $product = Product::whereKey($item->product_id)->lockForUpdate()->firstOrFail();
-                    ($item->variant_id ? $product->variants()->whereKey($item->variant_id)->lockForUpdate()->firstOrFail() : $product)->increment('stock', $item->reserved_stock);
-                }
-            }
-            app(RecipeStock::class)->restore($order);
+            app(OrderStock::class)->change($order, true);
             if ($order->customer_id) {
                 $customer = Customer::whereKey($order->customer_id)->lockForUpdate()->firstOrFail();
                 $customer->update(['total_debt' => max(0, $customer->total_debt - $order->grand_total)]);

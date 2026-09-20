@@ -18,7 +18,7 @@
             <!-- Button Primary: Height 44px, Emerald Green -->
             <a href="{{ route('discounts.create') }}"
                 class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body md:text-sm shrink-0">
-                <i class="text-xs fa-solid fa-plus"></i>
+                <x-icon class="text-xs fa-solid fa-plus" />
                 <span>Buat Diskon Baru</span>
             </a>
         </div>
@@ -36,7 +36,7 @@
                 </div>
                 <div
                     class="flex items-center justify-center text-lg rounded-md w-11 h-11 bg-primary-50 text-primary-600 shrink-0">
-                    <i class="fa-solid fa-tags"></i>
+                    <x-icon class="fa-solid fa-tags" />
                 </div>
             </div>
 
@@ -51,7 +51,7 @@
                 </div>
                 <div
                     class="flex items-center justify-center text-lg rounded-md w-11 h-11 bg-primary-100 text-primary-700 shrink-0">
-                    <i class="fa-solid fa-bolt"></i>
+                    <x-icon class="fa-solid fa-bolt" />
                 </div>
             </div>
 
@@ -66,14 +66,14 @@
                 </div>
                 <div
                     class="flex items-center justify-center text-lg rounded-md w-11 h-11 bg-accent-100 text-accent-700 shrink-0">
-                    <i class="fa-solid fa-percent"></i>
+                    <x-icon class="fa-solid fa-percent" />
                 </div>
             </div>
         </div>
 
         <!-- Table Container (Spesifikasi GrowPOS: Row Height 48px, bg surface-100 header) -->
         <div class="overflow-hidden border rounded-lg shadow-sm bg-surface-0 border-border-200">
-            <div class="w-full overflow-x-auto custom-scrollbar">
+            <div class="w-full overflow-x-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-surface-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-ink-400">
                 <table class="w-full text-left border-collapse whitespace-nowrap">
                     <thead>
                         <tr
@@ -95,7 +95,7 @@
                                     <div class="flex items-center gap-3">
                                         <div
                                             class="flex items-center justify-center w-8 h-8 rounded-md bg-accent-100 text-accent-700 shrink-0">
-                                            <i class="text-xs fa-solid fa-ticket"></i>
+                                            <x-icon class="text-xs fa-solid fa-ticket" />
                                         </div>
                                         <div class="min-w-0">
                                             <span
@@ -126,7 +126,7 @@
                                 <td class="px-5 py-3">
                                     <div class="flex flex-col gap-0.5 font-body text-xs text-ink-700">
                                         <div class="flex items-center gap-1.5">
-                                            <i class="fa-regular fa-calendar text-ink-400 text-[11px] w-3.5"></i>
+                                            <x-icon class="fa-regular fa-calendar text-ink-400 text-[11px] w-3.5" />
                                             <span>
                                                 {{ $discount->start_date ? \Carbon\Carbon::parse($discount->start_date)->format('d M Y') : 'Selamanya' }}
                                                 -
@@ -134,7 +134,7 @@
                                             </span>
                                         </div>
                                         <div class="flex items-center gap-1.5 text-[11px] text-ink-400">
-                                            <i class="fa-regular fa-clock text-ink-400 text-[10px] w-3.5"></i>
+                                            <x-icon class="fa-regular fa-clock text-ink-400 text-[10px] w-3.5" />
                                             <span>
                                                 {{ $discount->start_time ? \Carbon\Carbon::parse($discount->start_time)->format('H:i') : '24 Jam' }}
                                                 {{ $discount->end_time ? 's/d ' . \Carbon\Carbon::parse($discount->end_time)->format('H:i') : '' }}
@@ -183,14 +183,14 @@
                                         <a href="{{ route('discounts.edit', $discount->id) }}"
                                             class="p-2 transition-colors rounded-md text-ink-700 hover:text-primary-600 bg-surface-100 hover:bg-primary-50"
                                             title="Edit Promo">
-                                            <i class="text-xs fa-solid fa-pen-to-square"></i>
+                                            <x-icon class="text-xs fa-solid fa-pen-to-square" />
                                         </a>
 
                                         <button type="button"
                                             @click="showDeleteModal = true; deleteUrl = '{{ route('discounts.destroy', $discount->id) }}'; discountName = '{{ addslashes($discount->name) }}'"
                                             class="p-2 transition-colors rounded-md text-ink-700 hover:text-semantic-danger bg-surface-100 hover:bg-red-50"
                                             title="Hapus Promo">
-                                            <i class="text-xs fa-solid fa-trash-can"></i>
+                                            <x-icon class="text-xs fa-solid fa-trash-can" />
                                         </button>
                                     </div>
                                 </td>
@@ -202,7 +202,7 @@
                                     <div class="flex flex-col items-center justify-center">
                                         <div
                                             class="flex items-center justify-center w-12 h-12 mb-2 rounded-full bg-accent-100 text-accent-700">
-                                            <i class="text-xl fa-solid fa-tags"></i>
+                                            <x-icon class="text-xl fa-solid fa-tags" />
                                         </div>
                                         <p class="text-sm font-semibold font-heading text-ink-900">Belum ada promo event
                                             terdaftar</p>
@@ -224,14 +224,14 @@
             x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
             x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-900/40 backdrop-blur-[2px]" x-cloak>
+            class="[&[x-cloak]]:!hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-900/40 backdrop-blur-[2px]" x-cloak>
 
             <div class="w-full p-6 border rounded-lg shadow-lg max-w-modal-sm bg-surface-0 border-border-200"
                 @click.away="showDeleteModal = false">
 
                 <div
                     class="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-red-50 text-semantic-danger">
-                    <i class="text-xl fa-solid fa-triangle-exclamation"></i>
+                    <x-icon class="text-xl fa-solid fa-triangle-exclamation" />
                 </div>
 
                 <div class="mb-6 text-center">

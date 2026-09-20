@@ -7,7 +7,7 @@
         <div class="mb-6">
             <a href="{{ route('tenants.index') }}"
                 class="inline-flex items-center gap-2 mb-2 text-xs font-semibold font-body text-primary-600 hover:text-primary-700">
-                <i class="text-xs fa-solid fa-arrow-left"></i>
+                <x-icon class="text-xs fa-solid fa-arrow-left" />
                 <span>Kembali ke Manajemen Tenant</span>
             </a>
             <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
@@ -42,7 +42,7 @@
                                     <img :src="imgPreview" class="object-cover w-full h-full">
                                 </template>
                                 <template x-if="!imgPreview">
-                                    <i class="text-xl fa-solid fa-store text-ink-400"></i>
+                                    <x-icon class="text-xl fa-solid fa-store text-ink-400" />
                                 </template>
                             </div>
 
@@ -117,7 +117,7 @@
                 <div class="pt-2">
                     <button type="submit" :disabled="isSubmitting"
                         class="inline-flex items-center justify-center w-full gap-2 px-6 text-xs font-semibold text-white transition-all rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body md:text-sm disabled:opacity-60 disabled:cursor-not-allowed">
-                        <i x-show="isSubmitting" class="text-sm fa-solid fa-circle-notch fa-spin" x-cloak></i>
+                        <x-icon x-show="isSubmitting" class="[&[x-cloak]]:!hidden text-sm fa-solid fa-circle-notch fa-spin" x-cloak />
                         <span x-text="isSubmitting ? 'Menyimpan Perubahan...' : 'Simpan Perubahan'"></span>
                     </button>
                 </div>

@@ -3,7 +3,7 @@
     <div class="flex flex-col justify-between gap-2 pb-3 border-b sm:flex-row sm:items-center border-border-200">
         <div class="flex items-center gap-2">
             <span class="p-2 rounded-lg bg-primary-50 text-primary-600">
-                <i class="fa-solid fa-money-bill-transfer"></i>
+                <x-icon class="fa-solid fa-money-bill-transfer" />
             </span>
             <div>
                 <h2 class="text-base font-bold text-ink-900">Arus Kas Tunai Periode Ini</h2>
@@ -14,7 +14,7 @@
         <a class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-600 hover:text-primary-700 transition-colors self-start sm:self-auto"
             href="{{ route('cash.index') }}">
             <span>Periksa Buku Kas</span>
-            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+            <x-icon class="fa-solid fa-chevron-right text-[10px]" />
         </a>
     </div>
 
@@ -24,7 +24,7 @@
         <div class="p-3.5 rounded-lg border border-border-200 bg-surface-100/50 flex flex-col justify-between">
             <div class="flex items-center justify-between mb-1 text-ink-700">
                 <span class="text-xs font-semibold">Penerimaan</span>
-                <i class="text-xs fa-solid fa-arrow-down-left text-semantic-success"></i>
+                <x-icon class="text-xs fa-solid fa-arrow-down-left text-semantic-success" />
             </div>
             <strong class="text-base font-bold sm:text-lg text-ink-900">
                 Rp {{ number_format($cashSummary['receipts'], 0, ',', '.') }}
@@ -35,7 +35,7 @@
         <div class="p-3.5 rounded-lg border border-border-200 bg-surface-100/50 flex flex-col justify-between">
             <div class="flex items-center justify-between mb-1 text-ink-700">
                 <span class="text-xs font-semibold">Refund</span>
-                <i class="text-xs fa-solid fa-rotate-left text-semantic-warning"></i>
+                <x-icon class="text-xs fa-solid fa-rotate-left text-semantic-warning" />
             </div>
             <strong class="text-base font-bold sm:text-lg text-ink-900">
                 Rp {{ number_format($cashSummary['refunds'], 0, ',', '.') }}
@@ -46,7 +46,7 @@
         <div class="p-3.5 rounded-lg border border-border-200 bg-surface-100/50 flex flex-col justify-between">
             <div class="flex items-center justify-between mb-1 text-ink-700">
                 <span class="text-xs font-semibold">Pengeluaran</span>
-                <i class="text-xs fa-solid fa-arrow-up-right text-semantic-danger"></i>
+                <x-icon class="text-xs fa-solid fa-arrow-up-right text-semantic-danger" />
             </div>
             <strong class="text-base font-bold sm:text-lg text-ink-900">
                 Rp {{ number_format($cashSummary['expenses'], 0, ',', '.') }}
@@ -57,7 +57,7 @@
         <div class="p-3.5 rounded-lg border border-border-200 bg-surface-100/50 flex flex-col justify-between">
             <div class="flex items-center justify-between mb-1 text-ink-700">
                 <span class="text-xs font-semibold">Perubahan Kas</span>
-                <i class="text-xs fa-solid fa-scale-balanced text-primary-600"></i>
+                <x-icon class="text-xs fa-solid fa-scale-balanced text-primary-600" />
             </div>
             <strong
                 class="text-base sm:text-lg font-bold {{ $cashSummary['net'] >= 0 ? 'text-semantic-success' : 'text-semantic-danger' }}">
@@ -69,7 +69,7 @@
     <!-- Note & Disclaimer -->
     <div class="pt-2">
         <p class="text-[11px] text-ink-400 leading-relaxed flex items-start gap-1.5">
-            <i class="fa-solid fa-circle-info text-xs mt-0.5 shrink-0"></i>
+            <x-icon class="fa-solid fa-circle-info text-xs mt-0.5 shrink-0" />
             <span>
                 Penjualan lunas di atas mengikuti tanggal transaksi dan belum dikurangi retur. Bon, pajak, refund, dan
                 biaya operasional harus diverifikasi sebelum menyimpulkan laba bersih.

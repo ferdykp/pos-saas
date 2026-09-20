@@ -18,7 +18,7 @@
             <!-- Button Primary: Height 44px, Emerald Green -->
             <button onclick="document.getElementById('addMaterialModal').classList.remove('hidden')"
                 class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body md:text-sm shrink-0">
-                <i class="text-xs fa-solid fa-plus"></i>
+                <x-icon class="text-xs fa-solid fa-plus" />
                 <span>Tambah Bahan Baku</span>
             </button>
         </div>
@@ -36,7 +36,7 @@
                 </div>
                 <div
                     class="flex items-center justify-center text-lg rounded-md w-11 h-11 bg-primary-50 text-primary-600 shrink-0">
-                    <i class="fa-solid fa-boxes-packing"></i>
+                    <x-icon class="fa-solid fa-boxes-packing" />
                 </div>
             </div>
 
@@ -51,7 +51,7 @@
                 </div>
                 <div
                     class="flex items-center justify-center text-lg rounded-md w-11 h-11 bg-primary-100 text-primary-700 shrink-0">
-                    <i class="fa-solid fa-cubes"></i>
+                    <x-icon class="fa-solid fa-cubes" />
                 </div>
             </div>
 
@@ -66,14 +66,14 @@
                 </div>
                 <div
                     class="flex items-center justify-center text-lg rounded-md w-11 h-11 bg-red-50 text-semantic-danger shrink-0">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <x-icon class="fa-solid fa-triangle-exclamation" />
                 </div>
             </div>
         </div>
 
         <!-- Table Container (Spesifikasi GrowPOS: Row Height 48px, bg surface-100 header) -->
         <div class="mb-6 overflow-hidden border rounded-lg shadow-sm bg-surface-0 border-border-200">
-            <div class="w-full overflow-x-auto custom-scrollbar">
+            <div class="w-full overflow-x-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-surface-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-ink-400">
                 <table class="w-full text-left border-collapse whitespace-nowrap">
                     <thead>
                         <tr
@@ -94,7 +94,7 @@
                                     <div class="flex items-center gap-3">
                                         <div
                                             class="flex items-center justify-center w-8 h-8 rounded-md bg-primary-100 text-primary-700 shrink-0">
-                                            <i class="text-xs fa-solid fa-vial-wheat"></i>
+                                            <x-icon class="text-xs fa-solid fa-vial-wheat" />
                                         </div>
                                         <div class="min-w-0">
                                             <span
@@ -145,7 +145,7 @@
                                             onclick="openHistoryModal('{{ $item->id }}', '{{ addslashes($item->name) }}')"
                                             class="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold text-ink-700 bg-surface-100 hover:bg-border-200 rounded-md transition-colors"
                                             title="Lihat Mutasi">
-                                            <i class="text-xs fa-solid fa-clock-rotate-left"></i>
+                                            <x-icon class="text-xs fa-solid fa-clock-rotate-left" />
                                             <span>Riwayat</span>
                                         </button>
 
@@ -153,7 +153,7 @@
                                             onclick="openStockModal('{{ $item->id }}', '{{ addslashes($item->name) }}', '{{ $item->unit }}')"
                                             class="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold text-primary-700 bg-primary-50 hover:bg-primary-600 hover:text-white rounded-md transition-colors"
                                             title="Update Stok">
-                                            <i class="text-xs fa-solid fa-pen-to-square"></i>
+                                            <x-icon class="text-xs fa-solid fa-pen-to-square" />
                                             <span>Update Stok</span>
                                         </button>
                                     </div>
@@ -166,7 +166,7 @@
                                     <div class="flex flex-col items-center justify-center">
                                         <div
                                             class="flex items-center justify-center w-12 h-12 mb-2 rounded-full bg-primary-50 text-primary-600">
-                                            <i class="text-xl fa-solid fa-boxes-packing"></i>
+                                            <x-icon class="text-xl fa-solid fa-boxes-packing" />
                                         </div>
                                         <p class="text-sm font-semibold font-heading text-ink-900">Belum ada bahan baku
                                             terdaftar</p>
@@ -198,7 +198,7 @@
                 <h3 class="text-lg font-semibold font-heading text-ink-900">Tambah Bahan Baku</h3>
                 <button type="button" onclick="document.getElementById('addMaterialModal').classList.add('hidden')"
                     class="p-1 text-ink-400 hover:text-ink-900">
-                    <i class="text-base fa-solid fa-xmark"></i>
+                    <x-icon class="text-base fa-solid fa-xmark" />
                 </button>
             </div>
 
@@ -263,7 +263,7 @@
             <div class="flex items-center justify-between pb-3 mb-4 border-b border-border-200">
                 <h3 id="stockModalTitle" class="text-lg font-semibold font-heading text-ink-900">Update Stok</h3>
                 <button type="button" onclick="closeStockModal()" class="p-1 text-ink-400 hover:text-ink-900">
-                    <i class="text-base fa-solid fa-xmark"></i>
+                    <x-icon class="text-base fa-solid fa-xmark" />
                 </button>
             </div>
 
@@ -341,11 +341,11 @@
             <div class="flex items-center justify-between pb-3 mb-4 border-b border-border-200">
                 <h3 id="historyModalTitle" class="text-lg font-semibold font-heading text-ink-900">Riwayat Stok</h3>
                 <button onclick="closeHistoryModal()" class="p-1 text-ink-400 hover:text-ink-900">
-                    <i class="text-base fa-solid fa-xmark"></i>
+                    <x-icon class="text-base fa-solid fa-xmark" />
                 </button>
             </div>
 
-            <div class="flex-1 overflow-y-auto custom-scrollbar">
+            <div class="flex-1 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-surface-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-ink-400">
                 <table class="w-full text-left border-collapse whitespace-nowrap">
                     <thead class="sticky top-0 border-b bg-surface-100 border-border-200">
                         <tr class="text-[11px] font-heading font-semibold text-ink-700 uppercase tracking-wider">
@@ -376,7 +376,7 @@
         function toggleSupplierFields() {
             const type = document.getElementById('typeSelect').value;
             const fields = document.getElementById('supplierFields');
-            fields.style.display = (type === 'stock_in') ? 'block' : 'none';
+            fields.classList.toggle('hidden', type !== 'stock_in');
         }
 
         function openStockModal(id, name, unit) {

@@ -28,13 +28,13 @@
 
                 <button type="submit"
                     class="h-10 px-4 inline-flex items-center gap-1.5 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 text-white font-body font-semibold text-xs rounded-sm transition-colors">
-                    <i class="text-xs fa-solid fa-filter"></i>
+                    <x-icon class="text-xs fa-solid fa-filter" />
                     <span>Filter</span>
                 </button>
 
                 <a href="{{ route('reports.exports-list') }}"
                     class="h-10 px-3 inline-flex items-center gap-1.5 bg-surface-100 hover:bg-border-200 text-ink-900 font-body font-semibold text-xs rounded-sm transition-colors">
-                    <i class="text-xs fa-solid fa-folder-open"></i>
+                    <x-icon class="text-xs fa-solid fa-folder-open" />
                     <span>Laci Unduhan</span>
                 </a>
 
@@ -42,13 +42,13 @@
                 @can('feature-crm')
                     <a href="{{ route('reports.export-excel', ['start_date' => $startDate, 'end_date' => $endDate]) }}"
                         class="h-10 px-4 inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-body font-semibold text-xs rounded-sm shadow-sm transition-colors">
-                        <i class="text-xs fa-solid fa-file-excel"></i>
+                        <x-icon class="text-xs fa-solid fa-file-excel" />
                         <span>Export Excel</span>
                     </a>
                 @else
                     <a href="{{ route('billing.index') }}" title="Fitur Export Excel membutuhkan Paket Growth / Scale"
                         class="h-10 px-3 inline-flex items-center gap-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 font-body font-bold text-xs rounded-sm transition-colors">
-                        <i class="fa-solid fa-lock text-amber-600 text-[10px]"></i>
+                        <x-icon class="fa-solid fa-lock text-amber-600 text-[10px]" />
                         <span>Export Excel</span>
                         <span
                             class="px-1.5 py-0.5 text-[9px] font-extrabold uppercase bg-amber-200 text-amber-900 rounded">GROWTH</span>
@@ -58,17 +58,8 @@
         </div>
 
         @php
-            $totalQrisOmzet = 0;
-            foreach ($paymentMethods as $pm) {
-                if ($pm->payment_method !== 'cash') {
-                    $totalQrisOmzet += $pm->total_amount;
-                }
-            }
-            $totalPlatformFee = ($totalQrisOmzet * 1.5) / 100;
-            $storeNetSales = ($salesSummary->total_net ?? 0) - $totalPlatformFee;
-            $cogsVal = $totalHpp ?? 0;
-            $calculatedNetProfit = $netProfit ?? $storeNetSales - $cogsVal;
-            $marginPercent = $storeNetSales > 0 ? number_format(($calculatedNetProfit / $storeNetSales) * 100, 1) : 0;
+            $calculatedNetProfit = $netProfit;
+            $marginPercent = $netProfit !== null && $revenueBeforeTax > 0 ? number_format(($netProfit / $revenueBeforeTax) * 100, 1) : null;
         @endphp
 
         @include('reports.partials.cash-summary')
@@ -82,14 +73,14 @@
                         Omzet</span>
                     <div
                         class="flex items-center justify-center w-8 h-8 rounded-md bg-primary-50 text-primary-600 shrink-0">
-                        <i class="text-xs fa-solid fa-wallet"></i>
+                        <x-icon class="text-xs fa-solid fa-wallet" />
                     </div>
                 </div>
                 <div>
                     <p class="font-mono text-xl font-semibold md:text-2xl text-primary-600">
                         Rp {{ number_format($storeNetSales, 0, ',', '.') }}
                     </p>
-                    <p class="font-body text-[11px] text-ink-400 mt-1">Omzet lunas (Sudah potong komisi platform)</p>
+                    <p class="font-body text-[11px] text-ink-400 mt-1">Penjualan lunas termasuk pajak, setelah estimasi komisi; sebelum retur</p>
                 </div>
             </div>
 
@@ -100,14 +91,14 @@
                         Produk)</span>
                     <div
                         class="flex items-center justify-center w-8 h-8 rounded-md bg-accent-100 text-accent-700 shrink-0">
-                        <i class="text-xs fa-solid fa-boxes-packing"></i>
+                        <x-icon class="text-xs fa-solid fa-boxes-packing" />
                     </div>
                 </div>
                 <div>
                     <p class="font-mono text-xl font-semibold md:text-2xl text-accent-700">
-                        Rp {{ number_format($cogsVal, 0, ',', '.') }}
+                        {{ $totalHpp === null ? 'Belum tersedia' : 'Rp '.number_format($totalHpp, 0, ',', '.') }}
                     </p>
-                    <p class="font-body text-[11px] text-ink-400 mt-1">Total modal (cost price) barang terjual</p>
+                    <p class="font-body text-[11px] text-ink-400 mt-1">{{ $missingCosts ? $missingCosts.' item belum memiliki snapshot modal' : 'Modal saat transaksi dicatat' }}</p>
                 </div>
             </div>
 
@@ -118,16 +109,16 @@
                         Profit)</span>
                     <div
                         class="flex items-center justify-center w-8 h-8 rounded-md bg-emerald-100 text-emerald-700 shrink-0">
-                        <i class="text-xs fa-solid fa-chart-line"></i>
+                        <x-icon class="text-xs fa-solid fa-chart-line" />
                     </div>
                 </div>
                 <div>
                     <p
                         class="font-mono text-xl font-bold md:text-2xl {{ $calculatedNetProfit >= 0 ? 'text-primary-600' : 'text-semantic-danger' }}">
-                        Rp {{ number_format($calculatedNetProfit, 0, ',', '.') }}
+                        {{ $calculatedNetProfit === null ? 'Belum tersedia' : 'Rp '.number_format($calculatedNetProfit, 0, ',', '.') }}
                     </p>
                     <p class="font-body text-[11px] text-ink-400 mt-1">Margin Keuntungan: <span
-                            class="font-semibold text-ink-900">{{ $marginPercent }}%</span></p>
+                            class="font-semibold text-ink-900">{{ $marginPercent === null ? '—' : $marginPercent.'%' }}</span></p>
                 </div>
             </div>
 
@@ -138,7 +129,7 @@
                         Transaksi</span>
                     <div
                         class="flex items-center justify-center w-8 h-8 rounded-md bg-primary-100 text-primary-700 shrink-0">
-                        <i class="text-xs fa-solid fa-receipt"></i>
+                        <x-icon class="text-xs fa-solid fa-receipt" />
                     </div>
                 </div>
                 <div>
@@ -156,14 +147,14 @@
                         Platform</span>
                     <div
                         class="flex items-center justify-center w-8 h-8 rounded-md bg-accent-100 text-accent-700 shrink-0">
-                        <i class="text-xs fa-solid fa-percent"></i>
+                        <x-icon class="text-xs fa-solid fa-percent" />
                     </div>
                 </div>
                 <div>
                     <p class="font-mono text-xl font-semibold md:text-2xl text-accent-700">
                         Rp {{ number_format($totalPlatformFee, 0, ',', '.') }}
                     </p>
-                    <p class="font-body text-[11px] text-ink-400 mt-1">Potongan 1.5% khusus transaksi QRIS</p>
+                    <p class="font-body text-[11px] text-ink-400 mt-1">Estimasi tarif QRIS saat ini; dibulatkan per nota</p>
                 </div>
             </div>
 
@@ -174,7 +165,7 @@
                         Diskon</span>
                     <div
                         class="flex items-center justify-center w-8 h-8 rounded-md bg-red-50 text-semantic-danger shrink-0">
-                        <i class="text-xs fa-solid fa-tags"></i>
+                        <x-icon class="text-xs fa-solid fa-tags" />
                     </div>
                 </div>
                 <div>
@@ -192,7 +183,7 @@
             <!-- Left Panel: Payment Method Breakdown -->
             <div class="p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200 lg:col-span-1">
                 <h3 class="pb-3 mb-4 text-base font-semibold border-b font-heading text-ink-900 border-border-200">
-                    Aliran Dana Masuk
+                    Metode pada nota lunas
                 </h3>
 
                 <div class="space-y-3">
@@ -216,7 +207,7 @@
                             </div>
                         @else
                             @php
-                                $feeThisMethod = ($pm->total_amount * 1.5) / 100;
+                                $feeThisMethod = $pm->platform_fee;
                                 $netThisMethod = $pm->total_amount - $feeThisMethod;
                             @endphp
                             <div class="p-3 border rounded-md bg-accent-100/40 border-accent-500/20">
@@ -232,12 +223,12 @@
                                 </div>
                                 <div class="space-y-0.5 font-mono text-[11px] pl-4 pt-1 border-t border-accent-500/10">
                                     <div class="flex justify-between text-ink-400">
-                                        <span>Potongan (1.5%):</span>
+                                        <span>Estimasi komisi:</span>
                                         <span class="text-semantic-danger">-Rp
                                             {{ number_format($feeThisMethod, 0, ',', '.') }}</span>
                                     </div>
                                     <div class="flex justify-between font-semibold text-ink-900">
-                                        <span>Net Masuk Dompet:</span>
+                                        <span>Estimasi setelah komisi:</span>
                                         <span class="text-primary-600">Rp
                                             {{ number_format($netThisMethod, 0, ',', '.') }}</span>
                                     </div>
@@ -257,7 +248,7 @@
                     5 Produk Terlaris (Top Selling)
                 </h3>
 
-                <div class="w-full overflow-x-auto custom-scrollbar">
+                <div class="w-full overflow-x-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-surface-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-ink-400">
                     <table class="w-full text-left border-collapse whitespace-nowrap">
                         <thead>
                             <tr
@@ -310,7 +301,7 @@
                 Daftar rekonsiliasi kas kasir untuk mencocokkan saldo fisik laci dengan hitungan sistem.
             </p>
 
-            <div class="w-full overflow-x-auto custom-scrollbar">
+            <div class="w-full overflow-x-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-surface-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-ink-400">
                 <table class="w-full text-left border-collapse whitespace-nowrap">
                     <thead>
                         <tr

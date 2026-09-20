@@ -53,7 +53,7 @@
         <!-- Quick POS Terminal Button (Emerald Accent Button) -->
         <a href="{{ route('pos.index') }}"
             class="items-center hidden h-10 gap-2 px-4 text-xs font-semibold text-white transition-all rounded-md shadow-sm sm:inline-flex bg-primary-600 hover:bg-primary-700">
-            <i class="fa-solid fa-cash-register"></i>
+            <x-icon class="fa-solid fa-cash-register" />
             <span>Buka Kasir</span>
         </a>
 
@@ -61,7 +61,7 @@
         <a href="{{ route('reports.ai') }}"
             class="relative flex items-center justify-center w-10 h-10 transition-all rounded-md text-accent-700 bg-accent-100 hover:bg-accent-500 hover:text-white"
             title="Tanya GrowPOS AI">
-            <i class="text-sm fa-solid fa-wand-magic-sparkles"></i>
+            <x-icon class="text-sm fa-solid fa-wand-magic-sparkles" />
             <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-accent-500 rounded-full ring-2 ring-surface-0"></span>
         </a>
 
@@ -84,7 +84,7 @@
                     </span>
                 </div>
 
-                <i class="fa-solid fa-chevron-down text-[10px] text-ink-400 ml-1"></i>
+                <x-icon class="fa-solid fa-chevron-down text-[10px] text-ink-400 ml-1" />
             </button>
 
             <!-- Dropdown Menu Box -->
@@ -94,7 +94,7 @@
                 x-transition:leave="transition ease-in duration-100"
                 x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                 x-transition:leave-end="opacity-0 scale-95 translate-y-1" x-cloak
-                class="absolute right-0 mt-2 w-56 bg-surface-0 rounded-lg shadow-lg border border-border-200 p-1.5 z-50">
+                class="[&[x-cloak]]:!hidden absolute right-0 mt-2 w-56 bg-surface-0 rounded-lg shadow-lg border border-border-200 p-1.5 z-50">
 
                 <div class="px-3 py-2 mb-1 border-b border-border-200">
                     <p class="text-xs font-semibold truncate text-ink-900">{{ auth()->user()->name }}</p>
@@ -103,19 +103,19 @@
 
                 <a href="{{ route('profile.index') }}"
                     class="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-ink-700 rounded-md hover:bg-primary-50 hover:text-primary-600 transition">
-                    <i class="w-4 text-sm fa-regular fa-user"></i>
+                    <x-icon class="w-4 text-sm fa-regular fa-user" />
                     <span>Profil Saya</span>
                 </a>
 
                 <a href="{{ route('billing.index') }}"
                     class="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-ink-700 rounded-md hover:bg-primary-50 hover:text-primary-600 transition">
-                    <i class="w-4 text-sm fa-solid fa-credit-card"></i>
+                    <x-icon class="w-4 text-sm fa-solid fa-credit-card" />
                     <span>Langganan & Penagihan</span>
                 </a>
 
                 <a href="{{ route('settings.index') }}"
                     class="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-ink-700 rounded-md hover:bg-primary-50 hover:text-primary-600 transition">
-                    <i class="w-4 text-sm fa-solid fa-sliders"></i>
+                    <x-icon class="w-4 text-sm fa-solid fa-sliders" />
                     <span>Pengaturan Toko</span>
                 </a>
 
@@ -125,7 +125,7 @@
                     @csrf
                     <button type="submit"
                         class="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-semibold text-semantic-danger rounded-md hover:bg-red-50 transition">
-                        <i class="w-4 text-sm fa-solid fa-right-from-bracket"></i>
+                        <x-icon class="w-4 text-sm fa-solid fa-right-from-bracket" />
                         <span>Keluar Sistem</span>
                     </button>
                 </form>

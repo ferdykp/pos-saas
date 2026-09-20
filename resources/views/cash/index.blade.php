@@ -14,7 +14,7 @@
         <div class="flex flex-col justify-between gap-4 pb-6 mb-6 border-b md:flex-row md:items-center border-border-200">
             <div>
                 <div class="flex items-center gap-2 mb-2 text-[10px] font-bold tracking-widest uppercase text-primary-600">
-                    <i class="fa-solid fa-book-open"></i>
+                    <x-icon class="fa-solid fa-book-open" />
                     Operasional Kas
                 </div>
                 <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">Buku Kas & Pengeluaran</h1>
@@ -25,21 +25,21 @@
 
             <a href="{{ route('shifts.index') }}"
                 class="inline-flex items-center justify-center h-10 gap-2 px-4 text-xs font-semibold transition-colors border rounded-md border-border-200 text-ink-700 bg-surface-0 hover:bg-surface-100">
-                <i class="fa-solid fa-user-clock"></i>
+                <x-icon class="fa-solid fa-user-clock" />
                 Kelola Shift
             </a>
         </div>
 
         @if (session('success'))
             <div role="status" class="flex items-start gap-3 p-4 mb-5 text-sm border rounded-lg bg-primary-50 border-primary-100 text-primary-700">
-                <i class="mt-0.5 fa-solid fa-circle-check"></i>
+                <x-icon class="mt-0.5 fa-solid fa-circle-check" />
                 <div><strong class="font-semibold">Berhasil.</strong> {{ session('success') }}</div>
             </div>
         @endif
 
         @if ($errors->any())
             <div role="alert" class="p-4 mb-5 border rounded-lg bg-red-50 border-red-100 text-semantic-danger">
-                <div class="flex items-center gap-2 mb-2 text-sm font-semibold"><i class="fa-solid fa-circle-exclamation"></i> Periksa kembali data berikut</div>
+                <div class="flex items-center gap-2 mb-2 text-sm font-semibold"><x-icon class="fa-solid fa-circle-exclamation" /> Periksa kembali data berikut</div>
                 <ul class="pl-5 space-y-1 text-xs list-disc">
                     @foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach
                 </ul>
@@ -50,7 +50,7 @@
             <div class="p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
                 <div class="flex items-center justify-between mb-3">
                     <span class="text-[10px] font-bold tracking-widest uppercase text-ink-400">Kas Shift Saat Ini</span>
-                    <span class="flex items-center justify-center w-8 h-8 rounded-md bg-primary-50 text-primary-600"><i class="fa-solid fa-wallet"></i></span>
+                    <span class="flex items-center justify-center w-8 h-8 rounded-md bg-primary-50 text-primary-600"><x-icon class="fa-solid fa-wallet" /></span>
                 </div>
                 <p class="font-mono text-xl font-semibold text-ink-900">{{ $currentCash === null ? '—' : 'Rp '.number_format($currentCash, 0, ',', '.') }}</p>
                 <p class="mt-1 text-[11px] text-ink-400">{{ $currentShift ? 'Shift #'.$currentShift->id.' · '.($currentShift->user?->name ?? 'Admin') : 'Belum ada shift admin yang terbuka' }}</p>
@@ -59,7 +59,7 @@
             <div class="p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
                 <div class="flex items-center justify-between mb-3">
                     <span class="text-[10px] font-bold tracking-widest uppercase text-ink-400">Kas Masuk Hari Ini</span>
-                    <span class="flex items-center justify-center w-8 h-8 rounded-md bg-primary-50 text-primary-600"><i class="fa-solid fa-arrow-down"></i></span>
+                    <span class="flex items-center justify-center w-8 h-8 rounded-md bg-primary-50 text-primary-600"><x-icon class="fa-solid fa-arrow-down" /></span>
                 </div>
                 <p class="font-mono text-xl font-semibold text-primary-600">Rp {{ number_format($todayIn, 0, ',', '.') }}</p>
                 <p class="mt-1 text-[11px] text-ink-400">Penjualan tunai dan pembayaran bon</p>
@@ -68,7 +68,7 @@
             <div class="p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
                 <div class="flex items-center justify-between mb-3">
                     <span class="text-[10px] font-bold tracking-widest uppercase text-ink-400">Kas Keluar Hari Ini</span>
-                    <span class="flex items-center justify-center w-8 h-8 rounded-md bg-red-50 text-semantic-danger"><i class="fa-solid fa-arrow-up"></i></span>
+                    <span class="flex items-center justify-center w-8 h-8 rounded-md bg-red-50 text-semantic-danger"><x-icon class="fa-solid fa-arrow-up" /></span>
                 </div>
                 <p class="font-mono text-xl font-semibold text-semantic-danger">Rp {{ number_format($todayOut, 0, ',', '.') }}</p>
                 <p class="mt-1 text-[11px] text-ink-400">Pengeluaran operasional dan refund</p>
@@ -77,7 +77,7 @@
             <div class="p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200">
                 <div class="flex items-center justify-between mb-3">
                     <span class="text-[10px] font-bold tracking-widest uppercase text-ink-400">Net Hari Ini</span>
-                    <span class="flex items-center justify-center w-8 h-8 rounded-md bg-accent-100 text-accent-700"><i class="fa-solid fa-scale-balanced"></i></span>
+                    <span class="flex items-center justify-center w-8 h-8 rounded-md bg-accent-100 text-accent-700"><x-icon class="fa-solid fa-scale-balanced" /></span>
                 </div>
                 <p class="font-mono text-xl font-semibold {{ ($todayIn - $todayOut) >= 0 ? 'text-ink-900' : 'text-semantic-danger' }}">Rp {{ number_format($todayIn - $todayOut, 0, ',', '.') }}</p>
                 <p class="mt-1 text-[11px] text-ink-400">Kas masuk dikurangi kas keluar</p>
@@ -87,7 +87,7 @@
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
             <section class="self-start p-5 border rounded-lg shadow-sm bg-surface-0 border-border-200 lg:sticky lg:top-6">
                 <div class="flex items-start gap-3 pb-4 mb-5 border-b border-border-200">
-                    <div class="flex items-center justify-center w-10 h-10 rounded-md bg-red-50 text-semantic-danger shrink-0"><i class="fa-solid fa-receipt"></i></div>
+                    <div class="flex items-center justify-center w-10 h-10 rounded-md bg-red-50 text-semantic-danger shrink-0"><x-icon class="fa-solid fa-receipt" /></div>
                     <div>
                         <h2 class="text-base font-semibold font-heading text-ink-900">Catat Pengeluaran Tunai</h2>
                         <p class="mt-0.5 text-[11px] leading-relaxed text-ink-400">Pengeluaran akan mengurangi saldo shift admin yang sedang terbuka.</p>
@@ -96,7 +96,7 @@
 
                 @if (!$currentShift)
                     <div class="p-3 mb-4 text-xs leading-relaxed border rounded-md bg-accent-100/50 border-accent-500/20 text-accent-700">
-                        <i class="mr-1 fa-solid fa-triangle-exclamation"></i> Buka shift terlebih dahulu sebelum mencatat pengeluaran.
+                        <x-icon class="mr-1 fa-solid fa-triangle-exclamation" /> Buka shift terlebih dahulu sebelum mencatat pengeluaran.
                     </div>
                 @endif
 
@@ -124,7 +124,7 @@
 
                     <button type="submit" @disabled(!$currentShift)
                         class="inline-flex items-center justify-center w-full h-11 gap-2 text-xs font-semibold text-white transition-colors rounded-md shadow-sm bg-primary-600 hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50">
-                        <i class="fa-solid fa-plus"></i>
+                        <x-icon class="fa-solid fa-plus" />
                         Simpan Pengeluaran
                     </button>
                 </form>
@@ -137,7 +137,7 @@
                         <p class="mt-0.5 text-[11px] text-ink-400">30 mutasi terbaru per halaman.</p>
                     </div>
                     <span class="inline-flex items-center self-start gap-2 px-2.5 py-1 text-[10px] font-semibold rounded-full bg-surface-100 text-ink-700 sm:self-auto">
-                        <i class="fa-solid fa-clock-rotate-left"></i> {{ $entries->total() }} catatan
+                        <x-icon class="fa-solid fa-clock-rotate-left" /> {{ $entries->total() }} catatan
                     </span>
                 </div>
 
@@ -162,7 +162,7 @@
                                     </td>
                                     <td class="px-5 py-4 whitespace-nowrap">
                                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold {{ $meta['badge'] }}">
-                                            <i class="fa-solid {{ $meta['icon'] }}"></i>{{ $meta['label'] }}
+                                            <x-icon class="fa-solid {{ $meta['icon'] }}" />{{ $meta['label'] }}
                                         </span>
                                     </td>
                                     <td class="px-5 py-4 min-w-[220px]">
@@ -184,7 +184,7 @@
                                 </tr>
                             @empty
                                 <tr><td colspan="5" class="px-6 py-16 text-center">
-                                    <div class="flex items-center justify-center w-12 h-12 mx-auto mb-3 rounded-full bg-surface-100 text-ink-400"><i class="fa-solid fa-book-open"></i></div>
+                                    <div class="flex items-center justify-center w-12 h-12 mx-auto mb-3 rounded-full bg-surface-100 text-ink-400"><x-icon class="fa-solid fa-book-open" /></div>
                                     <p class="text-sm font-semibold text-ink-900">Belum ada mutasi kas</p>
                                     <p class="max-w-sm mx-auto mt-1 text-xs leading-relaxed text-ink-400">Penjualan dan aktivitas kas baru akan muncul di sini. Penjualan lama tetap diperhitungkan pada saldo shift.</p>
                                 </td></tr>

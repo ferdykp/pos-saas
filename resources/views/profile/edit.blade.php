@@ -62,13 +62,13 @@
                             <a href="{{ route('billing.index') }}"
                                 class="inline-flex items-center justify-center gap-2 px-4 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-amber-600 hover:bg-amber-700 font-body shrink-0"
                                 title="Kuota cabang penuh, upgrade paket Anda">
-                                <i class="text-xs fa-solid fa-arrow-up-right-from-square"></i>
+                                <x-icon class="text-xs fa-solid fa-arrow-up-right-from-square" />
                                 <span>Upgrade Cabang</span>
                             </a>
                         @else
                             <a href="{{ route('tenants.create') }}"
                                 class="inline-flex items-center justify-center gap-2 px-4 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body shrink-0">
-                                <i class="text-xs fa-solid fa-plus"></i>
+                                <x-icon class="text-xs fa-solid fa-plus" />
                                 <span>Tambah Tenant</span>
                             </a>
                         @endif
@@ -111,7 +111,7 @@
                                             <button type="submit"
                                                 class="p-2 transition-colors border rounded-md text-ink-700 hover:text-primary-600 bg-surface-0 border-border-200 hover:bg-primary-50"
                                                 title="Pindah ke Bisnis Ini">
-                                                <i class="text-xs fa-solid fa-arrow-right-arrow-left"></i>
+                                                <x-icon class="text-xs fa-solid fa-arrow-right-arrow-left" />
                                             </button>
                                         </form>
                                     @endif
@@ -119,7 +119,7 @@
                                     <a href="{{ route('tenants.edit', $tenantItem->id) }}"
                                         class="p-2 transition-colors border rounded-md text-ink-700 hover:text-primary-600 bg-surface-0 border-border-200 hover:bg-primary-50"
                                         title="Edit Tenant">
-                                        <i class="text-xs fa-solid fa-pen-to-square"></i>
+                                        <x-icon class="text-xs fa-solid fa-pen-to-square" />
                                     </a>
 
                                     <form action="{{ route('tenants.destroy', $tenantItem->id) }}" method="POST"
@@ -128,7 +128,7 @@
                                         <button type="submit"
                                             class="p-2 transition-colors border rounded-md text-ink-700 hover:text-semantic-danger bg-surface-0 border-border-200 hover:bg-red-50"
                                             title="Hapus Tenant">
-                                            <i class="text-xs fa-solid fa-trash-can"></i>
+                                            <x-icon class="text-xs fa-solid fa-trash-can" />
                                         </button>
                                     </form>
                                 </div>
@@ -148,7 +148,7 @@
                         @if ($isOutletFull)
                             <a href="{{ route('billing.index') }}"
                                 class="inline-flex items-center justify-center px-4 text-xs font-semibold text-white transition-colors rounded-md h-9 bg-amber-500 hover:bg-amber-600 font-body">
-                                <i class="fa-solid fa-crown mr-1.5 text-[10px]"></i> Upgrade Kuota Cabang
+                                <x-icon class="fa-solid fa-crown mr-1.5 text-[10px]" /> Upgrade Kuota Cabang
                             </a>
                         @else
                             <a href="{{ route('tenants.create') }}"
@@ -157,7 +157,7 @@
                             </a>
                         @endif
                     </div>
-                    <i class="fa-solid fa-store text-primary-700/50 text-9xl absolute right-[-20px] bottom-[-20px]"></i>
+                    <x-icon class="fa-solid fa-store text-primary-700/50 text-9xl absolute right-[-20px] bottom-[-20px]" />
                 </div>
             </div>
 

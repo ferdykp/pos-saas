@@ -25,7 +25,7 @@
                     @endphp
                     <a href="{{ route('billing.index') }}" title="Kelola Paket Langganan"
                         class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-300 hover:bg-amber-200 transition">
-                        <i class="fa-solid fa-crown text-amber-600"></i>
+                        <x-icon class="fa-solid fa-crown text-amber-600" />
                         <span>Paket {{ $activePlan?->name ?? 'Starter' }}</span>
                     </a>
                 @endauth

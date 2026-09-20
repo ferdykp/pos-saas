@@ -24,18 +24,19 @@ use App\Http\Controllers\MenuConfigurationController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentCallbackController;
 // CRM, Marketing & Employee Controllers
+use App\Http\Controllers\PaymentReviewController;
 use App\Http\Controllers\PosApiController;
 use App\Http\Controllers\PosController;
-use App\Http\Controllers\ProductController;
 // Finance, Reports, Settings & AI Controllers
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductVariantController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ServiceJobController;
-use App\Http\Controllers\ServiceOrderController;
 // Admin Controllers
-use App\Http\Controllers\SettingController;
+use App\Http\Controllers\ServiceOrderController;
 // Middlewares
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\SubscriptionController;
@@ -212,6 +213,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/orders/{id}/check-status', [PosController::class, 'checkStatus'])->name('orders.checkStatus');
         Route::get('/pos/check-payment-status/{order}', [PosController::class, 'checkStatus'])->name('pos.check-payment');
 
+        Route::get('/payments/review', [PaymentReviewController::class, 'index'])->middleware('admin')->name('payments.review');
+        Route::post('/payments/review/{order}', [PaymentReviewController::class, 'check'])->middleware('admin')->name('payments.review.check');
         Route::post('/orders/{order}/returns', [CashOperationController::class, 'refund'])->middleware('admin')->name('orders.returns');
         Route::post('/orders/{order}/payments', [CashOperationController::class, 'payment'])->name('orders.payments');
         Route::post('/orders/{order}/cancel', [CashOperationController::class, 'cancel'])->middleware('admin')->name('orders.cancel');

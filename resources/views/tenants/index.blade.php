@@ -14,7 +14,7 @@
         @if (session('status'))
             <div
                 class="flex items-center gap-3 p-4 mb-6 text-sm font-medium border-l-4 rounded-md shadow-sm bg-primary-50 border-primary-600 text-ink-900">
-                <i class="text-base fa-solid fa-circle-check text-primary-600"></i>
+                <x-icon class="text-base fa-solid fa-circle-check text-primary-600" />
                 <span>{{ session('status') }}</span>
             </div>
         @endif
@@ -25,7 +25,7 @@
             <div class="flex items-center gap-3">
                 <div
                     class="flex items-center justify-center w-10 h-10 rounded-full bg-primary-50 text-primary-600 shrink-0">
-                    <i class="fa-solid fa-store"></i>
+                    <x-icon class="fa-solid fa-store" />
                 </div>
                 <div>
                     <h4 class="text-xs font-bold text-ink-900">Kuota Cabang Bisnis (Paket
@@ -41,7 +41,7 @@
             @if ($isOutletFull)
                 <a href="{{ route('billing.index') }}"
                     class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-md transition shrink-0">
-                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                    <x-icon class="fa-solid fa-arrow-up-right-from-square text-[10px]" />
                     <span>Upgrade Cabang</span>
                 </a>
             @endif
@@ -62,13 +62,13 @@
             @if ($isOutletFull)
                 <button disabled title="Kuota cabang paket {{ $currentPlan?->name }} sudah penuh"
                     class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold border rounded-md cursor-not-allowed text-ink-400 bg-surface-100 border-border-200 h-11 opacity-60 font-body md:text-sm shrink-0">
-                    <i class="text-xs fa-solid fa-lock"></i>
+                    <x-icon class="text-xs fa-solid fa-lock" />
                     <span>Kuota Cabang Penuh</span>
                 </button>
             @else
                 <a href="{{ route('tenants.create') }}"
                     class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body md:text-sm shrink-0">
-                    <i class="text-xs fa-solid fa-plus"></i>
+                    <x-icon class="text-xs fa-solid fa-plus" />
                     <span>Tambah Tenant Baru</span>
                 </a>
             @endif
@@ -99,7 +99,7 @@
 
         <!-- Table Container -->
         <div class="overflow-hidden border rounded-lg shadow-sm bg-surface-0 border-border-200">
-            <div class="w-full overflow-x-auto custom-scrollbar">
+            <div class="w-full overflow-x-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-surface-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-ink-400">
                 <table class="w-full text-left border-collapse whitespace-nowrap">
                     <thead>
                         <tr
@@ -180,14 +180,14 @@
                                         <a href="{{ route('tenants.edit', $tenant->id) }}"
                                             class="p-2 transition-colors rounded-md text-ink-700 hover:text-accent-700 bg-surface-100 hover:bg-accent-100"
                                             title="Edit Information">
-                                            <i class="text-xs fa-solid fa-pen-to-square"></i>
+                                            <x-icon class="text-xs fa-solid fa-pen-to-square" />
                                         </a>
 
                                         <button type="button"
                                             @click="showDeleteModal = true; deleteUrl = '{{ route('tenants.destroy', $tenant->id) }}'; tenantName = '{{ $tenant->name }}'"
                                             class="p-2 transition-colors rounded-md text-ink-700 hover:text-semantic-danger bg-surface-100 hover:bg-red-50"
                                             title="Hapus Tenant">
-                                            <i class="text-xs fa-solid fa-trash-can"></i>
+                                            <x-icon class="text-xs fa-solid fa-trash-can" />
                                         </button>
                                     </div>
                                 </td>
@@ -196,7 +196,7 @@
                             <tr>
                                 <td colspan="5" class="px-6 py-12 text-center">
                                     <div class="flex flex-col items-center justify-center">
-                                        <i class="mb-2 text-3xl fa-solid fa-store-slash text-ink-400"></i>
+                                        <x-icon class="mb-2 text-3xl fa-solid fa-store-slash text-ink-400" />
                                         <p class="text-sm font-semibold font-body text-ink-900">Belum ada tenant
                                             terdaftar</p>
                                         <p class="font-body text-xs text-ink-700 mt-0.5">Mulai dengan menambahkan outlet
@@ -215,14 +215,14 @@
             x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
             x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-900/40 backdrop-blur-sm" x-cloak>
+            class="[&[x-cloak]]:!hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-900/40 backdrop-blur-sm" x-cloak>
 
             <div class="w-full p-6 border rounded-lg shadow-lg max-w-modal-sm bg-surface-0 border-border-200"
                 @click.away="showDeleteModal = false">
 
                 <div
                     class="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-red-50 text-semantic-danger">
-                    <i class="text-xl fa-solid fa-triangle-exclamation"></i>
+                    <x-icon class="text-xl fa-solid fa-triangle-exclamation" />
                 </div>
 
                 <div class="mb-6 text-center">

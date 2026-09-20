@@ -15,7 +15,7 @@
                     Bagaimana usahamu hari ini?
                 </h1>
                 <p class="flex items-center gap-2 mt-1 text-xs sm:text-sm text-ink-700">
-                    <i class="fa-regular fa-clock text-ink-400"></i>
+                    <x-icon class="fa-regular fa-clock text-ink-400" />
                     <span>{{ $start->translatedFormat('d M Y') }} — {{ $end->translatedFormat('d M Y') }}</span>
                     <span class="text-ink-400">•</span>
                     <span class="text-ink-700">Transaksi lunas, diperbarui saat dimuat.</span>
@@ -23,9 +23,9 @@
             </div>
             <a href="{{ route('pos.index') }}"
                 class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-primary-600 hover:bg-primary-700 text-white font-semibold text-sm shadow-sm transition-all duration-150 group">
-                <i class="text-base transition-transform fa-solid fa-cash-register group-hover:scale-110"></i>
+                <x-icon class="text-base transition-transform fa-solid fa-cash-register group-hover:scale-110" />
                 <span>Buka Kasir</span>
-                <i class="text-xs opacity-75 fa-solid fa-arrow-up-right-from-square"></i>
+                <x-icon class="text-xs opacity-75 fa-solid fa-arrow-up-right-from-square" />
             </a>
         </div>
 
@@ -36,7 +36,7 @@
                 <div class="space-y-1">
                     <span
                         class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-primary-100 text-primary-700">
-                        <i class="fa-solid fa-flag text-[9px]"></i> Langkah Pertama
+                        <x-icon class="fa-solid fa-flag text-[9px]" /> Langkah Pertama
                     </span>
                     <h2 class="text-base font-bold transition-colors text-ink-900 group-hover:text-primary-600">
                         {{ !$hasMenu ? 'Siapkan menu, lalu mulai berjualan.' : 'Menu sudah siap. Yuk, buat transaksi pertama.' }}
@@ -45,7 +45,7 @@
                 </div>
                 <span
                     class="inline-flex items-center gap-2 mt-4 text-xs font-semibold transition-transform sm:mt-0 text-primary-600 group-hover:translate-x-1">
-                    Lanjutkan setup <i class="fa-solid fa-arrow-right"></i>
+                    Lanjutkan setup <x-icon class="fa-solid fa-arrow-right" />
                 </span>
             </a>
         @endif
@@ -90,7 +90,7 @@
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-bold tracking-wider uppercase text-ink-400">Penjualan Lunas</span>
                         <span class="p-2 rounded-lg bg-primary-50 text-primary-600">
-                            <i class="fa-solid fa-wallet"></i>
+                            <x-icon class="fa-solid fa-wallet" />
                         </span>
                     </div>
                     <p class="mt-2 text-2xl font-bold text-ink-900">Rp{{ number_format($revenue, 0, ',', '.') }}</p>
@@ -114,7 +114,7 @@
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-bold tracking-wider uppercase text-ink-400">Pesanan Selesai</span>
                         <span class="p-2 rounded-lg bg-primary-50 text-primary-600">
-                            <i class="fa-solid fa-receipt"></i>
+                            <x-icon class="fa-solid fa-receipt" />
                         </span>
                     </div>
                     <p class="mt-2 text-2xl font-bold text-ink-900">{{ number_format($orderCount) }}</p>
@@ -132,7 +132,7 @@
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-bold tracking-wider uppercase text-ink-400">Estimasi Laba Kotor</span>
                         <span class="p-2 rounded-lg bg-accent-100 text-accent-700">
-                            <i class="fa-solid fa-chart-line"></i>
+                            <x-icon class="fa-solid fa-chart-line" />
                         </span>
                     </div>
                     <p class="mt-2 text-2xl font-bold text-ink-900">
@@ -151,7 +151,7 @@
                         <span class="text-xs font-bold tracking-wider uppercase text-ink-400">Selisih Kas Shift</span>
                         <span
                             class="p-2 rounded-lg {{ $cashDifference != 0 ? 'bg-amber-100 text-semantic-warning' : 'bg-surface-100 text-ink-400' }}">
-                            <i class="fa-solid fa-scale-unbalanced"></i>
+                            <x-icon class="fa-solid fa-scale-unbalanced" />
                         </span>
                     </div>
                     <p class="mt-2 text-2xl font-bold text-ink-900">Rp{{ number_format($cashDifference, 0, ',', '.') }}
@@ -161,7 +161,7 @@
                     <a href="{{ route('shifts.index') }}"
                         class="inline-flex items-center gap-1 font-semibold text-primary-600 hover:text-primary-700">
                         <span>{{ $shiftIssueCount }} shift perlu diperiksa</span>
-                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        <x-icon class="fa-solid fa-chevron-right text-[10px]" />
                     </a>
                 </div>
             </div>
@@ -174,7 +174,7 @@
                 <div>
                     <div class="flex items-center justify-between pb-4 mb-4 border-b border-border-200">
                         <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-circle-exclamation text-semantic-warning"></i>
+                            <x-icon class="fa-solid fa-circle-exclamation text-semantic-warning" />
                             <h2 class="text-base font-bold text-ink-900">Perlu Diperhatikan</h2>
                         </div>
                         <span
@@ -187,7 +187,7 @@
                         @if ($change !== null && $change < 0)
                             <a href="{{ route('reports.index', ['start_date' => $start->toDateString(), 'end_date' => $end->toDateString()]) }}"
                                 class="flex items-start gap-3 p-3 transition-colors border border-red-100 rounded-lg bg-red-50/50 hover:bg-red-50">
-                                <i class="mt-1 fa-solid fa-arrow-trend-down text-semantic-danger"></i>
+                                <x-icon class="mt-1 fa-solid fa-arrow-trend-down text-semantic-danger" />
                                 <div class="text-xs">
                                     <p class="font-bold text-ink-900">Penjualan turun {{ abs($change) }}%</p>
                                     <p class="text-ink-700 mt-0.5">Periode sebelumnya
@@ -200,7 +200,7 @@
                         @foreach ($lowStock as $product)
                             <a href="{{ route('inventory.index') }}"
                                 class="flex items-start gap-3 p-3 transition-colors border rounded-lg bg-amber-50/50 hover:bg-amber-50 border-amber-100">
-                                <i class="mt-1 fa-solid fa-box-open text-semantic-warning"></i>
+                                <x-icon class="mt-1 fa-solid fa-box-open text-semantic-warning" />
                                 <div class="text-xs">
                                     <p class="font-bold text-ink-900">Stok Menipis: {{ $product->product_name }}</p>
                                     <p class="text-ink-700 mt-0.5">Sisa {{ $product->stock }} (Batas minimal
@@ -212,7 +212,7 @@
                         @foreach ($lowMaterials as $material)
                             <a href="{{ route('materials.index') }}"
                                 class="flex items-start gap-3 p-3 transition-colors border rounded-lg bg-amber-50/50 hover:bg-amber-50 border-amber-100">
-                                <i class="mt-1 fa-solid fa-cubes text-semantic-warning"></i>
+                                <x-icon class="mt-1 fa-solid fa-cubes text-semantic-warning" />
                                 <div class="text-xs">
                                     <p class="font-bold text-ink-900">Bahan Baku Menipis: {{ $material->name }}</p>
                                     <p class="text-ink-700 mt-0.5">Sisa {{ $material->stock }} {{ $material->unit }}.
@@ -224,7 +224,7 @@
                         @foreach ($shiftIssues->take(3) as $shift)
                             <a href="{{ route('shifts.index') }}"
                                 class="flex items-start gap-3 p-3 transition-colors rounded-lg bg-surface-100 hover:bg-border-200">
-                                <i class="mt-1 fa-solid fa-user-clock text-ink-400"></i>
+                                <x-icon class="mt-1 fa-solid fa-user-clock text-ink-400" />
                                 <div class="text-xs">
                                     <p class="font-bold text-ink-900">Selisih Kas Shift: {{ $shift->user?->name }}</p>
                                     <p class="text-ink-700 mt-0.5">Terdapat perbedaan kas sebesar
@@ -235,7 +235,7 @@
 
                         @if ($lowStock->isEmpty() && $lowMaterials->isEmpty() && $shiftIssues->isEmpty() && !($change !== null && $change < 0))
                             <div class="py-8 text-center text-ink-400">
-                                <i class="mb-2 text-2xl fa-solid fa-circle-check text-semantic-success"></i>
+                                <x-icon class="mb-2 text-2xl fa-solid fa-circle-check text-semantic-success" />
                                 <p class="text-xs font-semibold">Semua aman! Tidak ada kendala stok atau kas shift.</p>
                             </div>
                         @endif
@@ -248,7 +248,7 @@
                 <div>
                     <div class="flex items-center justify-between pb-4 mb-4 border-b border-border-200">
                         <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-fire text-accent-500"></i>
+                            <x-icon class="fa-solid fa-fire text-accent-500" />
                             <h2 class="text-base font-bold text-ink-900">Produk Terlaris</h2>
                         </div>
                         <span class="text-xs text-ink-400">Berdasarkan volume</span>
@@ -266,14 +266,11 @@
                                     </span>
                                     <span class="font-bold text-primary-600">{{ $product->quantity }} terjual</span>
                                 </div>
-                                <div class="w-full h-2 overflow-hidden rounded-full bg-surface-100">
-                                    <div class="h-full transition-all duration-500 rounded-full bg-primary-600"
-                                        style="width: {{ $percent }}%"></div>
-                                </div>
+                                <progress aria-label="Penjualan {{ $product->product_name }}" value="{{ $percent }}" max="100" class="block w-full h-2 overflow-hidden rounded-full appearance-none border-0 bg-surface-100 [&::-webkit-progress-bar]:bg-surface-100 [&::-webkit-progress-value]:bg-primary-600 [&::-moz-progress-bar]:bg-primary-600"></progress>
                             </div>
                         @empty
                             <div class="py-8 text-center text-ink-400">
-                                <i class="mb-2 text-2xl fa-solid fa-chart-bar"></i>
+                                <x-icon class="mb-2 text-2xl fa-solid fa-chart-bar" />
                                 <p class="text-xs">Belum ada transaksi pada periode ini.</p>
                             </div>
                         @endforelse
@@ -288,12 +285,12 @@
             <div class="p-6 border shadow-sm bg-surface-0 rounded-xl border-border-200">
                 <div class="flex items-center justify-between pb-4 mb-4 border-b border-border-200">
                     <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-clock-rotate-left text-ink-400"></i>
+                        <x-icon class="fa-solid fa-clock-rotate-left text-ink-400" />
                         <h2 class="text-base font-bold text-ink-900">Transaksi Terbaru</h2>
                     </div>
                     <a href="{{ route('orders.index') }}"
                         class="flex items-center gap-1 text-xs font-semibold text-primary-600 hover:text-primary-700">
-                        Semua Nota <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        Semua Nota <x-icon class="fa-solid fa-chevron-right text-[10px]" />
                     </a>
                 </div>
 
@@ -304,7 +301,7 @@
                             <div class="flex items-center gap-3">
                                 <div
                                     class="flex items-center justify-center w-8 h-8 text-xs font-bold rounded-full bg-primary-50 text-primary-600">
-                                    <i class="fa-solid fa-user"></i>
+                                    <x-icon class="fa-solid fa-user" />
                                 </div>
                                 <div>
                                     <p class="text-xs font-bold text-ink-900">
@@ -332,7 +329,7 @@
                 <div>
                     <div class="flex items-center justify-between pb-4 mb-4 border-b border-border-200">
                         <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-credit-card text-ink-400"></i>
+                            <x-icon class="fa-solid fa-credit-card text-ink-400" />
                             <h2 class="text-base font-bold text-ink-900">Pembayaran Masuk</h2>
                         </div>
                         <span class="text-xs text-ink-400">Berdasarkan Kanal</span>
@@ -366,14 +363,14 @@
 
                 <div class="pt-4 mt-6 border-t border-border-200">
                     <p class="text-[11px] text-ink-400 leading-relaxed">
-                        <i class="fa-solid fa-circle-info"></i> Angka penjualan termasuk pajak. Saldo pencairan QRIS
+                        <x-icon class="fa-solid fa-circle-info" /> Angka penjualan termasuk pajak. Saldo pencairan QRIS
                         dapat berbeda karena potongan MDR/komisi.
                     </p>
                     @can('manage-finance')
                         <a href="{{ route('finance.index') }}"
                             class="inline-flex items-center justify-center w-full gap-2 px-4 py-2 mt-3 text-xs font-semibold transition-colors rounded-lg bg-surface-100 hover:bg-border-200 text-ink-900">
                             <span>Lihat Dompet Toko</span>
-                            <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                            <x-icon class="fa-solid fa-arrow-right text-[10px]" />
                         </a>
                     @endcan
                 </div>

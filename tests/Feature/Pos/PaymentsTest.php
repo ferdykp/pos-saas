@@ -7,7 +7,9 @@ use App\Models\Order;
 use App\Models\Setting;
 use App\Services\CustomerPoints;
 use App\Services\MidtransGateway;
+use App\Services\OrderPaymentService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class PaymentsTest extends PosTestCase
 {
@@ -83,7 +85,7 @@ class PaymentsTest extends PosTestCase
         $user = $this->shop();
         $product = $this->product($user, ['manage_stock' => true]);
         $this->shift($user);
-        $payload = $this->checkout($product, ['payment_method' => 'midtrans']);
+        $payload = $this->checkout($product, ['payment_method' => 'midtrans', 'checkout_key' => (string) Str::uuid()]);
         $this->mock(MidtransGateway::class, fn ($mock) => $mock->shouldReceive('charge')->once()->andThrow(new \RuntimeException('gateway timeout')));
 
         $this->actingAs($user)->postJson('/pos', $payload)->assertStatus(503)->assertJsonPath('success', false)->assertDontSee('gateway timeout');
@@ -98,6 +100,36 @@ class PaymentsTest extends PosTestCase
         // A browser retry with the same checkout key must not create or charge a second order.
         $this->actingAs($user)->postJson('/pos', $payload)->assertOk()->assertJsonPath('order_status', 'cancelled');
         $this->assertDatabaseCount('orders', 1);
+    }
+
+    public function test_gateway_runs_after_order_commit_and_concurrent_settlement_survives_timeout(): void
+    {
+        $user = $this->shop();
+        $product = $this->product($user, ['manage_stock' => true]);
+        $this->shift($user);
+        $baselineLevel = DB::transactionLevel();
+        $this->mock(MidtransGateway::class, function ($mock) use ($baselineLevel) {
+            $mock->shouldReceive('charge')->once()->andReturnUsing(function ($invoice, $amount) use ($baselineLevel) {
+                $this->assertSame($baselineLevel, DB::transactionLevel());
+                $order = Order::where('invoice_number', $invoice)->firstOrFail();
+                app(OrderPaymentService::class)->apply($order->id, ['order_id' => $invoice, 'gross_amount' => $amount, 'transaction_status' => 'settlement']);
+                throw new \RuntimeException('Simulated response timeout after settlement');
+            });
+        });
+        $this->actingAs($user)->postJson('/pos', $this->checkout($product, ['payment_method' => 'midtrans']))->assertOk()->assertJsonPath('payment_status', 'paid');
+        $this->assertEquals(9, $product->fresh()->stock);
+        $this->assertEquals(9850, DB::table('tenant_wallets')->value('balance'));
+        $this->assertDatabaseCount('stock_movements', 1);
+    }
+
+    public function test_qris_requires_stable_reference_before_any_gateway_call(): void
+    {
+        $user = $this->shop();
+        $product = $this->product($user);
+        $this->shift($user);
+        $this->mock(MidtransGateway::class, fn ($mock) => $mock->shouldNotReceive('charge'));
+        $this->actingAs($user)->postJson('/pos', $this->checkout($product, ['payment_method' => 'midtrans', 'checkout_key' => null]))->assertUnprocessable();
+        $this->assertDatabaseCount('orders', 0);
     }
 
     public function test_invalid_signature_and_mismatched_amount_do_not_credit(): void

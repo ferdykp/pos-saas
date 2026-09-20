@@ -13,7 +13,7 @@ class Order extends Model
     use BelongsToTenant, HasFactory;
 
     protected $fillable = [
-        'service_due_at',
+        'payment_attention', 'service_due_at',
         'points_awarded', 'cash_tracked', 'cancellation_reason', 'cancelled_by', 'cancelled_at',
         'tenant_id',
         'shift_id',

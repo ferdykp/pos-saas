@@ -14,7 +14,7 @@
         @if (session('success'))
             <div
                 class="flex items-center gap-3 p-4 mb-6 text-sm font-medium border-l-4 rounded-md shadow-sm bg-primary-50 border-primary-600 text-ink-900">
-                <i class="text-base fa-solid fa-circle-check text-primary-600"></i>
+                <x-icon class="text-base fa-solid fa-circle-check text-primary-600" />
                 <span>{{ session('success') }}</span>
             </div>
         @endif
@@ -22,7 +22,7 @@
         @if (session('error'))
             <div
                 class="flex items-center gap-3 p-4 mb-6 text-sm font-medium border-l-4 rounded-md shadow-sm bg-red-50 border-semantic-danger text-ink-900">
-                <i class="text-base fa-solid fa-circle-exclamation text-semantic-danger"></i>
+                <x-icon class="text-base fa-solid fa-circle-exclamation text-semantic-danger" />
                 <span>{{ session('error') }}</span>
             </div>
         @endif
@@ -33,7 +33,7 @@
             <div class="flex items-center gap-3">
                 <div
                     class="flex items-center justify-center w-10 h-10 rounded-full bg-primary-50 text-primary-600 shrink-0">
-                    <i class="fa-solid fa-boxes-stacked"></i>
+                    <x-icon class="fa-solid fa-boxes-stacked" />
                 </div>
                 <div>
                     <h4 class="text-xs font-bold text-ink-900">Kuota Katalog Produk (Paket
@@ -49,7 +49,7 @@
             @if ($isProductFull)
                 <a href="{{ route('billing.index') }}"
                     class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-md transition shrink-0">
-                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                    <x-icon class="fa-solid fa-arrow-up-right-from-square text-[10px]" />
                     <span>Upgrade Kuota Produk</span>
                 </a>
             @endif
@@ -70,13 +70,13 @@
             @if ($isProductFull)
                 <button disabled title="Kuota produk paket {{ $currentPlan?->name }} sudah penuh"
                     class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold border rounded-md cursor-not-allowed text-ink-400 bg-surface-100 border-border-200 h-11 opacity-60 font-body md:text-sm shrink-0">
-                    <i class="text-xs fa-solid fa-lock"></i>
+                    <x-icon class="text-xs fa-solid fa-lock" />
                     <span>Kuota Produk Penuh</span>
                 </button>
             @else
                 <a href="{{ route('products.create') }}"
                     class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body md:text-sm shrink-0">
-                    <i class="text-xs fa-solid fa-plus"></i>
+                    <x-icon class="text-xs fa-solid fa-plus" />
                     <span>Tambah Produk Baru</span>
                 </a>
             @endif
@@ -95,7 +95,7 @@
                 </div>
                 <div
                     class="flex items-center justify-center text-lg rounded-md w-11 h-11 bg-primary-50 text-primary-600 shrink-0">
-                    <i class="fa-solid fa-box-archive"></i>
+                    <x-icon class="fa-solid fa-box-archive" />
                 </div>
             </div>
 
@@ -111,7 +111,7 @@
                 </div>
                 <div
                     class="flex items-center justify-center text-lg rounded-md w-11 h-11 bg-primary-100 text-primary-700 shrink-0">
-                    <i class="fa-solid fa-boxes-stacked"></i>
+                    <x-icon class="fa-solid fa-boxes-stacked" />
                 </div>
             </div>
 
@@ -127,14 +127,14 @@
                 </div>
                 <div
                     class="flex items-center justify-center text-lg rounded-md w-11 h-11 bg-red-50 text-semantic-danger shrink-0">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <x-icon class="fa-solid fa-triangle-exclamation" />
                 </div>
             </div>
         </div>
 
         <!-- Table Container -->
         <div class="mb-6 overflow-hidden border rounded-lg shadow-sm bg-surface-0 border-border-200">
-            <div class="w-full overflow-x-auto custom-scrollbar">
+            <div class="w-full overflow-x-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-surface-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-ink-400">
                 <table class="w-full text-left border-collapse whitespace-nowrap">
                     <thead>
                         <tr
@@ -200,12 +200,12 @@
                                     @elseif (empty($product->manage_stock))
                                         <span
                                             class="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold text-primary-700 bg-primary-100 rounded-full">
-                                            <i class="fa-solid fa-infinity text-[10px] mr-1"></i> Unlimited
+                                            <x-icon class="fa-solid fa-infinity text-[10px] mr-1" /> Unlimited
                                         </span>
                                     @elseif ($product->stock <= $product->min_stock)
                                         <span
                                             class="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold text-semantic-danger bg-red-50 rounded-full">
-                                            <i class="fa-solid fa-circle-exclamation text-[10px]"></i>
+                                            <x-icon class="fa-solid fa-circle-exclamation text-[10px]" />
                                             {{ $product->stock }} Unit (Menipis)
                                         </span>
                                     @else
@@ -221,14 +221,14 @@
                                         <a href="{{ route('products.edit', $product->id) }}"
                                             class="p-2 transition-colors rounded-md text-ink-700 hover:text-primary-600 bg-surface-100 hover:bg-primary-50"
                                             title="Edit Produk">
-                                            <i class="text-xs fa-solid fa-pen-to-square"></i>
+                                            <x-icon class="text-xs fa-solid fa-pen-to-square" />
                                         </a>
 
                                         <button type="button"
                                             @click="showDeleteModal = true; deleteUrl = '{{ route('products.destroy', $product->id) }}'; productName = '{{ addslashes($product->product_name) }}'"
                                             class="p-2 transition-colors rounded-md text-ink-700 hover:text-semantic-danger bg-surface-100 hover:bg-red-50"
                                             title="Hapus Produk">
-                                            <i class="text-xs fa-solid fa-trash-can"></i>
+                                            <x-icon class="text-xs fa-solid fa-trash-can" />
                                         </button>
                                     </div>
                                 </td>
@@ -239,7 +239,7 @@
                                     <div class="flex flex-col items-center justify-center">
                                         <div
                                             class="flex items-center justify-center w-12 h-12 mb-2 rounded-full bg-primary-50 text-primary-600">
-                                            <i class="text-xl fa-solid fa-boxes-packing"></i>
+                                            <x-icon class="text-xl fa-solid fa-boxes-packing" />
                                         </div>
                                         <p class="text-sm font-semibold font-heading text-ink-900">Belum ada produk
                                             dalam katalog</p>
@@ -254,12 +254,12 @@
 
         <!-- Modal Confirm Hapus Produk -->
         <div x-show="showDeleteModal" x-cloak
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-900/40 backdrop-blur-[2px]">
+            class="[&[x-cloak]]:!hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-900/40 backdrop-blur-[2px]">
             <div class="w-full p-6 border rounded-lg shadow-lg max-w-modal-sm bg-surface-0 border-border-200"
                 @click.away="showDeleteModal = false">
                 <div
                     class="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-red-50 text-semantic-danger">
-                    <i class="text-xl fa-solid fa-trash-can"></i>
+                    <x-icon class="text-xl fa-solid fa-trash-can" />
                 </div>
                 <div class="mb-6 text-center">
                     <h3 class="text-lg font-semibold font-heading text-ink-900">Hapus Produk Ini?</h3>

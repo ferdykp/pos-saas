@@ -114,3 +114,17 @@ test("cashier filters goods and services without changing the catalog", () => {
     pos.itemType = "all";
     assert.equal(pos.filtered.length, 2);
 });
+
+test("unconfirmed QR without an image never opens the paid receipt", () => {
+    const pos = terminal();
+    pos.showResult({
+        order_id: 19,
+        payment_method: "midtrans",
+        payment_status: "unpaid",
+        order_status: "pending",
+        qr_url: null,
+    });
+    assert.equal(pos.modal, "qris");
+    assert.equal(pos.pendingPayments.length, 1);
+    assert.equal(pos.payment.order_id, 19);
+});

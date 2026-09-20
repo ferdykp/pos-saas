@@ -7,7 +7,7 @@
         @if (session('success'))
             <div
                 class="flex items-center gap-3 p-4 mb-6 text-sm font-medium border-l-4 rounded-md shadow-sm bg-primary-50 border-primary-600 text-ink-900">
-                <i class="text-base fa-solid fa-circle-check text-primary-600"></i>
+                <x-icon class="text-base fa-solid fa-circle-check text-primary-600" />
                 <span>{{ session('success') }}</span>
             </div>
         @endif
@@ -15,7 +15,7 @@
         @if (session('warning'))
             <div
                 class="flex items-center gap-3 p-4 mb-6 text-sm font-medium border-l-4 rounded-md shadow-sm bg-amber-50 border-amber-500 text-ink-900">
-                <i class="text-base fa-solid fa-triangle-exclamation text-amber-600"></i>
+                <x-icon class="text-base fa-solid fa-triangle-exclamation text-amber-600" />
                 <span>{{ session('warning') }}</span>
             </div>
         @endif
@@ -39,7 +39,7 @@
                 <div class="flex items-center gap-2.5 pb-4 mb-6 border-b border-border-200">
                     <div
                         class="flex items-center justify-center w-8 h-8 text-xs font-bold rounded-md bg-primary-50 text-primary-600 font-heading">
-                        <i class="text-xs fa-solid fa-receipt"></i>
+                        <x-icon class="text-xs fa-solid fa-receipt" />
                     </div>
                     <h3 class="text-base font-semibold font-heading text-ink-900">
                         Konfigurasi Pajak Restoran / PPN
@@ -85,7 +85,7 @@
                     <div class="flex items-center gap-2.5">
                         <div
                             class="flex items-center justify-center w-8 h-8 text-xs font-bold rounded-md bg-accent-100 text-accent-700 font-heading">
-                            <i class="text-xs fa-solid fa-star"></i>
+                            <x-icon class="text-xs fa-solid fa-star" />
                         </div>
                         <h3 class="text-base font-semibold font-heading text-ink-900">
                             Konfigurasi Poin Loyalitas Pelanggan (CRM)
@@ -95,7 +95,7 @@
                     @cannot('feature-crm')
                         <span
                             class="px-2.5 py-1 text-[10px] font-extrabold text-amber-900 bg-amber-100 border border-amber-300 rounded-full uppercase tracking-wider">
-                            <i class="fa-solid fa-lock text-[9px] mr-1"></i> Paket Growth & Scale
+                            <x-icon class="fa-solid fa-lock text-[9px] mr-1" /> Paket Growth & Scale
                         </span>
                     @endcannot
                 </div>
@@ -158,7 +158,7 @@
                         <div class="flex items-center gap-3">
                             <div
                                 class="flex items-center justify-center w-10 h-10 rounded-full bg-amber-100 text-amber-700 shrink-0">
-                                <i class="text-base fa-solid fa-crown"></i>
+                                <x-icon class="text-base fa-solid fa-crown" />
                             </div>
                             <div>
                                 <h4 class="text-xs font-bold text-amber-900">Fitur CRM & Poin Pelanggan Terkunci</h4>
@@ -170,7 +170,7 @@
                         </div>
                         <a href="{{ route('billing.index') }}"
                             class="inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-md transition shadow-sm shrink-0">
-                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                            <x-icon class="fa-solid fa-arrow-up-right-from-square text-[10px]" />
                             <span>Upgrade Paket</span>
                         </a>
                     </div>
@@ -199,7 +199,7 @@
             <div class="flex items-center justify-end p-4 border rounded-lg shadow-sm bg-surface-0 border-border-200">
                 <button type="submit"
                     class="inline-flex items-center justify-center gap-2 px-6 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body md:text-sm">
-                    <i class="text-xs fa-solid fa-check"></i>
+                    <x-icon class="text-xs fa-solid fa-check" />
                     <span>Simpan Semua Pengaturan</span>
                 </button>
             </div>

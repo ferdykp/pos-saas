@@ -28,14 +28,13 @@
             <div class="grid items-stretch grid-cols-1 gap-8 py-8 lg:grid-cols-2">
 
                 <!-- KOLOM KIRI -->
-                <div class="flex flex-col justify-between p-6 space-y-4 rounded-lg" data-aos="fade-right"
-                    data-aos-delay="100">
+                <div class="flex flex-col justify-between p-6 space-y-4 rounded-lg">
                     <div>
                         <!-- Badge Telah Dipercaya -->
-                        <div data-aos="fade-down" class="inline-block py-2">
+                        <div class="inline-block py-2">
                             <div
                                 class="text-body-sm rounded-md tracking-wider text-primary-900 font-semibold px-3 py-1.5 bg-accent-500/30">
-                                <i class="mr-1 fa-regular fa-circle-check"></i>Telah dipercaya 5,000+ UMKM Indonesia
+                                <x-icon class="mr-1 fa-regular fa-circle-check" />Telah dipercaya 5,000+ UMKM Indonesia
                             </div>
                         </div>
 
@@ -63,9 +62,9 @@
                         <div
                             class="flex-1 px-6 py-3 rounded-md bg-primary-100/80 border-[1px] border-primary-500 shadow-md min-w-[200px]">
                             <div class="flex items-center justify-center text-primary-900">
-                                <i class="mr-3 text-[20px] fa-solid fa-gauge-simple-high"></i>
-                                <div class="flex-col ">
-                                    <div class="font-bold text-body-base ">Setup Cepat</div>
+                                <x-icon class="mr-3 text-[20px] fa-solid fa-gauge-simple-high" />
+                                <div class="flex-col">
+                                    <div class="font-bold text-body-base">Setup Cepat</div>
                                     <div class="font-semibold text-body-sm">Kurang dari 5 Menit</div>
                                 </div>
                             </div>
@@ -73,7 +72,7 @@
                         <div
                             class="flex-1 px-6 py-3 rounded-md bg-primary-100/80 border-[1px] border-primary-500 shadow-md min-w-[200px]">
                             <div class="flex items-center justify-center text-primary-900">
-                                <i class="mr-3 text-[20px] fa-solid fa-headset"></i>
+                                <x-icon class="mr-3 text-[20px] fa-solid fa-headset" />
                                 <div class="flex-col">
                                     <div class="font-bold text-body-base">Support 24/7</div>
                                     <div class="font-semibold text-body-sm">Bantuan Kapan Saja</div>
@@ -99,8 +98,8 @@
 
                             <!-- Progress Bar -->
                             <div class="w-full h-2 mb-6 overflow-hidden rounded-full bg-surface-100">
-                                <div class="h-full transition-all duration-500 rounded-full bg-primary-600"
-                                    style="width: 50%"></div>
+                                <div class="h-full transition-all duration-500 rounded-full bg-primary-600 [width:50%]"
+                                   ></div>
                             </div>
 
                             <div class="text-h2 text-ink-900">Daftar Akun Baru</div>
@@ -192,7 +191,7 @@
                                                     <!-- Icon Mata Tertutup -->
                                                     <svg x-show="showPassword" xmlns="http://www.w3.org/2000/svg"
                                                         fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                                        stroke="currentColor" class="w-5 h-5" style="display: none;">
+                                                        stroke="currentColor" class="w-5 h-5 [&[x-cloak]]:!hidden" x-cloak>
                                                         <path stroke-linecap="round" stroke-linejoin="round"
                                                             d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 1-4.243-4.243m4.242 4.242L9.88 9.88" />
                                                     </svg>
@@ -247,9 +246,9 @@
                                         <button type="submit" ::disabled="isSubmitting"
                                             class="w-full flex justify-center items-center py-4 bg-primary-600 hover:bg-primary-900 text-white font-semibold rounded-lg text-body-lg shadow-lg shadow-primary-100 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed">
                                             <svg x-show="isSubmitting"
-                                                class="w-5 h-5 mr-3 -ml-1 text-white animate-spin"
+                                                class="w-5 h-5 mr-3 -ml-1 text-white animate-spin [&[x-cloak]]:!hidden"
                                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                style="display: none;">
+                                                x-cloak>
                                                 <circle class="opacity-25" cx="12" cy="12" r="10"
                                                     stroke="currentColor" stroke-width="4"></circle>
                                                 <path class="opacity-75" fill="currentColor"
@@ -315,11 +314,11 @@
                     <div class="flex space-x-3 text-xl text-primary-600">
                         <div
                             class="flex items-center justify-center rounded-full border-[1px] border-primary-500 bg-primary-600/15 w-[36px] h-[36px]">
-                            <i class="fa-solid fa-earth-americas"></i>
+                            <x-icon class="fa-solid fa-earth-americas" />
                         </div>
                         <div
                             class="items-center justify-center flex rounded-full bg-primary-600/15 w-[36px] h-[36px] border-[1px] border-primary-500">
-                            <i class="fa-solid fa-share-nodes"></i>
+                            <x-icon class="fa-solid fa-share-nodes" />
                         </div>
                     </div>
                 </div>

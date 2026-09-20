@@ -7,7 +7,7 @@
         <div class="mb-6">
             <a href="{{ route('discounts.index') }}"
                 class="inline-flex items-center gap-2 mb-2 text-xs font-semibold font-body text-primary-600 hover:text-primary-700">
-                <i class="text-xs fa-solid fa-arrow-left"></i>
+                <x-icon class="text-xs fa-solid fa-arrow-left" />
                 <span>Kembali ke Manajemen Diskon</span>
             </a>
             <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
@@ -102,7 +102,7 @@
                     </div>
 
                     <div
-                        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 p-3 bg-surface-100 border border-border-200 rounded-md max-h-56 overflow-y-auto custom-scrollbar">
+                        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 p-3 bg-surface-100 border border-border-200 rounded-md max-h-56 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-surface-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-ink-400">
                         @foreach ($products as $product)
                             <label
                                 class="flex items-center gap-2.5 p-2.5 bg-surface-0 border border-border-200 rounded-sm cursor-pointer hover:border-primary-600 transition-colors">

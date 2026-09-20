@@ -18,7 +18,7 @@
             <!-- Button Primary: Height 44px, Radius-md (10px), Emerald Green -->
             <button onclick="document.getElementById('addCustomerModal').classList.remove('hidden')"
                 class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body md:text-sm shrink-0">
-                <i class="text-xs fa-solid fa-user-plus"></i>
+                <x-icon class="text-xs fa-solid fa-user-plus" />
                 <span>Registrasi Pelanggan</span>
             </button>
         </div>
@@ -37,7 +37,7 @@
                 </div>
                 <div
                     class="flex items-center justify-center text-lg rounded-md w-11 h-11 bg-primary-50 text-primary-600 shrink-0">
-                    <i class="fa-solid fa-users"></i>
+                    <x-icon class="fa-solid fa-users" />
                 </div>
             </div>
 
@@ -53,14 +53,14 @@
                 </div>
                 <div
                     class="flex items-center justify-center text-lg rounded-md w-11 h-11 bg-red-50 text-semantic-danger shrink-0">
-                    <i class="fa-solid fa-hand-holding-dollar"></i>
+                    <x-icon class="fa-solid fa-hand-holding-dollar" />
                 </div>
             </div>
         </div>
 
         <!-- Table Container (Spesifikasi GrowPOS: Row Height 48px, bg surface-100 header) -->
         <div class="mb-6 overflow-hidden border rounded-lg shadow-sm bg-surface-0 border-border-200">
-            <div class="w-full overflow-x-auto custom-scrollbar">
+            <div class="w-full overflow-x-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-surface-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-ink-400">
                 <table class="w-full text-left border-collapse whitespace-nowrap">
                     <thead>
                         <tr
@@ -88,8 +88,8 @@
                                                 class="block font-semibold leading-tight truncate text-ink-900">{{ $c->name }}</span>
                                             <span
                                                 class="font-mono text-[11px] font-normal text-ink-400 mt-0.5 block truncate">
-                                                <i
-                                                    class="fa-brands fa-whatsapp text-semantic-success text-[10px] mr-0.5"></i>
+                                                <x-icon
+                                                    class="fa-brands fa-whatsapp text-semantic-success text-[10px] mr-0.5" />
                                                 {{ $c->phone ?? 'Tidak ada kontak' }}
                                             </span>
                                         </div>
@@ -101,7 +101,7 @@
                                     @if ($c->is_member)
                                         <span
                                             class="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold text-primary-700 bg-primary-100 rounded-full">
-                                            <i class="fa-solid fa-crown text-[10px] mr-1 text-accent-500"></i>
+                                            <x-icon class="fa-solid fa-crown text-[10px] mr-1 text-accent-500" />
                                             Member
                                         </span>
                                     @else
@@ -138,14 +138,14 @@
                                         <button type="button"
                                             class="p-2 transition-colors rounded-md text-ink-700 hover:text-primary-600 bg-surface-100 hover:bg-primary-50"
                                             title="Lihat Detail Pelanggan">
-                                            <i class="text-xs fa-solid fa-eye"></i>
+                                            <x-icon class="text-xs fa-solid fa-eye" />
                                         </button>
 
                                         <button type="button"
                                             @click="showDeleteModal = true; deleteUrl = '{{ route('customers.destroy', $c->id) }}'; customerName = '{{ $c->name }}'"
                                             class="p-2 transition-colors rounded-md text-ink-700 hover:text-semantic-danger bg-surface-100 hover:bg-red-50"
                                             title="Hapus Data Pelanggan">
-                                            <i class="text-xs fa-solid fa-trash-can"></i>
+                                            <x-icon class="text-xs fa-solid fa-trash-can" />
                                         </button>
                                     </div>
                                 </td>
@@ -157,7 +157,7 @@
                                     <div class="flex flex-col items-center justify-center">
                                         <div
                                             class="flex items-center justify-center w-12 h-12 mb-2 rounded-full bg-primary-50 text-primary-600">
-                                            <i class="text-xl fa-solid fa-users-slash"></i>
+                                            <x-icon class="text-xl fa-solid fa-users-slash" />
                                         </div>
                                         <p class="text-sm font-semibold font-heading text-ink-900">Belum ada data
                                             pelanggan</p>
@@ -188,7 +188,7 @@
                     <h3 class="text-lg font-semibold font-heading text-ink-900">Registrasi Pelanggan Baru</h3>
                     <button type="button" onclick="document.getElementById('addCustomerModal').classList.add('hidden')"
                         class="p-1 text-ink-400 hover:text-ink-900">
-                        <i class="text-base fa-solid fa-xmark"></i>
+                        <x-icon class="text-base fa-solid fa-xmark" />
                     </button>
                 </div>
 
@@ -243,14 +243,14 @@
             x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
             x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-900/40 backdrop-blur-[2px]" x-cloak>
+            class="[&[x-cloak]]:!hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-900/40 backdrop-blur-[2px]" x-cloak>
 
             <div class="w-full p-6 border rounded-lg shadow-lg max-w-modal-sm bg-surface-0 border-border-200"
                 @click.away="showDeleteModal = false">
 
                 <div
                     class="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-red-50 text-semantic-danger">
-                    <i class="text-xl fa-solid fa-triangle-exclamation"></i>
+                    <x-icon class="text-xl fa-solid fa-triangle-exclamation" />
                 </div>
 
                 <div class="mb-6 text-center">

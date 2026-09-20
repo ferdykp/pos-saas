@@ -9,11 +9,11 @@
                 class="max-w-3xl p-8 mx-auto my-8 text-center border border-purple-200 shadow-sm rounded-2xl bg-gradient-to-br from-purple-50/80 via-surface-0 to-primary-50/50">
                 <div
                     class="flex items-center justify-center w-16 h-16 mx-auto mb-4 text-white bg-purple-600 shadow-md rounded-2xl shadow-purple-200">
-                    <i class="text-2xl fa-solid fa-wand-magic-sparkles"></i>
+                    <x-icon class="text-2xl fa-solid fa-wand-magic-sparkles" />
                 </div>
                 <div
                     class="inline-flex items-center gap-1.5 px-3 py-1 mb-3 rounded-full text-xs font-bold uppercase tracking-wider bg-purple-100 text-purple-900 border border-purple-200">
-                    <i class="fa-solid fa-crown text-amber-500 text-[10px]"></i> Fitur Eksklusif Paket Scale
+                    <x-icon class="fa-solid fa-crown text-amber-500 text-[10px]" /> Fitur Eksklusif Paket Scale
                 </div>
                 <h3 class="text-xl font-bold font-heading text-ink-900">GrowPOS Smart AI Business Advisor Terkunci</h3>
                 <p class="max-w-xl mx-auto mt-2 mb-6 text-xs leading-relaxed text-ink-700 font-body">
@@ -23,17 +23,17 @@
 
                 <div class="grid max-w-xl grid-cols-1 gap-3 mx-auto mb-8 text-left sm:grid-cols-3">
                     <div class="p-3 border border-purple-100 rounded-lg bg-surface-0">
-                        <i class="block mb-1 text-sm text-purple-600 fa-solid fa-chart-pie"></i>
+                        <x-icon class="block mb-1 text-sm text-purple-600 fa-solid fa-chart-pie" />
                         <h4 class="text-xs font-bold text-ink-900">Executive Report</h4>
                         <p class="text-[11px] text-ink-400">Ringkasan kesehatan finansial outlet otomatis.</p>
                     </div>
                     <div class="p-3 border border-purple-100 rounded-lg bg-surface-0">
-                        <i class="block mb-1 text-sm text-purple-600 fa-solid fa-layer-group"></i>
+                        <x-icon class="block mb-1 text-sm text-purple-600 fa-solid fa-layer-group" />
                         <h4 class="text-xs font-bold text-ink-900">Kombo Cerdas</h4>
                         <p class="text-[11px] text-ink-400">Deteksi produk yang paling sering dibeli bersamaan.</p>
                     </div>
                     <div class="p-3 border border-purple-100 rounded-lg bg-surface-0">
-                        <i class="block mb-1 text-sm text-purple-600 fa-solid fa-comments"></i>
+                        <x-icon class="block mb-1 text-sm text-purple-600 fa-solid fa-comments" />
                         <h4 class="text-xs font-bold text-ink-900">Interactive Chat</h4>
                         <p class="text-[11px] text-ink-400">Tanya saran strategi bisnis kapan saja.</p>
                     </div>
@@ -41,7 +41,7 @@
 
                 <a href="{{ route('billing.index') }}"
                     class="inline-flex items-center justify-center gap-2 px-6 py-3 text-xs font-bold text-white transition bg-purple-600 shadow-md hover:bg-purple-700 rounded-xl font-body">
-                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                    <x-icon class="fa-solid fa-arrow-up-right-from-square text-[10px]" />
                     <span>Upgrade ke Paket Scale Sekarang</span>
                 </a>
             </div>
@@ -55,7 +55,7 @@
                     <div class="flex items-center gap-3">
                         <div
                             class="flex items-center justify-center w-10 h-10 text-lg text-white rounded-md shadow-sm bg-primary-600 shrink-0">
-                            <i class="fa-solid fa-brain"></i>
+                            <x-icon class="fa-solid fa-brain" />
                         </div>
                         <div>
                             <h1 class="text-xl font-bold leading-tight font-heading md:text-2xl text-ink-900">
@@ -82,7 +82,7 @@
                     @if (!$dataCukup)
                         <div
                             class="flex items-center gap-2 p-3 mb-6 text-xs text-blue-800 border border-blue-200 rounded-lg bg-blue-50">
-                            <i class="text-blue-500 fa-solid fa-circle-info"></i>
+                            <x-icon class="text-blue-500 fa-solid fa-circle-info" />
                             <span>Data transaksi Anda masih terbatas. Insight AI di bawah ini bersifat indikatif dan akan
                                 semakin akurat seiring bertambahnya transaksi.</span>
                         </div>
@@ -103,7 +103,7 @@
                         </div>
                         <div
                             class="flex items-center justify-center w-8 h-8 text-xs rounded-md bg-primary-50 text-primary-600 shrink-0">
-                            <i class="fa-solid fa-chart-line"></i>
+                            <x-icon class="fa-solid fa-chart-line" />
                         </div>
                     </div>
 
@@ -119,7 +119,7 @@
                         </div>
                         <div
                             class="flex items-center justify-center w-8 h-8 text-xs rounded-md bg-accent-100 text-accent-700 shrink-0">
-                            <i class="fa-solid fa-calendar-day"></i>
+                            <x-icon class="fa-solid fa-calendar-day" />
                         </div>
                     </div>
 
@@ -135,7 +135,7 @@
                         </div>
                         <div
                             class="flex items-center justify-center w-8 h-8 text-xs rounded-md bg-primary-100 text-primary-700 shrink-0">
-                            <i class="fa-solid fa-basket-shopping"></i>
+                            <x-icon class="fa-solid fa-basket-shopping" />
                         </div>
                     </div>
 
@@ -152,7 +152,7 @@
                         </div>
                         <div
                             class="flex items-center justify-center w-8 h-8 text-xs rounded-md bg-accent-100 text-accent-700 shrink-0">
-                            <i class="fa-solid fa-crown"></i>
+                            <x-icon class="fa-solid fa-crown" />
                         </div>
                     </div>
 
@@ -178,8 +178,8 @@
                         </div>
                         <div
                             class="flex items-center justify-center w-8 h-8 text-xs rounded-md shrink-0 {{ isset($growthPercent) && $growthPercent !== null && $growthPercent < 0 ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700' }}">
-                            <i
-                                class="fa-solid {{ isset($growthPercent) && $growthPercent !== null && $growthPercent < 0 ? 'fa-arrow-trend-down' : 'fa-arrow-trend-up' }}"></i>
+                            <x-icon
+                                class="fa-solid {{ isset($growthPercent) && $growthPercent !== null && $growthPercent < 0 ? 'fa-arrow-trend-down' : 'fa-arrow-trend-up' }}" />
                         </div>
                     </div>
                 </div>
@@ -189,7 +189,7 @@
                     @if ($comboPairs->isNotEmpty())
                         <div class="p-4 mb-6 border rounded-lg bg-violet-50 border-violet-200">
                             <div class="flex items-center gap-2 mb-2">
-                                <i class="text-sm fa-solid fa-wand-magic-sparkles text-violet-600"></i>
+                                <x-icon class="text-sm fa-solid fa-wand-magic-sparkles text-violet-600" />
                                 <h3 class="text-xs font-bold tracking-wider uppercase font-heading text-violet-900">
                                     Kombo Cerdas — Produk yang Sering Dibeli Bersamaan
                                 </h3>
@@ -198,7 +198,7 @@
                                 @foreach ($comboPairs as $pair)
                                     <span
                                         class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-white border rounded-full border-violet-200 text-violet-800">
-                                        {{ $pair->produk_a }} <i class="text-[10px] fa-solid fa-plus text-violet-400"></i>
+                                        {{ $pair->produk_a }} <x-icon class="text-[10px] fa-solid fa-plus text-violet-400" />
                                         {{ $pair->produk_b }}
                                         <span class="ml-1 text-violet-500">({{ $pair->frekuensi }}x)</span>
                                     </span>
@@ -219,7 +219,7 @@
                         <div class="flex-1 p-5 md:p-6">
                             <div class="flex items-center justify-between pb-3 mb-4 border-b border-border-200">
                                 <div class="flex items-center gap-2">
-                                    <i class="text-sm fa-solid fa-file-contract text-primary-600"></i>
+                                    <x-icon class="text-sm fa-solid fa-file-contract text-primary-600" />
                                     <h2 class="text-xs font-bold tracking-wider uppercase font-heading text-ink-900">
                                         Executive AI Business Report
                                     </h2>
@@ -235,7 +235,7 @@
 
                         <div class="px-5 py-3 text-center border-t bg-surface-100/60 border-border-200">
                             <p class="font-body text-[11px] text-ink-400 flex items-center justify-center gap-1.5">
-                                <i class="text-xs fa-solid fa-shield-halved"></i>
+                                <x-icon class="text-xs fa-solid fa-shield-halved" />
                                 <span>Rekomendasi dianalisis secara rahasia berdasarkan transaksi fisik toko Anda.</span>
                             </p>
                         </div>
@@ -250,7 +250,7 @@
                             <div class="flex items-center gap-2.5">
                                 <div
                                     class="flex items-center justify-center w-8 h-8 text-xs font-bold text-white rounded-full bg-primary-600">
-                                    <i class="fa-solid fa-robot"></i>
+                                    <x-icon class="fa-solid fa-robot" />
                                 </div>
                                 <div>
                                     <h3 class="text-xs font-semibold leading-tight font-heading md:text-sm text-ink-900">
@@ -265,13 +265,13 @@
                             <button type="button" @click="clearChat()"
                                 class="p-1.5 text-ink-400 hover:text-ink-900 text-xs rounded-md transition-colors"
                                 title="Reset Percakapan">
-                                <i class="fa-solid fa-rotate-right"></i>
+                                <x-icon class="fa-solid fa-rotate-right" />
                             </button>
                         </div>
 
                         <!-- Quick Prompts -->
                         <div
-                            class="p-3 bg-surface-0 border-b border-border-200 overflow-x-auto custom-scrollbar flex items-center gap-1.5 shrink-0 whitespace-nowrap">
+                            class="p-3 bg-surface-0 border-b border-border-200 overflow-x-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-surface-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-ink-400 flex items-center gap-1.5 shrink-0 whitespace-nowrap">
                             <button type="button"
                                 @click="sendQuickPrompt('Bagaimana cara meningkatkan omzet toko saya?')"
                                 class="px-2.5 py-1 bg-surface-100 hover:bg-primary-50 hover:text-primary-700 border border-border-200 rounded-full font-body text-[11px] text-ink-700 transition-colors">
@@ -288,13 +288,13 @@
                         </div>
 
                         <!-- Chat Stream Message Area -->
-                        <div class="flex-1 p-4 overflow-y-auto custom-scrollbar space-y-3.5" id="chatStream">
+                        <div class="flex-1 p-4 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-surface-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-ink-400 space-y-3.5" id="chatStream">
 
                             <!-- Welcome Message -->
                             <div class="flex items-start gap-2.5 max-w-[85%]">
                                 <div
                                     class="w-6 h-6 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center text-[10px] shrink-0 mt-0.5">
-                                    <i class="fa-solid fa-robot"></i>
+                                    <x-icon class="fa-solid fa-robot" />
                                 </div>
                                 <div
                                     class="inline-block p-3 border rounded-lg rounded-tl-none bg-surface-100 border-border-200">
@@ -313,7 +313,7 @@
                                     <template x-if="msg.sender === 'ai'">
                                         <div
                                             class="w-6 h-6 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center text-[10px] shrink-0 mt-0.5">
-                                            <i class="fa-solid fa-robot"></i>
+                                            <x-icon class="fa-solid fa-robot" />
                                         </div>
                                     </template>
 
@@ -333,7 +333,7 @@
                             <div x-show="isLoading" class="flex items-center gap-2.5">
                                 <div
                                     class="w-6 h-6 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center text-[10px] shrink-0">
-                                    <i class="fa-solid fa-robot"></i>
+                                    <x-icon class="fa-solid fa-robot" />
                                 </div>
                                 <div
                                     class="bg-surface-100 p-2.5 rounded-lg border border-border-200 flex items-center gap-1.5 w-fit">
@@ -350,7 +350,7 @@
                                 <template x-for="(sug, sIndex) in suggestions" :key="sIndex">
                                     <button type="button" @click="sendQuickPrompt(sug)"
                                         class="px-2.5 py-1 bg-white hover:bg-primary-50 hover:text-primary-700 border border-primary-200 rounded-full font-body text-[11px] text-primary-600 transition-colors">
-                                        <i class="fa-solid fa-arrow-turn-up rotate-90 text-[9px] mr-1"></i>
+                                        <x-icon class="fa-solid fa-arrow-turn-up rotate-90 text-[9px] mr-1" />
                                         <span x-text="sug"></span>
                                     </button>
                                 </template>
@@ -366,7 +366,7 @@
 
                                 <button type="submit" :disabled="!inputQuery.trim() || isLoading"
                                     class="flex items-center justify-center text-white transition-colors rounded-md h-11 w-11 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 shrink-0">
-                                    <i class="text-xs fa-solid fa-paper-plane"></i>
+                                    <x-icon class="text-xs fa-solid fa-paper-plane" />
                                 </button>
                             </form>
                         </div>

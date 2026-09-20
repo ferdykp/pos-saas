@@ -10,6 +10,7 @@ use App\Models\Subscription;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 abstract class PosTestCase extends TestCase
@@ -41,6 +42,6 @@ abstract class PosTestCase extends TestCase
 
     protected function checkout(Product $product, array $overrides = []): array
     {
-        return array_replace(['payment_method' => 'cash', 'payment_status' => 'paid', 'paid_amount' => 10000, 'grand_total' => 10000, 'items' => [['id' => $product->id, 'quantity' => 1]], 'order_type' => 'takeaway'], $overrides);
+        return array_replace(['checkout_key' => (string) Str::uuid(), 'payment_method' => 'cash', 'payment_status' => 'paid', 'paid_amount' => 10000, 'grand_total' => 10000, 'items' => [['id' => $product->id, 'quantity' => 1]], 'order_type' => 'takeaway'], $overrides);
     }
 }

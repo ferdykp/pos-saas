@@ -44,7 +44,7 @@
         x-transition:enter-start="opacity-0 -translate-y-4" x-transition:enter-end="opacity-100 translate-y-0"
         x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0"
         x-transition:leave-end="opacity-0 -translate-y-4"
-        class="px-6 pb-6 space-y-4 font-semibold border-t bg-surface-0 border-border-200 md:hidden">
+        class="[&[x-cloak]]:!hidden px-6 pb-6 space-y-4 font-semibold border-t bg-surface-0 border-border-200 md:hidden">
         <a href="#fitur" @click="open = false" class="block py-2 hover:text-primary-900">Fitur</a>
         <a href="#harga" @click="open = false" class="block py-2 hover:text-primary-900">Harga</a>
         <a href="#about-growpos" @click="open = false" class="block py-2 hover:text-primary-900">Tentang Kami</a>

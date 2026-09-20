@@ -22,7 +22,7 @@
 
             <div class="flex flex-wrap items-center gap-3 mt-4 text-xs text-primary-50">
                 <div class="flex items-center gap-1.5">
-                    <i class="fa-solid fa-building-columns"></i>
+                    <x-icon class="fa-solid fa-building-columns" />
                     <span>{{ $wallet->bank_name ?? 'Belum diatur' }} — {{ $wallet->account_number ?? '-' }}</span>
                 </div>
                 <span class="w-1 h-1 rounded-full bg-primary-100/50"></span>
@@ -31,7 +31,7 @@
 
             <button @click="openModal()" {{ ($wallet->balance ?? 0) <= 0 ? 'disabled' : '' }}
                 class="mt-5 inline-flex items-center gap-2 bg-white text-primary-700 font-semibold text-sm px-4 py-2.5 rounded-md hover:bg-primary-50 transition disabled:opacity-50 disabled:cursor-not-allowed">
-                <i class="fa-solid fa-money-bill-transfer"></i>
+                <x-icon class="fa-solid fa-money-bill-transfer" />
                 Ajukan Penarikan
             </button>
         </div>
@@ -65,17 +65,17 @@
                                     @if ($req->status === 'pending')
                                         <span
                                             class="inline-flex items-center gap-1.5 bg-accent-100 text-accent-700 text-xs font-medium px-2.5 py-1 rounded-full">
-                                            <i class="fa-solid fa-clock text-[10px]"></i> Menunggu
+                                            <x-icon class="fa-solid fa-clock text-[10px]" /> Menunggu
                                         </span>
                                     @elseif ($req->status === 'approved')
                                         <span
                                             class="inline-flex items-center gap-1.5 bg-primary-100 text-primary-700 text-xs font-medium px-2.5 py-1 rounded-full">
-                                            <i class="fa-solid fa-circle-check text-[10px]"></i> Disetujui
+                                            <x-icon class="fa-solid fa-circle-check text-[10px]" /> Disetujui
                                         </span>
                                     @else
                                         <span
                                             class="inline-flex items-center gap-1.5 bg-red-50 text-semantic-danger text-xs font-medium px-2.5 py-1 rounded-full">
-                                            <i class="fa-solid fa-circle-xmark text-[10px]"></i> Ditolak
+                                            <x-icon class="fa-solid fa-circle-xmark text-[10px]" /> Ditolak
                                         </span>
                                     @endif
                                 </td>
@@ -99,7 +99,7 @@
         </div>
 
         {{-- Modal Ajukan Penarikan --}}
-        <div x-show="modalOpen" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center px-4"
+        <div x-show="modalOpen" x-cloak class="[&[x-cloak]]:!hidden fixed inset-0 z-[90] flex items-center justify-center px-4"
             x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
             x-transition:enter-end="opacity-100">
 
@@ -112,7 +112,7 @@
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="font-sans text-base font-semibold text-ink-900">Ajukan Penarikan Dana</h3>
                     <button @click="closeModal()" class="text-ink-400 hover:text-ink-700">
-                        <i class="fa-solid fa-xmark"></i>
+                        <x-icon class="fa-solid fa-xmark" />
                     </button>
                 </div>
 
@@ -151,7 +151,7 @@
                         <button type="submit" :disabled="submitting"
                             class="flex-1 text-sm font-semibold text-white transition rounded-md h-11 bg-primary-600 hover:bg-primary-700 disabled:opacity-60">
                             <span x-show="!submitting">Ajukan Sekarang</span>
-                            <span x-show="submitting"><i class="fa-solid fa-spinner fa-spin"></i> Memproses...</span>
+                            <span x-show="submitting"><x-icon class="fa-solid fa-spinner fa-spin" /> Memproses...</span>
                         </button>
                     </div>
                 </form>

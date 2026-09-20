@@ -11,7 +11,7 @@
     'actionUrl' => null,
 ])
 
-<div data-aos="fade-up" @class([
+<div @class([
     'bg-surface-0 rounded-lg p-8 transition duration-300 hover:-translate-y-3 flex flex-col justify-between',
     'border-2 py-14 border-primary-600 shadow-lg relative scale-100 md:scale-105' => $popular,
     'border border-border-200 shadow-sm' => !$popular,
@@ -30,12 +30,12 @@
             <span class="text-h2">{{ $price }}</span>
             <span class="font-normal text-body-sm text-ink-400">/{{ $period }}</span>
         </div>
-        @if($capacity)<p class="gp-muted">{{ $capacity }}</p>@endif
+        @if($capacity)<p class="[color:#65796f] [font-size:13px] [line-height:1.6]">{{ $capacity }}</p>@endif
         <ul class="pt-2 space-y-3 text-body-sm text-ink-700">
             @foreach ($features as $feature => $included)
                 <li class="flex items-center gap-3 {{ !$included ? 'text-ink-400' : '' }}">
-                    <i
-                        class="text-lg fa-regular {{ $included ? 'fa-circle-check text-primary-600' : 'fa-circle-xmark' }}"></i>
+                    <x-icon
+                        class="text-lg fa-regular {{ $included ? 'fa-circle-check text-primary-600' : 'fa-circle-xmark' }}" />
                     <span>{{ is_int($feature) ? $included : $feature }}</span>
                 </li>
             @endforeach

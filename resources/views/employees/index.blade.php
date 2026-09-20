@@ -14,7 +14,7 @@
         @if (session('success'))
             <div
                 class="flex items-center gap-3 p-4 mb-6 text-sm font-medium border-l-4 rounded-md shadow-sm bg-primary-50 border-primary-600 text-ink-900">
-                <i class="text-base fa-solid fa-circle-check text-primary-600"></i>
+                <x-icon class="text-base fa-solid fa-circle-check text-primary-600" />
                 <span>{{ session('success') }}</span>
             </div>
         @endif
@@ -22,7 +22,7 @@
         @if (session('error'))
             <div
                 class="flex items-center gap-3 p-4 mb-6 text-sm font-medium border-l-4 rounded-md shadow-sm bg-red-50 border-semantic-danger text-ink-900">
-                <i class="text-base fa-solid fa-circle-exclamation text-semantic-danger"></i>
+                <x-icon class="text-base fa-solid fa-circle-exclamation text-semantic-danger" />
                 <span>{{ session('error') }}</span>
             </div>
         @endif
@@ -33,7 +33,7 @@
             <div class="flex items-center gap-3">
                 <div
                     class="flex items-center justify-center w-10 h-10 rounded-full bg-primary-50 text-primary-600 shrink-0">
-                    <i class="fa-solid fa-id-card"></i>
+                    <x-icon class="fa-solid fa-id-card" />
                 </div>
                 <div>
                     <h4 class="text-xs font-bold text-ink-900">Kuota Pegawai & Kasir (Paket
@@ -49,7 +49,7 @@
             @if ($isUserFull)
                 <a href="{{ route('billing.index') }}"
                     class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-md transition shrink-0">
-                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                    <x-icon class="fa-solid fa-arrow-up-right-from-square text-[10px]" />
                     <span>Tambah Kuota Pegawai</span>
                 </a>
             @endif
@@ -70,13 +70,13 @@
             @if ($isUserFull)
                 <button disabled title="Kuota pegawai paket {{ $currentPlan?->name }} sudah penuh"
                     class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold border rounded-md cursor-not-allowed text-ink-400 bg-surface-100 border-border-200 h-11 opacity-60 font-body md:text-sm shrink-0">
-                    <i class="text-xs fa-solid fa-lock"></i>
+                    <x-icon class="text-xs fa-solid fa-lock" />
                     <span>Kuota Pegawai Penuh</span>
                 </button>
             @else
                 <button @click="showAddModal = true"
                     class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body md:text-sm shrink-0">
-                    <i class="text-xs fa-solid fa-user-plus"></i>
+                    <x-icon class="text-xs fa-solid fa-user-plus" />
                     <span>Tambah Pegawai Baru</span>
                 </button>
             @endif
@@ -94,7 +94,7 @@
                 </div>
                 <div
                     class="flex items-center justify-center text-lg rounded-md w-11 h-11 bg-primary-50 text-primary-600 shrink-0">
-                    <i class="fa-solid fa-id-card"></i>
+                    <x-icon class="fa-solid fa-id-card" />
                 </div>
             </div>
 
@@ -108,7 +108,7 @@
                 </div>
                 <div
                     class="flex items-center justify-center text-lg rounded-md w-11 h-11 bg-primary-100 text-primary-700 shrink-0">
-                    <i class="fa-solid fa-cash-register"></i>
+                    <x-icon class="fa-solid fa-cash-register" />
                 </div>
             </div>
 
@@ -122,14 +122,14 @@
                 </div>
                 <div
                     class="flex items-center justify-center text-lg rounded-md w-11 h-11 bg-accent-100 text-accent-700 shrink-0">
-                    <i class="fa-solid fa-user-shield"></i>
+                    <x-icon class="fa-solid fa-user-shield" />
                 </div>
             </div>
         </div>
 
         <!-- Table Container -->
         <div class="mb-6 overflow-hidden border rounded-lg shadow-sm bg-surface-0 border-border-200">
-            <div class="w-full overflow-x-auto custom-scrollbar">
+            <div class="w-full overflow-x-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-surface-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-ink-400">
                 <table class="w-full text-left border-collapse whitespace-nowrap">
                     <thead>
                         <tr
@@ -188,7 +188,7 @@
                                         <button type="button"
                                             @click="showDeleteModal = true; deleteUrl = '{{ route('employees.destroy', $emp->id) }}'; employeeName = '{{ addslashes($emp->name) }}'"
                                             class="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold text-semantic-danger bg-red-50 hover:bg-semantic-danger hover:text-white rounded-md transition-colors">
-                                            <i class="text-xs fa-solid fa-user-slash"></i>
+                                            <x-icon class="text-xs fa-solid fa-user-slash" />
                                             <span>Hapus Akses</span>
                                         </button>
                                     @else
@@ -207,14 +207,14 @@
             x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
             x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-900/40 backdrop-blur-[2px]">
+            class="[&[x-cloak]]:!hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-900/40 backdrop-blur-[2px]">
 
             <div @click.away="showAddModal = false"
                 class="w-full p-6 border rounded-lg shadow-lg bg-surface-0 max-w-modal-sm border-border-200">
                 <div class="flex items-center justify-between pb-3 mb-4 border-b border-border-200">
                     <h3 class="text-lg font-semibold font-heading text-ink-900">Tambah Akun Pegawai</h3>
                     <button @click="showAddModal = false" class="p-1 text-ink-400 hover:text-ink-900">
-                        <i class="text-base fa-solid fa-xmark"></i>
+                        <x-icon class="text-base fa-solid fa-xmark" />
                     </button>
                 </div>
 
@@ -277,14 +277,14 @@
             x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
             x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-900/40 backdrop-blur-[2px]">
+            class="[&[x-cloak]]:!hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-900/40 backdrop-blur-[2px]">
 
             <div class="w-full p-6 border rounded-lg shadow-lg max-w-modal-sm bg-surface-0 border-border-200"
                 @click.away="showDeleteModal = false">
 
                 <div
                     class="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-red-50 text-semantic-danger">
-                    <i class="text-xl fa-solid fa-user-xmark"></i>
+                    <x-icon class="text-xl fa-solid fa-user-xmark" />
                 </div>
 
                 <div class="mb-6 text-center">

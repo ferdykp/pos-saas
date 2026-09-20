@@ -24,11 +24,14 @@ class OrderController extends Controller
         return view('orders.index', compact('orders'));
     }
 
-    public function print($id)
+    public function print(Request $request, $id)
     {
         $order = Order::with(['items', 'customer', 'user'])->findOrFail($id);
 
-        return view('orders.print', compact('order'));
+        $data = $request->validate(['paper' => 'nullable|in:58,80']);
+        $paper = (int) ($data['paper'] ?? 58);
+
+        return view('orders.print', compact('order', 'paper'));
     }
 
     /**

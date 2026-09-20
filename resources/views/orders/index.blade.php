@@ -17,14 +17,14 @@
 
             <a href="{{ route('pos.index') }}"
                 class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body md:text-sm shrink-0">
-                <i class="text-xs fa-solid fa-plus"></i>
+                <x-icon class="text-xs fa-solid fa-plus" />
                 <span>Transaksi Baru (POS)</span>
             </a>
         </div>
 
         <!-- Table Container (Spesifikasi GrowPOS: Row Height 48px) -->
         <div class="mb-6 overflow-hidden border rounded-lg shadow-sm bg-surface-0 border-border-200">
-            <div class="w-full overflow-x-auto custom-scrollbar">
+            <div class="w-full overflow-x-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-surface-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-ink-400">
                 <table class="w-full text-left border-collapse whitespace-nowrap">
                     <thead>
                         <tr
@@ -45,7 +45,7 @@
                                     <div class="flex items-center gap-3">
                                         <div
                                             class="flex items-center justify-center w-8 h-8 border rounded-md bg-primary-50 text-primary-600 border-primary-100 shrink-0">
-                                            <i class="text-xs fa-solid fa-receipt"></i>
+                                            <x-icon class="text-xs fa-solid fa-receipt" />
                                         </div>
                                         <div>
                                             <span class="block font-mono font-semibold leading-tight text-ink-900">
@@ -99,7 +99,7 @@
                                     <div class="flex items-center justify-center gap-2">
                                         <a href="{{ route('orders.show', $o->id) }}"
                                             class="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold text-primary-700 bg-primary-50 hover:bg-primary-600 hover:text-white rounded-md transition-colors">
-                                            <i class="text-xs fa-solid fa-file-invoice"></i>
+                                            <x-icon class="text-xs fa-solid fa-file-invoice" />
                                             <span>Detail & Struk</span>
                                         </a>
                                     </div>
@@ -111,7 +111,7 @@
                                     <div class="flex flex-col items-center justify-center">
                                         <div
                                             class="flex items-center justify-center w-12 h-12 mb-2 rounded-full bg-primary-50 text-primary-600">
-                                            <i class="text-xl fa-solid fa-receipt"></i>
+                                            <x-icon class="text-xl fa-solid fa-receipt" />
                                         </div>
                                         <p class="text-sm font-semibold font-heading text-ink-900">Belum ada transaksi
                                             recorded</p>

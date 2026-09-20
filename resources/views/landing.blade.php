@@ -17,7 +17,6 @@
       <link
           href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
           rel="stylesheet">
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
       @vite(['resources/css/app.css', 'resources/js/app.js'])
   </head>
@@ -33,7 +32,7 @@
           <section id="fitur" class="py-20 bg-primary-50/60">
               <div class="px-4 mx-auto max-w-8xl sm:px-6 lg:px-10">
 
-                  <div class="flex flex-col items-center justify-center py-16 space-y-4 text-center" data-aos="fade-up">
+                  <div class="flex flex-col items-center justify-center py-16 space-y-4 text-center">
                       <h2 class="text-5xl font-bold text-primary-900">Fitur Unggulan GrowPOS</h2>
                       <p class="max-w-xl font-normal text-body-lg text-ink-700">
                           Dari penjualan barang dan layanan jasa, sampai persediaan dan laporan usaha.
@@ -74,7 +73,7 @@
           <section id="harga" class="py-20 bg-primary-50">
               <div class="px-4 mx-auto max-w-8xl sm:px-6 lg:px-10">
 
-                  <div class="flex flex-col items-center justify-center py-16 space-y-4 text-center" data-aos="fade-up">
+                  <div class="flex flex-col items-center justify-center py-16 space-y-4 text-center">
                       <h2 class="text-5xl font-bold text-primary-900">Pilih Paket Pertumbuhan Anda</h2>
                       <p class="font-normal text-body-lg text-ink-700">Lihat harga, masa berlaku, dan kapasitas paket sebelum memilih.</p>
                   </div>
@@ -95,14 +94,14 @@
                                       :capacity="$plan->max_outlets.' outlet · '.$plan->max_users.' pengguna · '.$plan->max_products.' menu'" :features="$plan->features ?? []" />
                               @endforeach
                           @else
-                              <p class="gp-card gp-muted">Paket belum tersedia. Harga dan kapasitas akan ditampilkan setelah paket diaktifkan.</p>
+                              <p class="bg-white [border:1px_solid_#e1e9e4] rounded-lg [padding:22px] [box-shadow:0_2px_5px_#17392c03] max-[701px]:[padding:18px] [color:#65796f] [font-size:13px] [line-height:1.6]">Paket belum tersedia. Harga dan kapasitas akan ditampilkan setelah paket diaktifkan.</p>
                           @endif
 
                       </div>
                   </div>
               </div>
           </section>
-          <div class="gp-page"><div class="gp-alert">Pembayaran QRIS mengikuti ketersediaan paket dan konfigurasi payment gateway. Komisi platform saat ini {{ number_format(config('platform.commission_rate', 0.015) * 100, 2, ',', '.') }}% dari transaksi QRIS. Periksa rincian saldo dan pengajuan pencairan di aplikasi.</div></div>
+          <div class="[max-width:1280px] [margin:auto] p-7 [color:#18372d] max-[701px]:[padding:20px_16px]"><div class="[padding:13px_16px] rounded-md [background:#fff6df] [color:#81591c] [font-size:13px] [line-height:1.6]">Pembayaran QRIS mengikuti ketersediaan paket dan konfigurasi payment gateway. Komisi platform saat ini {{ number_format(config('platform.commission_rate', 0.015) * 100, 2, ',', '.') }}% dari transaksi QRIS. Periksa rincian saldo dan pengajuan pencairan di aplikasi.</div></div>
           <x-landing.cta-section />
           </main>
           <x-landing.footer />

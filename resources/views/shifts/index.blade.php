@@ -19,7 +19,7 @@
                 <!-- Export Data Button (Button Outline) -->
                 <button @click="showExportDropdown = !showExportDropdown"
                     class="inline-flex items-center justify-center gap-2 px-4 text-xs font-semibold transition-colors border rounded-md shadow-sm h-11 bg-surface-0 border-border-200 hover:bg-surface-100 text-ink-900 font-body md:text-sm">
-                    <i class="text-xs fa-solid fa-file-export text-ink-400"></i>
+                    <x-icon class="text-xs fa-solid fa-file-export text-ink-400" />
                     <span>Ekspor Laporan</span>
                 </button>
 
@@ -31,13 +31,13 @@
                 @if ($activeShift)
                     <a href="{{ route('pos.index') }}"
                         class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-semantic-danger hover:bg-red-700 font-body md:text-sm">
-                        <i class="text-xs fa-solid fa-power-off"></i>
+                        <x-icon class="text-xs fa-solid fa-power-off" />
                         <span>Tutup Shift Aktif (POS)</span>
                     </a>
                 @else
                     <a href="{{ route('pos.index') }}"
                         class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold text-white transition-colors rounded-md shadow-sm h-11 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 font-body md:text-sm">
-                        <i class="text-xs fa-solid fa-cash-register"></i>
+                        <x-icon class="text-xs fa-solid fa-cash-register" />
                         <span>Buka Shift Baru</span>
                     </a>
                 @endif
@@ -91,7 +91,7 @@
                         Awal</span>
                     <div
                         class="flex items-center justify-center w-8 h-8 rounded-md bg-primary-50 text-primary-600 shrink-0">
-                        <i class="text-xs fa-solid fa-wallet"></i>
+                        <x-icon class="text-xs fa-solid fa-wallet" />
                     </div>
                 </div>
                 <div>
@@ -114,7 +114,7 @@
                         Tunai</span>
                     <div
                         class="flex items-center justify-center w-8 h-8 rounded-md bg-primary-100 text-primary-700 shrink-0">
-                        <i class="text-xs fa-solid fa-money-bill-trend-up"></i>
+                        <x-icon class="text-xs fa-solid fa-money-bill-trend-up" />
                     </div>
                 </div>
                 <div>
@@ -135,7 +135,7 @@
                         Fisik</span>
                     <div
                         class="w-8 h-8 rounded-md {{ $totalDifference < 0 ? 'bg-red-50 text-semantic-danger' : 'bg-accent-100 text-accent-700' }} flex items-center justify-center shrink-0">
-                        <i class="text-xs fa-solid fa-scale-balanced"></i>
+                        <x-icon class="text-xs fa-solid fa-scale-balanced" />
                     </div>
                 </div>
                 <div>
@@ -158,7 +158,7 @@
                 <!-- Search Cashier Name Field -->
                 <div class="relative flex-1 max-w-md">
                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-ink-400">
-                        <i class="text-xs fa-solid fa-magnifying-glass"></i>
+                        <x-icon class="text-xs fa-solid fa-magnifying-glass" />
                     </div>
                     <input type="text" name="search" value="{{ request('search') }}"
                         placeholder="Cari nama staf kasir..."
@@ -190,7 +190,7 @@
             </form>
 
             <!-- Table Data View -->
-            <div class="w-full overflow-x-auto custom-scrollbar">
+            <div class="w-full overflow-x-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-surface-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-ink-400">
                 <table class="w-full text-left border-collapse whitespace-nowrap">
                     <thead>
                         <tr
@@ -295,7 +295,7 @@
                                     <div class="flex flex-col items-center justify-center">
                                         <div
                                             class="flex items-center justify-center w-12 h-12 mb-2 rounded-full bg-primary-50 text-primary-600">
-                                            <i class="text-xl fa-solid fa-user-clock"></i>
+                                            <x-icon class="text-xl fa-solid fa-user-clock" />
                                         </div>
                                         <p class="text-sm font-semibold font-heading text-ink-900">Belum ada riwayat
                                             shift</p>

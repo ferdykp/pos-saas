@@ -60,10 +60,10 @@ export default () => ({
         }
         this.$watch("cart", () => this.persist());
         this.$watch("modal", (value) => {
-            document.body.style.overflow = value ? "hidden" : "";
+            document.body.classList.toggle("overflow-hidden", Boolean(value));
             if (value)
                 this.$nextTick(() => {
-                    const panel = document.querySelector(".gp-dialog-panel");
+                    const panel = document.querySelector("[data-dialog-panel]");
                     const focusable = [
                         ...panel.querySelectorAll(
                             "input,select,button,a[href]",
@@ -452,7 +452,10 @@ export default () => ({
             this.notice = "Pembayaran sudah dibatalkan.";
             return;
         }
-        if (result.qr_url && result.payment_status !== "paid") {
+        if (
+            (result.qr_url || result.payment_method === "midtrans") &&
+            result.payment_status !== "paid"
+        ) {
             this.payment = result;
             if (
                 !this.pendingPayments.some(
@@ -469,7 +472,7 @@ export default () => ({
     trapFocus(event) {
         const nodes = [
             ...document.querySelectorAll(
-                ".gp-dialog-panel button,.gp-dialog-panel a[href],.gp-dialog-panel input,.gp-dialog-panel select",
+                "[data-dialog-panel] button,[data-dialog-panel] a[href],[data-dialog-panel] input,[data-dialog-panel] select",
             ),
         ].filter((el) => el.offsetParent !== null && !el.disabled);
         if (!nodes.length) return;

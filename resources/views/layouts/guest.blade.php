@@ -18,7 +18,6 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <!-- Font Awesome (Optional, pastikan memaintain lisensi jika perlu) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 
 {{-- Pastikan class h-full diterapkan pada html dan body agar min-h-screen di child bekerja sempurna --}}

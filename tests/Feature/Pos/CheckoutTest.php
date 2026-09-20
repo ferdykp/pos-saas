@@ -74,14 +74,14 @@ class CheckoutTest extends PosTestCase
         $this->assertEquals(10, $product->fresh()->stock);
     }
 
-    public function test_gateway_failure_rolls_back_order_and_stock(): void
+    public function test_gateway_failure_preserves_reconciliation_invoice_and_releases_stock(): void
     {
         $user = $this->shop();
         $product = $this->product($user, ['manage_stock' => true]);
         $this->shift($user);
         $this->mock(MidtransGateway::class, fn ($mock) => $mock->shouldReceive('charge')->once()->andThrow(new \RuntimeException('Gateway failed')));
-        $this->actingAs($user)->postJson('/pos', $this->checkout($product, ['payment_method' => 'midtrans']))->assertServerError();
-        $this->assertDatabaseCount('orders', 0);
+        $this->actingAs($user)->postJson('/pos', $this->checkout($product, ['payment_method' => 'midtrans']))->assertStatus(503);
+        $this->assertDatabaseHas('orders', ['payment_status' => 'unpaid', 'order_status' => 'cancelled']);
         $this->assertEquals(10, $product->fresh()->stock);
     }
 

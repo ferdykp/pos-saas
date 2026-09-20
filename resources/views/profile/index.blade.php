@@ -53,7 +53,7 @@
 
                             <span
                                 class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-300">
-                                <i class="fa-solid fa-crown text-amber-600 text-[10px]"></i>
+                                <x-icon class="fa-solid fa-crown text-amber-600 text-[10px]" />
                                 Paket {{ $currentPlan?->name ?? 'Starter' }}
                             </span>
                         </div>
@@ -63,7 +63,7 @@
                 <div class="flex items-center justify-center sm:justify-end">
                     <a href="{{ route('profile.edit') }}"
                         class="inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold transition-colors border rounded-md shadow-sm h-11 bg-surface-0 hover:bg-surface-100 border-border-200 text-ink-900 font-body md:text-sm">
-                        <i class="text-xs fa-solid fa-user-pen"></i>
+                        <x-icon class="text-xs fa-solid fa-user-pen" />
                         <span>Pengaturan Akun & Tenant</span>
                     </a>
                 </div>
@@ -80,7 +80,7 @@
                         <h3 class="text-base font-semibold font-heading text-ink-900">Paket Langganan</h3>
                         <div
                             class="flex items-center justify-center w-8 h-8 text-xs rounded-md bg-amber-50 text-amber-600">
-                            <i class="fa-solid fa-crown"></i>
+                            <x-icon class="fa-solid fa-crown" />
                         </div>
                     </div>
 
@@ -124,7 +124,7 @@
                         <h3 class="text-base font-semibold font-heading text-ink-900">Bisnis & Outlet Aktif</h3>
                         <div
                             class="flex items-center justify-center w-8 h-8 text-xs rounded-md bg-primary-50 text-primary-600">
-                            <i class="fa-solid fa-store"></i>
+                            <x-icon class="fa-solid fa-store" />
                         </div>
                     </div>
 
@@ -163,7 +163,7 @@
                         <h3 class="text-base font-semibold font-heading text-ink-900">Status Keamanan</h3>
                         <div
                             class="flex items-center justify-center w-8 h-8 text-xs rounded-md bg-primary-50 text-primary-600">
-                            <i class="fa-solid fa-shield-halved"></i>
+                            <x-icon class="fa-solid fa-shield-halved" />
                         </div>
                     </div>
 

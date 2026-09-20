@@ -27,7 +27,7 @@
                 <div class="flex items-center gap-3">
                     <div
                         class="flex items-center justify-center w-10 h-10 rounded-full bg-amber-200 text-amber-800 shrink-0">
-                        <i class="text-lg fa-solid fa-clock-rotate-left"></i>
+                        <x-icon class="text-lg fa-solid fa-clock-rotate-left" />
                     </div>
                     <div>
                         <h4 class="text-sm font-bold">Menunggu Pembayaran Tagihan #{{ $pendingInvoice->invoice_number }}
@@ -48,7 +48,7 @@
                     </form>
                     <a href="{{ route('billing.invoice', $pendingInvoice->id) }}"
                         class="px-4 py-2 text-xs font-bold text-white transition rounded-lg shadow-sm bg-amber-600 hover:bg-amber-700">
-                        Lanjutkan Pembayaran <i class="ml-1 fa-solid fa-arrow-right"></i>
+                        Lanjutkan Pembayaran <x-icon class="ml-1 fa-solid fa-arrow-right" />
                     </a>
                 </div>
             </div>
@@ -57,7 +57,7 @@
         {{-- Status Langganan Saat Ini --}}
         <div class="p-6 border shadow-sm bg-surface-0 border-border-200 rounded-2xl">
             <h2 class="flex items-center gap-2 mb-4 text-lg font-bold text-ink-900">
-                <i class="fa-solid fa-shield-halved text-primary-600"></i>
+                <x-icon class="fa-solid fa-shield-halved text-primary-600" />
                 Status Berlangganan Toko Saat Ini
             </h2>
 
@@ -105,7 +105,7 @@
                         <div class="mt-1">
                             <span
                                 class="inline-flex items-center px-3 py-1 text-xs font-bold rounded-full bg-rose-100 text-rose-800">
-                                <i class="fa-solid fa-circle-xmark mr-1.5 text-[10px]"></i> Non-Aktif
+                                <x-icon class="fa-solid fa-circle-xmark mr-1.5 text-[10px]" /> Non-Aktif
                             </span>
                         </div>
                     </div>
@@ -154,7 +154,7 @@
                         @if ($isCurrent)
                             <div
                                 class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-widest shadow-sm">
-                                <i class="mr-1 fa-solid fa-check"></i> Paket Anda Saat Ini
+                                <x-icon class="mr-1 fa-solid fa-check" /> Paket Anda Saat Ini
                             </div>
                         @elseif ($isPopular)
                             <div
@@ -182,15 +182,15 @@
                             {{-- Fitur Ringkas --}}
                             <ul class="space-y-2.5 text-xs text-ink-700">
                                 <li class="flex items-center gap-2">
-                                    <i class="fa-solid fa-check text-emerald-600"></i>
+                                    <x-icon class="fa-solid fa-check text-emerald-600" />
                                     <span>Maksimal <strong>{{ $plan->max_users }}</strong> Kasir / Karyawan</span>
                                 </li>
                                 <li class="flex items-center gap-2">
-                                    <i class="fa-solid fa-check text-emerald-600"></i>
+                                    <x-icon class="fa-solid fa-check text-emerald-600" />
                                     <span>Maksimal <strong>{{ $plan->max_products }}</strong> SKU Produk</span>
                                 </li>
                                 <li class="flex items-center gap-2">
-                                    <i class="fa-solid fa-check text-emerald-600"></i>
+                                    <x-icon class="fa-solid fa-check text-emerald-600" />
                                     <span>Maksimal <strong>{{ $plan->max_outlets }}</strong> Outlet Toko</span>
                                 </li>
                             </ul>
@@ -206,7 +206,7 @@
                                         !$isCurrent && !$isDowngrade,
                                     'border border-border-300 bg-surface-100 text-ink-700 hover:bg-surface-200' => $isDowngrade,
                                 ])>
-                                <i class="fa-solid fa-eye"></i>
+                                <x-icon class="fa-solid fa-eye" />
                                 <span>{{ $isCurrent ? 'Lihat Detail / Perpanjang' : ($isUpgrade ? 'Detail & Upgrade' : 'Lihat Detail Paket') }}</span>
                             </button>
                         </div>
@@ -214,7 +214,7 @@
                     </div>
                 @empty
                     <div class="col-span-3 py-12 text-center border bg-surface-0 rounded-2xl border-border-200">
-                        <i class="mb-3 text-4xl fa-solid fa-box-open text-ink-300"></i>
+                        <x-icon class="mb-3 text-4xl fa-solid fa-box-open text-ink-300" />
                         <p class="text-sm font-semibold text-ink-700">Belum ada data paket langganan.</p>
                     </div>
                 @endforelse
@@ -226,14 +226,14 @@
             x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
             x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-900/40 backdrop-blur-sm">
+            class="[&[x-cloak]]:!hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-900/40 backdrop-blur-sm">
 
             <div @click.away="showConfirmModal = false"
                 class="w-full max-w-lg p-6 border shadow-xl rounded-2xl bg-surface-0 border-border-200">
                 <div class="flex items-center justify-between pb-4 border-b border-border-200">
                     <h3 class="text-lg font-bold font-heading text-ink-900">Rincian Paket Langganan</h3>
                     <button @click="showConfirmModal = false" class="p-1 text-ink-400 hover:text-ink-900">
-                        <i class="text-lg fa-solid fa-xmark"></i>
+                        <x-icon class="text-lg fa-solid fa-xmark" />
                     </button>
                 </div>
 
@@ -287,7 +287,7 @@
                                 </button>
                                 <button type="submit"
                                     class="flex-1 py-3 text-xs font-bold text-white shadow-sm bg-primary-600 hover:bg-primary-700 rounded-xl">
-                                    Lanjut Ke Pembayaran <i class="ml-1 fa-solid fa-arrow-right"></i>
+                                    Lanjut Ke Pembayaran <x-icon class="ml-1 fa-solid fa-arrow-right" />
                                 </button>
                             </div>
                         </form>

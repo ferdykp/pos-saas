@@ -38,12 +38,12 @@
         <!-- Mobile Close Button -->
         <button @click="sidebarOpen = false" class="p-1 text-ink-400 hover:text-ink-900 lg:hidden"
             aria-label="Tutup Sidebar">
-            <i class="text-lg fa-solid fa-xmark"></i>
+            <x-icon class="text-lg fa-solid fa-xmark" />
         </button>
     </div>
 
     <!-- Navigation Body -->
-    <nav class="flex-1 min-h-0 px-3 py-4 space-y-6 overflow-y-auto custom-scrollbar">
+    <nav class="flex-1 min-h-0 px-3 py-4 space-y-6 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-surface-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-ink-400">
 
         <!-- Group: Quick Onboarding & Config -->
         <div>
@@ -55,14 +55,14 @@
                 <a href="{{ route('getting-started') }}"
                     class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('getting-started') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
                     :title="sidebarCollapsed ? 'Mulai Berjualan' : ''">
-                    <i class="w-5 text-base text-center fa-solid fa-rocket"></i>
+                    <x-icon class="w-5 text-base text-center fa-solid fa-rocket" />
                     <span x-show="!sidebarCollapsed" class="truncate">Mulai berjualan</span>
                 </a>
 
                 <a href="{{ route('help') }}"
                     class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('help') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
                     :title="sidebarCollapsed ? 'Panduan Singkat' : ''">
-                    <i class="w-5 text-base text-center fa-solid fa-circle-question"></i>
+                    <x-icon class="w-5 text-base text-center fa-solid fa-circle-question" />
                     <span x-show="!sidebarCollapsed" class="truncate">Panduan singkat</span>
                 </a>
 
@@ -70,7 +70,7 @@
                     <a href="{{ route('kitchen.index') }}"
                         class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('kitchen.*') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
                         :title="sidebarCollapsed ? 'Antrean Dapur' : ''">
-                        <i class="w-5 text-base text-center fa-solid fa-utensils"></i>
+                        <x-icon class="w-5 text-base text-center fa-solid fa-utensils" />
                         <span x-show="!sidebarCollapsed" class="truncate">Antrean dapur</span>
                     </a>
                 @endif
@@ -79,7 +79,7 @@
                     <a href="{{ route('services.index') }}"
                         class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('services.*') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
                         :title="sidebarCollapsed ? 'Pengerjaan Jasa' : ''">
-                        <i class="w-5 text-base text-center fa-solid fa-screwdriver-wrench"></i>
+                        <x-icon class="w-5 text-base text-center fa-solid fa-screwdriver-wrench" />
                         <span x-show="!sidebarCollapsed" class="truncate">Pengerjaan jasa</span>
                     </a>
                 @endif
@@ -90,7 +90,7 @@
                         :title="sidebarCollapsed ? (
                             {{ json_encode(auth()->user()->tenant?->hasBusinessModule('food') ? 'Varian, Tambahan & Resep' : 'Varian & Pilihan') }}
                         ) : ''">
-                        <i class="w-5 text-base text-center fa-solid fa-sliders"></i>
+                        <x-icon class="w-5 text-base text-center fa-solid fa-sliders" />
                         <span x-show="!sidebarCollapsed" class="truncate">
                             {{ auth()->user()->tenant?->hasBusinessModule('food') ? 'Varian, tambahan & resep' : 'Varian & pilihan' }}
                         </span>
@@ -99,7 +99,7 @@
                     <a href="{{ route('business.edit') }}"
                         class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('business.edit') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
                         :title="sidebarCollapsed ? 'Pengaturan Usaha' : ''">
-                        <i class="w-5 text-base text-center fa-solid fa-gears"></i>
+                        <x-icon class="w-5 text-base text-center fa-solid fa-gears" />
                         <span x-show="!sidebarCollapsed" class="truncate">Pengaturan usaha</span>
                     </a>
                 @endif
@@ -116,7 +116,7 @@
                 <a href="{{ route('dashboard') }}"
                     class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('dashboard') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
                     :title="sidebarCollapsed ? 'Dashboard' : ''">
-                    <i class="w-5 text-base text-center fa-solid fa-chart-pie"></i>
+                    <x-icon class="w-5 text-base text-center fa-solid fa-chart-pie" />
                     <span x-show="!sidebarCollapsed" class="truncate">Dashboard</span>
                 </a>
             </div>
@@ -133,7 +133,7 @@
                     <a href="{{ route('tenants.index') }}"
                         class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('tenants.*') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
                         :title="sidebarCollapsed ? 'Manajemen Tenant' : ''">
-                        <i class="w-5 text-base text-center fa-solid fa-store"></i>
+                        <x-icon class="w-5 text-base text-center fa-solid fa-store" />
                         <span x-show="!sidebarCollapsed" class="truncate">Manajemen Tenant</span>
                     </a>
 
@@ -141,7 +141,7 @@
                         <a href="{{ route('admin.withdrawals.index') }}"
                             class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('admin.withdrawals.*') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
                             :title="sidebarCollapsed ? 'Approval Penarikan' : ''">
-                            <i class="w-5 text-base text-center fa-solid fa-money-check-dollar"></i>
+                            <x-icon class="w-5 text-base text-center fa-solid fa-money-check-dollar" />
                             <span x-show="!sidebarCollapsed" class="truncate">Approval Penarikan</span>
                         </a>
                     @endcan
@@ -159,14 +159,14 @@
                 <a href="{{ route('pos.index') }}"
                     class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('pos.*') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
                     :title="sidebarCollapsed ? 'Kasir POS' : ''">
-                    <i class="w-5 text-base text-center fa-solid fa-cash-register"></i>
+                    <x-icon class="w-5 text-base text-center fa-solid fa-cash-register" />
                     <span x-show="!sidebarCollapsed" class="truncate">POS Terminal</span>
                 </a>
 
                 <a href="{{ route('orders.index') }}"
                     class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('orders.*') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
                     :title="sidebarCollapsed ? 'Riwayat Transaksi' : ''">
-                    <i class="w-5 text-base text-center fa-solid fa-receipt"></i>
+                    <x-icon class="w-5 text-base text-center fa-solid fa-receipt" />
                     <span x-show="!sidebarCollapsed" class="truncate">Riwayat Transaksi</span>
                 </a>
 
@@ -174,7 +174,7 @@
                     <a href="{{ route('customers.index') }}"
                         class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('customers.*') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
                         :title="sidebarCollapsed ? 'Pelanggan / CRM' : ''">
-                        <i class="w-5 text-base text-center fa-solid fa-users"></i>
+                        <x-icon class="w-5 text-base text-center fa-solid fa-users" />
                         <span x-show="!sidebarCollapsed" class="truncate">Pelanggan / CRM</span>
                     </a>
                 @else
@@ -182,7 +182,7 @@
                         class="flex items-center justify-between px-3 text-xs font-semibold transition-colors rounded-md h-11 text-ink-400 hover:bg-surface-100 opacity-60"
                         :title="sidebarCollapsed ? 'Pelanggan / CRM (Upgrade Growth)' : ''">
                         <div class="flex items-center gap-3 truncate">
-                            <i class="w-5 text-base text-center fa-solid fa-users"></i>
+                            <x-icon class="w-5 text-base text-center fa-solid fa-users" />
                             <span x-show="!sidebarCollapsed" class="truncate">Pelanggan / CRM</span>
                         </div>
                         <span x-show="!sidebarCollapsed"
@@ -193,22 +193,23 @@
                 <a href="{{ route('discounts.index') }}"
                     class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('discounts.*') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
                     :title="sidebarCollapsed ? 'Promo & Diskon' : ''">
-                    <i class="w-5 text-base text-center fa-solid fa-tags"></i>
+                    <x-icon class="w-5 text-base text-center fa-solid fa-tags" />
                     <span x-show="!sidebarCollapsed" class="truncate">Promo & Diskon</span>
                 </a>
 
                 <a href="{{ route('shifts.index') }}"
                     class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('shifts.*') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
                     :title="sidebarCollapsed ? 'Shift Kasir' : ''">
-                    <i class="w-5 text-base text-center fa-solid fa-user-clock"></i>
+                    <x-icon class="w-5 text-base text-center fa-solid fa-user-clock" />
                     <span x-show="!sidebarCollapsed" class="truncate">Shift Kasir</span>
                 </a>
 
                 @if(auth()->user()->role === 'admin')
-                    <a href="{{ route('cash.index') }}"
+                    <a href="{{ route('payments.review') }}" class="block px-6 py-3 font-semibold">Pemeriksaan pembayaran</a>
+    <a href="{{ route('cash.index') }}"
                         class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('cash.*') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
                         :title="sidebarCollapsed ? 'Buku Kas' : ''">
-                        <i class="w-5 text-base text-center fa-solid fa-book-open"></i>
+                        <x-icon class="w-5 text-base text-center fa-solid fa-book-open" />
                         <span x-show="!sidebarCollapsed" class="truncate">Buku Kas & Pengeluaran</span>
                     </a>
                 @endif
@@ -216,7 +217,7 @@
                 <a href="{{ route('employees.index') }}"
                     class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('employees.*') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
                     :title="sidebarCollapsed ? 'Karyawan' : ''">
-                    <i class="w-5 text-base text-center fa-solid fa-id-card"></i>
+                    <x-icon class="w-5 text-base text-center fa-solid fa-id-card" />
                     <span x-show="!sidebarCollapsed" class="truncate">Karyawan</span>
                 </a>
             </div>
@@ -232,7 +233,7 @@
                 <a href="{{ route('products.index') }}"
                     class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('products.*') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
                     :title="sidebarCollapsed ? 'Produk & Inventory' : ''">
-                    <i class="w-5 text-base text-center fa-solid fa-boxes-stacked"></i>
+                    <x-icon class="w-5 text-base text-center fa-solid fa-boxes-stacked" />
                     <span x-show="!sidebarCollapsed"
                         class="truncate">{{ auth()->user()->tenant?->catalogLabel() ?? 'Produk & layanan' }}</span>
                 </a>
@@ -240,7 +241,7 @@
                 <a href="{{ route('categories.index') }}"
                     class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('categories.*') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
                     :title="sidebarCollapsed ? 'Kategori Produk' : ''">
-                    <i class="w-5 text-base text-center fa-solid fa-layer-group"></i>
+                    <x-icon class="w-5 text-base text-center fa-solid fa-layer-group" />
                     <span x-show="!sidebarCollapsed" class="truncate">Kategori Produk</span>
                 </a>
 
@@ -248,7 +249,7 @@
                     <a href="{{ route('materials.index') }}"
                         class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('materials.*') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
                         :title="sidebarCollapsed ? 'Bahan Baku' : ''">
-                        <i class="w-5 text-base text-center fa-solid fa-cubes"></i>
+                        <x-icon class="w-5 text-base text-center fa-solid fa-cubes" />
                         <span x-show="!sidebarCollapsed" class="truncate">Bahan Baku</span>
                     </a>
                 @endif
@@ -256,7 +257,7 @@
                 <a href="{{ route('suppliers.index') }}"
                     class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('suppliers.*') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
                     :title="sidebarCollapsed ? 'Supplier' : ''">
-                    <i class="w-5 text-base text-center fa-solid fa-truck-field"></i>
+                    <x-icon class="w-5 text-base text-center fa-solid fa-truck-field" />
                     <span x-show="!sidebarCollapsed" class="truncate">Supplier</span>
                 </a>
             </div>
@@ -272,7 +273,7 @@
                 <a href="{{ route('reports.index') }}"
                     class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('reports.index') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
                     :title="sidebarCollapsed ? 'Laporan Penjualan' : ''">
-                    <i class="w-5 text-base text-center fa-solid fa-chart-line"></i>
+                    <x-icon class="w-5 text-base text-center fa-solid fa-chart-line" />
                     <span x-show="!sidebarCollapsed" class="truncate">Laporan Penjualan</span>
                 </a>
 
@@ -280,7 +281,7 @@
                     <a href="{{ route('reports.ai') }}"
                         class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('reports.ai') ? 'bg-accent-100 text-accent-700 font-bold' : 'text-ink-700 hover:bg-accent-100/50 hover:text-accent-700' }}"
                         :title="sidebarCollapsed ? 'Tanya GrowPOS AI' : ''">
-                        <i class="w-5 text-base text-center fa-solid fa-wand-magic-sparkles text-accent-500"></i>
+                        <x-icon class="w-5 text-base text-center fa-solid fa-wand-magic-sparkles text-accent-500" />
                         <span x-show="!sidebarCollapsed" class="truncate">Tanya GrowPOS AI</span>
                     </a>
                 @else
@@ -288,7 +289,7 @@
                         class="flex items-center justify-between px-3 text-xs font-semibold transition-colors rounded-md h-11 text-ink-400 hover:bg-surface-100 opacity-60"
                         :title="sidebarCollapsed ? 'Tanya GrowPOS AI (Upgrade Scale)' : ''">
                         <div class="flex items-center gap-3 truncate">
-                            <i class="w-5 text-base text-center text-purple-400 fa-solid fa-wand-magic-sparkles"></i>
+                            <x-icon class="w-5 text-base text-center text-purple-400 fa-solid fa-wand-magic-sparkles" />
                             <span x-show="!sidebarCollapsed" class="truncate">Tanya GrowPOS AI</span>
                         </div>
                         <span x-show="!sidebarCollapsed"
@@ -300,7 +301,7 @@
                     <a href="{{ route('finance.index') }}"
                         class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('finance.*') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
                         :title="sidebarCollapsed ? 'Keuangan Toko' : ''">
-                        <i class="w-5 text-base text-center fa-solid fa-wallet"></i>
+                        <x-icon class="w-5 text-base text-center fa-solid fa-wallet" />
                         <span x-show="!sidebarCollapsed" class="truncate">Keuangan Toko</span>
                     </a>
                 @endcan

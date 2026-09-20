@@ -25,3 +25,11 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Generated runtime data and private business backups
+/storage/framework/cache/
+/storage/framework/sessions/
+/storage/framework/views/
+/storage/framework/testing/
+/storage/app/private/
+/storage/logs/

@@ -7,7 +7,7 @@
         <div class="mb-6">
             <a href="{{ route('products.index') }}"
                 class="inline-flex items-center gap-2 mb-2 text-xs font-semibold font-body text-primary-600 hover:text-primary-700">
-                <i class="text-xs fa-solid fa-arrow-left"></i>
+                <x-icon class="text-xs fa-solid fa-arrow-left" />
                 <span>Kembali ke Inventaris Produk</span>
             </a>
             <h1 class="font-heading font-bold text-2xl md:text-[28px] text-ink-900 leading-tight">
@@ -42,7 +42,7 @@
 
                         <div id="upload-placeholder"
                             class="flex flex-col items-center justify-center text-center p-4 {{ $product->image ? 'hidden' : '' }}">
-                            <i class="mb-2 text-2xl fa-solid fa-cloud-arrow-up text-ink-400"></i>
+                            <x-icon class="mb-2 text-2xl fa-solid fa-cloud-arrow-up text-ink-400" />
                             <p class="text-xs font-semibold font-body text-ink-900">Klik untuk ganti foto produk</p>
                         </div>
 
@@ -88,7 +88,7 @@
                         </select>
                     </div>
 
-                    <label class="gp-field md:col-span-2">Barcode barang (opsional, terpisah dari SKU)
+                    <label class="block [font-size:12px] font-semibold [color:#536b5e] [&_input]:block [&_input]:w-full [&_input]:[margin-top:7px] [&_input]:[border:1px_solid_#dce5de] [&_input]:[border-radius:9px] [&_input]:[padding:11px] [&_input]:bg-white [&_input]:[font-size:14px] [&_input]:[color:#18372d] [&_input]:min-h-11 [&_select]:block [&_select]:w-full [&_select]:[margin-top:7px] [&_select]:[border:1px_solid_#dce5de] [&_select]:[border-radius:9px] [&_select]:[padding:11px] [&_select]:bg-white [&_select]:[font-size:14px] [&_select]:[color:#18372d] [&_select]:min-h-11 [&_textarea]:block [&_textarea]:w-full [&_textarea]:[margin-top:7px] [&_textarea]:[border:1px_solid_#dce5de] [&_textarea]:[border-radius:9px] [&_textarea]:[padding:11px] [&_textarea]:bg-white [&_textarea]:[font-size:14px] [&_textarea]:[color:#18372d] [&_textarea]:min-h-11 md:col-span-2">Barcode barang (opsional, terpisah dari SKU)
                         <input name="barcode" maxlength="100" value="{{ old('barcode', $product->barcode) }}" placeholder="Pindai barcode kemasan">
                     </label>
                     <div class="md:col-span-2">

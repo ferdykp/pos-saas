@@ -6,7 +6,7 @@
         <div class="flex items-center justify-between">
             <a href="{{ route('billing.index') }}"
                 class="inline-flex items-center gap-2 text-xs font-semibold transition text-ink-600 hover:text-primary-600">
-                <i class="fa-solid fa-arrow-left"></i>
+                <x-icon class="fa-solid fa-arrow-left" />
                 <span>Kembali ke Billing</span>
             </a>
             <span class="font-mono text-xs text-ink-400">ID Invoice: #{{ $invoice->id }}</span>
@@ -25,17 +25,17 @@
                     @if ($invoice->status === 'pending')
                         <span
                             class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">
-                            <i class="fa-solid fa-clock text-[10px]"></i> Menunggu Pembayaran
+                            <x-icon class="fa-solid fa-clock text-[10px]" /> Menunggu Pembayaran
                         </span>
                     @elseif ($invoice->status === 'paid')
                         <span
                             class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                            <i class="fa-solid fa-circle-check text-[10px]"></i> Lunas
+                            <x-icon class="fa-solid fa-circle-check text-[10px]" /> Lunas
                         </span>
                     @else
                         <span
                             class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300">
-                            <i class="fa-solid fa-circle-xmark text-[10px]"></i> {{ ucfirst($invoice->status) }}
+                            <x-icon class="fa-solid fa-circle-xmark text-[10px]" /> {{ ucfirst($invoice->status) }}
                         </span>
                     @endif
                 </div>
@@ -114,7 +114,7 @@
                         @endif
                     @else
                         <div class="w-full p-4 border bg-emerald-50 text-emerald-800 rounded-xl border-emerald-200">
-                            <i class="mb-2 text-3xl fa-solid fa-circle-check text-emerald-600"></i>
+                            <x-icon class="mb-2 text-3xl fa-solid fa-circle-check text-emerald-600" />
                             <p class="text-sm font-bold">Pembayaran Berhasil / Lunas</p>
                             <a href="{{ route('dashboard') }}"
                                 class="inline-block px-4 py-2 mt-3 text-xs font-bold text-white rounded-lg bg-emerald-600">

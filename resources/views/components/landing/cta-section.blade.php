@@ -1,6 +1,6 @@
 <section id="us" class="py-24">
     <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-        <div data-aos="zoom-in" class="relative p-10 overflow-hidden text-center rounded-lg bg-primary-500 md:p-20">
+        <div class="relative p-10 overflow-hidden text-center rounded-lg bg-primary-500 md:p-20">
             <div class="absolute inset-0 opacity-10">
                 <svg class="w-full h-full" fill="none" viewBox="0 0 100 100" preserveAspectRatio="none">
                     <circle cx="100" cy="0" r="40" fill="white" />

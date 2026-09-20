@@ -6,7 +6,7 @@
         timer: 60,
         canResend: false,
         timerInterval: null,
-    
+
         checkVerification() {
             fetch('{{ route('api.check-verification') }}')
                 .then(response => response.json())
@@ -18,12 +18,12 @@
                 })
                 .catch(error => console.error('Error checking verification:', error));
         },
-    
+
         startCooldown() {
             this.canResend = false;
             this.timer = 60;
             if (this.timerInterval) clearInterval(this.timerInterval);
-    
+
             this.timerInterval = setInterval(() => {
                 this.timer--;
                 if (this.timer <= 0) {
@@ -32,11 +32,11 @@
                 }
             }, 1000);
         },
-    
+
         init() {
             // 1. Jalankan Cooldown Timer saat halaman dimuat
             this.startCooldown();
-    
+
             // 2. Jalankan Auto-Check status verifikasi setiap 3 detik
             setInterval(() => {
                 this.checkVerification();
@@ -66,7 +66,7 @@
 
             <div class="max-w-md p-6 mt-12 border rounded-lg shadow-lg border-white/20 bg-white/10 backdrop-blur-sm">
                 <div class="flex items-center gap-3 text-white">
-                    <i class="text-2xl fa-solid fa-shield-halved"></i>
+                    <x-icon class="text-2xl fa-solid fa-shield-halved" />
                     <div>
                         <p class="font-semibold">Sistem Keamanan Terenkripsi</p>
                         <p class="text-xs text-white/80">Perlindungan data akun & transaksi toko Anda adalah prioritas
@@ -82,7 +82,7 @@
 
                 <div
                     class="flex items-center justify-center w-16 h-16 mb-6 rounded-full bg-primary-50 text-primary-600">
-                    <i class="text-2xl fa-solid fa-envelope-circle-check"></i>
+                    <x-icon class="text-2xl fa-solid fa-envelope-circle-check" />
                 </div>
 
                 <h2 class="mb-2 text-2xl font-bold font-heading text-ink-900">Cek Kotak Masuk Gmail Anda</h2>
@@ -105,7 +105,7 @@
                 @if (session('status') == 'verification-link-sent')
                     <div
                         class="flex items-center gap-2 p-4 mb-6 text-xs font-semibold border rounded-md bg-emerald-50 text-emerald-800 border-emerald-200">
-                        <i class="fa-solid fa-circle-check text-emerald-600"></i>
+                        <x-icon class="fa-solid fa-circle-check text-emerald-600" />
                         <span>Tautan verifikasi baru telah dikirimkan ke email Anda.</span>
                     </div>
                 @endif
@@ -117,7 +117,7 @@
                         @csrf
                         <button type="submit" :disabled="!canResend"
                             class="w-full flex justify-center items-center py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-lg text-sm shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-                            <i class="mr-2 text-xs fa-solid fa-paper-plane"></i>
+                            <x-icon class="mr-2 text-xs fa-solid fa-paper-plane" />
                             <span
                                 x-text="canResend ? 'Kirim Ulang Email Verifikasi' : 'Tunggu ' + timer + ' detik untuk kirim ulang'"></span>
                         </button>
@@ -128,7 +128,7 @@
                         @csrf
                         <button type="submit"
                             class="text-xs font-semibold transition-colors text-ink-400 hover:text-ink-900">
-                            <i class="mr-1 fa-solid fa-right-from-bracket"></i>
+                            <x-icon class="mr-1 fa-solid fa-right-from-bracket" />
                             Keluar / Keluar Akun
                         </button>
                     </form>

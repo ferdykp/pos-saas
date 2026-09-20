@@ -67,9 +67,9 @@ class PosController extends Controller
 
         $pendingPayments = Order::where('tenant_id', $tenantId)->where('user_id', $userId)
             ->where('payment_method', 'midtrans')->where('payment_status', 'unpaid')
-            ->where('order_status', '!=', 'cancelled')->whereNotNull('qr_url')->latest()->get()
+            ->where('order_status', '!=', 'cancelled')->latest()->get()
             ->map(fn (Order $order) => ['order_id' => $order->id, 'invoice_number' => $order->invoice_number,
-                'grand_total' => (float) $order->grand_total, 'qr_url' => $order->qr_url]);
+                'payment_method' => 'midtrans', 'grand_total' => (float) $order->grand_total, 'qr_url' => $order->qr_url]);
 
         return view('pos.index', compact('customers', 'categories', 'products', 'settings', 'hasShift', 'activeShift', 'pendingPayments'));
     }
@@ -84,7 +84,7 @@ class PosController extends Controller
             'items.*.addon_ids' => 'nullable|array|max:20',
             'items.*.addon_ids.*' => 'integer',
             'items.*.note' => 'nullable|string|max:300',
-            'checkout_key' => 'nullable|uuid',
+            'checkout_key' => 'required_if:payment_method,midtrans|nullable|uuid',
             'shift_id' => 'nullable|integer',
             'sold_at' => 'nullable|date|before_or_equal:now',
             'items.*.quantity' => 'required|integer|min:1|max:100000',
@@ -102,7 +102,7 @@ class PosController extends Controller
 
         $hash = hash('sha256', json_encode($data));
 
-        return DB::transaction(function () use ($data, $tenantId, $hash) {
+        $order = DB::transaction(function () use ($data, $tenantId, $hash) {
             // Serializes the monthly quota and checkout/shift close for this tenant/user.
             $tenant = Tenant::lockForUpdate()->findOrFail($tenantId);
             if (! empty($data['checkout_key'])) {
@@ -110,7 +110,7 @@ class PosController extends Controller
                 if ($previous) {
                     abort_unless($previous->user_id === auth()->id() && $previous->request_hash === $hash, 409, 'Referensi transaksi sudah digunakan dengan isi berbeda.');
 
-                    return $this->receiptResponse($previous);
+                    return $previous;
                 }
             }
             if ($tenant->isTransactionLimitReached()) {
@@ -188,6 +188,7 @@ class PosController extends Controller
             }
 
             $order = Order::create([
+                'payment_attention' => $digital,
                 'checkout_key' => $data['checkout_key'] ?? null, 'request_hash' => $hash,
                 'service_status' => $products->contains(fn ($product) => $product->type === 'service') ? 'queued' : null,
                 'kitchen_status' => auth()->user()->tenant->hasBusinessModule('food') && collect($lines)->contains(fn ($line) => $line['requires_preparation']) ? 'queued' : null, 'sold_at' => isset($data['sold_at']) ? Carbon::parse($data['sold_at'])->setTimezone(config('app.timezone')) : now(),
@@ -218,15 +219,36 @@ class PosController extends Controller
                 Customer::where('tenant_id', $tenantId)->whereKey($order->customer_id)->increment('total_debt', $total);
             }
 
-            $qrUrl = $digital ? app(MidtransGateway::class)->charge($order->invoice_number, $total) : null;
-            if ($digital && ! $qrUrl) {
+            return $order;
+        });
+
+        // Commit the invoice before talking to the provider. A timeout must not erase
+        // the reference needed to reconcile a charge that may already have succeeded.
+        if ($order->payment_method !== 'midtrans' || ! $order->wasRecentlyCreated) {
+            return $this->receiptResponse($order);
+        }
+        try {
+            $qrUrl = app(MidtransGateway::class)->charge($order->invoice_number, (int) $order->grand_total);
+            if (! $qrUrl) {
                 throw new \RuntimeException('Gateway tidak mengembalikan kode QR.');
             }
+            $order->update(['qr_url' => $qrUrl, 'payment_attention' => false]);
+        } catch (\Throwable $exception) {
+            report($exception);
+            app(OrderPaymentService::class)->apply($order->id, [
+                'order_id' => $order->invoice_number, 'gross_amount' => $order->grand_total, 'transaction_status' => 'expire',
+            ]);
+            $order->refresh();
+            if ($order->payment_status === 'paid') {
+                return $this->receiptResponse($order);
+            }
 
-            $order->update(['qr_url' => $qrUrl]);
+            Order::whereKey($order->id)->where('payment_status', 'unpaid')->update(['payment_attention' => true]);
 
-            return $this->receiptResponse($order);
-        });
+            return response()->json(['success' => false, 'order_id' => $order->id, 'order_status' => $order->order_status, 'message' => 'QRIS belum dapat dibuat. Stok telah dilepas; periksa status nota ini sebelum membuat pembayaran baru.'], 503);
+        }
+
+        return $this->receiptResponse($order->refresh());
     }
 
     private function receiptResponse(Order $order)

@@ -194,7 +194,7 @@ Jika data_memadai_untuk_insight_kuat bernilai false, WAJIB sertakan satu kalimat
 
             $disclaimerDataTipis = !$dataCukup
                 ? "<div class='flex items-center gap-2 p-3 mb-4 text-xs text-blue-800 border border-blue-200 rounded-lg bg-blue-50'>
-                        <i class='text-blue-500 fa-solid fa-circle-info'></i>
+                        <span aria-hidden='true' class='text-blue-500'>ℹ</span>
                         <span>Data transaksi Anda masih terbatas (" . $totalTransaksi . " transaksi dalam 30 hari). Insight di bawah ini bersifat indikatif dan akan semakin akurat seiring bertambahnya transaksi.</span>
                    </div>"
                 : "";
@@ -202,10 +202,10 @@ Jika data_memadai_untuk_insight_kuat bernilai false, WAJIB sertakan satu kalimat
             $trenHtml = "";
             if ($growthPercent !== null) {
                 $arahTren = $growthPercent >= 0 ? 'naik' : 'turun';
-                $warnaTren = $growthPercent >= 0 ? '#16a34a' : '#dc2626';
+                $warnaTren = $growthPercent >= 0 ? 'text-green-600' : 'text-red-600';
                 $trenHtml = "<tr>
                         <td>Tren Omset 7 Hari Terakhir</td>
-                        <td><strong style='color:{$warnaTren}'>" . ($growthPercent >= 0 ? '+' : '') . $growthPercent . "%</strong> ({$arahTren} dibanding 7 hari sebelumnya)</td>
+                        <td><strong class='{$warnaTren}'>" . ($growthPercent >= 0 ? '+' : '') . $growthPercent . "%</strong> ({$arahTren} dibanding 7 hari sebelumnya)</td>
                     </tr>";
             }
 
@@ -222,7 +222,7 @@ Jika data_memadai_untuk_insight_kuat bernilai false, WAJIB sertakan satu kalimat
             $aiAnalysis = "
                 {$disclaimerDataTipis}
                 <div class='flex items-center gap-2 p-3 mb-4 text-xs border rounded-lg text-amber-800 bg-amber-50 border-amber-200'>
-                    <i class='fa-solid fa-triangle-exclamation text-amber-500'></i>
+                    <span aria-hidden='true' class='text-amber-500'>⚠</span>
                     <span>Koneksi AI sedang menggunakan mode analisis komputasi lokal.</span>
                 </div>
 

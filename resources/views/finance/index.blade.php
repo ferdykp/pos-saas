@@ -29,7 +29,7 @@
                 </div>
                 <div
                     class="flex items-center justify-center text-lg rounded-md w-11 h-11 bg-primary-50 text-primary-600 shrink-0">
-                    <i class="fa-solid fa-wallet"></i>
+                    <x-icon class="fa-solid fa-wallet" />
                 </div>
             </div>
 
@@ -55,7 +55,7 @@
                 </div>
                 <button onclick="openBankSettingsModal()"
                     class="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold text-primary-700 bg-primary-50 hover:bg-primary-100 rounded-md transition-colors shrink-0">
-                    <i class="fa-solid fa-pen-to-square text-[11px]"></i>
+                    <x-icon class="fa-solid fa-pen-to-square text-[11px]" />
                     <span>Atur</span>
                 </button>
             </div>
@@ -66,7 +66,7 @@
                 <button onclick="openWithdrawModal()"
                     class="w-full h-11 inline-flex items-center justify-center gap-2 px-5 bg-primary-600 hover:bg-primary-700 active:bg-primary-900 text-white font-body font-semibold text-xs md:text-sm rounded-md shadow-sm transition-colors {{ ($wallet->balance ?? 0) <= 0 || !isset($wallet->account_number) ? 'opacity-50 cursor-not-allowed' : '' }}"
                     {{ ($wallet->balance ?? 0) <= 0 || !isset($wallet->account_number) ? 'disabled' : '' }}>
-                    <i class="text-xs fa-solid fa-money-bill-transfer"></i>
+                    <x-icon class="text-xs fa-solid fa-money-bill-transfer" />
                     <span>Tarik Saldo ke Bank</span>
                 </button>
             </div>
@@ -80,7 +80,7 @@
                 </h3>
             </div>
 
-            <div class="w-full overflow-x-auto custom-scrollbar">
+            <div class="w-full overflow-x-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-surface-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-ink-400">
                 <table class="w-full text-left border-collapse whitespace-nowrap">
                     <thead>
                         <tr
@@ -148,7 +148,7 @@
                                     <div class="flex flex-col items-center justify-center">
                                         <div
                                             class="flex items-center justify-center w-12 h-12 mb-2 rounded-full bg-primary-50 text-primary-600">
-                                            <i class="text-xl fa-solid fa-receipt"></i>
+                                            <x-icon class="text-xl fa-solid fa-receipt" />
                                         </div>
                                         <p class="text-sm font-semibold font-heading text-ink-900">Belum ada riwayat
                                             penarikan dana</p>
@@ -174,13 +174,13 @@
             <div class="flex items-center justify-between pb-3 mb-4 border-b border-border-200">
                 <h3 class="text-lg font-semibold font-heading text-ink-900">Form Penarikan Dana</h3>
                 <button type="button" onclick="closeWithdrawModal()" class="p-1 text-ink-400 hover:text-ink-900">
-                    <i class="text-base fa-solid fa-xmark"></i>
+                    <x-icon class="text-base fa-solid fa-xmark" />
                 </button>
             </div>
 
             @if (!isset($wallet->account_number) || $wallet->account_number == '')
                 <div class="p-3 mb-4 bg-red-50 border border-red-100 rounded-md flex items-start gap-2.5">
-                    <i class="fa-solid fa-triangle-exclamation text-semantic-danger text-sm mt-0.5 shrink-0"></i>
+                    <x-icon class="fa-solid fa-triangle-exclamation text-semantic-danger text-sm mt-0.5 shrink-0" />
                     <p class="text-xs leading-relaxed font-body text-semantic-danger">
                         Anda belum mengatur nomor rekening bank penampung. Silakan lengkapi informasi rekening Anda
                         terlebih dahulu.
@@ -247,7 +247,7 @@
                 <h3 class="text-lg font-semibold font-heading text-ink-900">Pengaturan Rekening Bank</h3>
                 <button type="button" onclick="closeBankSettingsModal()"
                     class="p-1 text-ink-400 hover:text-ink-900">
-                    <i class="text-base fa-solid fa-xmark"></i>
+                    <x-icon class="text-base fa-solid fa-xmark" />
                 </button>
             </div>
 

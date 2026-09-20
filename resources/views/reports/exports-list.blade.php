@@ -15,14 +15,14 @@
             </div>
             <a href="{{ route('reports.index') }}"
                 class="inline-flex items-center h-10 gap-2 px-4 text-xs font-semibold transition-colors border rounded-md shadow-sm bg-surface-0 border-border-200 hover:bg-surface-100 text-ink-900 font-body">
-                <i class="text-xs fa-solid fa-arrow-left"></i>
+                <x-icon class="text-xs fa-solid fa-arrow-left" />
                 <span>Kembali ke Laporan</span>
             </a>
         </div>
 
         <!-- Table Container -->
         <div class="mb-6 overflow-hidden border rounded-lg shadow-sm bg-surface-0 border-border-200">
-            <div class="w-full overflow-x-auto custom-scrollbar">
+            <div class="w-full overflow-x-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-surface-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-ink-400">
                 <table class="w-full text-left border-collapse whitespace-nowrap">
                     <thead>
                         <tr
@@ -42,7 +42,7 @@
                                 <!-- File Name Type -->
                                 <td class="px-5 py-3 font-semibold text-ink-900">
                                     <div class="flex items-center gap-2.5">
-                                        <i class="text-base fa-solid fa-file-excel text-emerald-600"></i>
+                                        <x-icon class="text-base fa-solid fa-file-excel text-emerald-600" />
                                         <span>{{ $export->report_type }}</span>
                                     </div>
                                 </td>
@@ -90,7 +90,7 @@
                                     @if ($export->status === 'completed')
                                         <a href="{{ route('reports.download-file', $export->id) }}"
                                             class="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-md transition-colors">
-                                            <i class="text-xs fa-solid fa-download"></i>
+                                            <x-icon class="text-xs fa-solid fa-download" />
                                             <span>Unduh Excel</span>
                                         </a>
                                     @else
@@ -141,7 +141,7 @@
                                     badgeArea.innerHTML =
                                         `<span class="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold text-primary-700 bg-primary-100 rounded-full">Selesai</span>`;
                                     buttonArea.innerHTML =
-                                        `<a href="${item.download_url}" class="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-md transition-colors"><i class="text-xs fa-solid fa-download"></i> Unduh Excel</a>`;
+                                        `<a href="${item.download_url}" class="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-md transition-colors"><x-icon class="text-xs fa-solid fa-download" /> Unduh Excel</a>`;
                                 } else if (item.status === 'processing') {
                                     badgeArea.innerHTML =
                                         `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold text-primary-700 bg-primary-100 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-primary-600 animate-pulse"></span> Sedang Diproses</span>`;

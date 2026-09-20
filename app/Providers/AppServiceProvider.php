@@ -13,7 +13,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton('growpos.icons', fn () => json_decode(file_get_contents(resource_path('icons/fontawesome.json')), true, 512, JSON_THROW_ON_ERROR));
     }
 
     /**

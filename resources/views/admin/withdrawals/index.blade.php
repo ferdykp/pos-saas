@@ -49,12 +49,12 @@
                                             @csrf
                                             <button type="submit"
                                                 class="inline-flex items-center gap-1.5 bg-primary-600 text-white text-xs font-semibold px-3 py-2 rounded-md hover:bg-primary-700 transition">
-                                                <i class="fa-solid fa-check"></i> Setujui
+                                                <x-icon class="fa-solid fa-check" /> Setujui
                                             </button>
                                         </form>
                                         <button @click="rejecting = true"
                                             class="inline-flex items-center gap-1.5 bg-surface-0 border border-border-200 text-ink-700 text-xs font-semibold px-3 py-2 rounded-md hover:bg-red-50 hover:text-semantic-danger hover:border-semantic-danger transition">
-                                            <i class="fa-solid fa-xmark"></i> Tolak
+                                            <x-icon class="fa-solid fa-xmark" /> Tolak
                                         </button>
                                     </div>
 
