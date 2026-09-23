@@ -31,6 +31,12 @@ class LaunchCheck extends Command
         try {
             DB::connection()->getPdo();
             $checks['Database reachable'] = true;
+            $heartbeat = app(\App\Services\OperationalHeartbeat::class);
+            $checks['Scheduler heartbeat within 3 minutes'] = $heartbeat->fresh('scheduler', 3);
+            $checks['Worker handled a recent job within 3 minutes'] = $heartbeat->fresh('worker', 3);
+            $checks['Backup completed within 26 hours'] = $heartbeat->fresh('backup', 26 * 60);
+            $checks['Application build manifest present'] = is_file(public_path('build/manifest.json'));
+            $checks['Email stylesheet built'] = is_file(public_path('build/mail.css'));
             foreach (['cash_entries', 'order_returns', 'failed_jobs'] as $table) {
                 $checks['Table '.$table] = Schema::hasTable($table);
             }

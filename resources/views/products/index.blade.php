@@ -4,7 +4,7 @@
     <div class="px-4 py-6 mx-auto md:px-6 lg:px-8 max-w-desktop" x-data="{ showDeleteModal: false, deleteUrl: '', productName: '' }">
 
         @php
-            $productCount = $products->count();
+            $productCount = $products->total();
             $currentPlan = auth()->user()->tenant?->currentPlan();
             $maxProducts = $currentPlan?->max_products ?? 100;
             $isProductFull = $productCount >= $maxProducts;
@@ -218,6 +218,14 @@
                                 <!-- Action -->
                                 <td class="px-5 py-3 text-center">
                                     <div class="flex items-center justify-center gap-1.5">
+                                        @if ($product->barcode)
+                                            <a href="{{ route('products.label', $product) }}" target="_blank"
+                                                class="p-2 transition-colors rounded-md text-ink-700 hover:text-primary-600 bg-surface-100 hover:bg-primary-50"
+                                                title="Cetak Label Barcode">
+                                                <x-icon class="text-xs fa-solid fa-barcode" />
+                                            </a>
+                                        @endif
+
                                         <a href="{{ route('products.edit', $product->id) }}"
                                             class="p-2 transition-colors rounded-md text-ink-700 hover:text-primary-600 bg-surface-100 hover:bg-primary-50"
                                             title="Edit Produk">

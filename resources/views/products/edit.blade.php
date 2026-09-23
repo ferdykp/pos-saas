@@ -22,6 +22,7 @@
         <form action="{{ route('products.update', $product->id) }}" method="POST" enctype="multipart/form-data"
             class="space-y-6">
             @csrf
+            @include('products.partials.retail')
             @method('PUT')
 
             <!-- Section 1: Informasi Dasar -->
@@ -163,13 +164,13 @@
                         <div>
                             <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Jumlah Stok Saat
                                 Ini</label>
-                            <input type="number" name="stock" id="stock_input" value="{{ $product->stock }}"
+                            <input type="number" name="stock" step="0.001" id="stock_input" value="{{ $product->stock }}"
                                 class="w-full px-3 font-mono text-xs font-semibold transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                         </div>
                         <div>
                             <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Batas Minimum
                                 Warning</label>
-                            <input type="number" name="min_stock" id="min_stock_input"
+                            <input type="number" name="min_stock" step="0.001" id="min_stock_input"
                                 value="{{ $product->min_stock }}"
                                 class="w-full px-3 font-mono text-xs font-semibold transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                         </div>

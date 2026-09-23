@@ -92,9 +92,9 @@
                 <td colspan="2" class="font-bold uppercase">{{ $item->product_name }}@foreach($item->addons ?? [] as $addon)<div class="item-detail">+ {{ $addon['name'] }}</div>@endforeach @if($item->note)<div class="item-detail">{{ $item->note }}</div>@endif</td>
             </tr>
             <tr>
-                <td class="item-detail">{{ $item->quantity }}x @ Rp{{ number_format($item->price, 0, ',', '.') }}
+                <td class="item-detail">{{ $item->quantity }} {{ $item->unit_name }} × @ Rp {{ number_format($item->price, 0, ',', '.') }}
                 </td>
-                <td class="item-price">Rp{{ number_format($item->subtotal, 0, ',', '.') }}</td>
+                <td class="item-price">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</td>
             </tr>
         @endforeach
     </table>
@@ -104,35 +104,35 @@
     <div>
         <div class="total-row">
             <span>Subtotal:</span>
-            <span>Rp{{ number_format($order->subtotal, 0, ',', '.') }}</span>
+            <span>Rp {{ number_format($order->subtotal, 0, ',', '.') }}</span>
         </div>
         @if ($order->discount > 0)
             <div class="total-row">
                 <span>Diskon Promo:</span>
-                <span>-Rp{{ number_format($order->discount, 0, ',', '.') }}</span>
+                <span>-Rp {{ number_format($order->discount, 0, ',', '.') }}</span>
             </div>
         @endif
         @if ($order->tax > 0)
             <div class="total-row">
                 <span>Pajak Outlet:</span>
-                <span>+Rp{{ number_format($order->tax, 0, ',', '.') }}</span>
+                <span>+Rp {{ number_format($order->tax, 0, ',', '.') }}</span>
             </div>
         @endif
 
         <div class="total-row grand-total">
             <span>TOTAL:</span>
-            <span>Rp{{ number_format($order->grand_total, 0, ',', '.') }}</span>
+            <span>Rp {{ number_format($order->grand_total, 0, ',', '.') }}</span>
         </div>
 
         <div class="divider"></div>
 
         <div class="total-row">
             <span>Bayar ({{ strtoupper($order->payment_method) }}):</span>
-            <span>Rp{{ number_format($order->paid_amount, 0, ',', '.') }}</span>
+            <span>Rp {{ number_format($order->paid_amount, 0, ',', '.') }}</span>
         </div>
         <div class="total-row">
             <span>Kembalian:</span>
-            <span>Rp{{ number_format($order->change_amount, 0, ',', '.') }}</span>
+            <span>Rp {{ number_format($order->change_amount, 0, ',', '.') }}</span>
         </div>
     </div>
 

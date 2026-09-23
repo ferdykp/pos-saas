@@ -22,7 +22,7 @@ class InventoryController extends Controller
             'product_id' => 'required|integer',
             'variant_id' => 'nullable|integer',
             'type' => 'required|in:stock_in,stock_out,adjustment',
-            'quantity' => 'required|integer|min:0|max:1000000000',
+            'quantity' => 'required|numeric|decimal:0,3|min:0|max:1000000000',
             'note' => 'required|string|max:255',
         ]);
         $stock->product($request->user(), $data);

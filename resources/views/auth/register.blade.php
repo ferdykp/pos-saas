@@ -74,8 +74,8 @@
                             <div class="flex items-center justify-center text-primary-900">
                                 <x-icon class="mr-3 text-[20px] fa-solid fa-headset" />
                                 <div class="flex-col">
-                                    <div class="font-bold text-body-base">Support 24/7</div>
-                                    <div class="font-semibold text-body-sm">Bantuan Kapan Saja</div>
+                                    <div class="font-bold text-body-base">Panduan Usaha</div>
+                                    <div class="font-semibold text-body-sm">Panduan di dalam aplikasi</div>
                                 </div>
                             </div>
                         </div>

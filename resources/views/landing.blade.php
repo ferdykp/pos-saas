@@ -91,7 +91,7 @@
                                               ? 'Pilih Starter'
                                               : 'Langganan Sekarang')
                                           : 'Mulai Sekarang'"
-                                      :capacity="$plan->max_outlets.' outlet · '.$plan->max_users.' pengguna · '.$plan->max_products.' menu'" :features="$plan->features ?? []" />
+                                      :capacity="$plan->max_outlets.' outlet · '.$plan->max_users.' pengguna · '.$plan->max_products.' menu'" :features="$plan->advertisedFeatures()" />
                               @endforeach
                           @else
                               <p class="bg-white [border:1px_solid_#e1e9e4] rounded-lg [padding:22px] [box-shadow:0_2px_5px_#17392c03] max-[701px]:[padding:18px] [color:#65796f] [font-size:13px] [line-height:1.6]">Paket belum tersedia. Harga dan kapasitas akan ditampilkan setelah paket diaktifkan.</p>

@@ -93,7 +93,7 @@
                             <x-icon class="fa-solid fa-wallet" />
                         </span>
                     </div>
-                    <p class="mt-2 text-2xl font-bold text-ink-900">Rp{{ number_format($revenue, 0, ',', '.') }}</p>
+                    <p class="mt-2 text-2xl font-bold text-ink-900">Rp {{ number_format($revenue, 0, ',', '.') }}</p>
                 </div>
                 <div class="pt-3 mt-3 text-xs border-t border-border-200">
                     @if ($change === null)
@@ -121,7 +121,7 @@
                 </div>
                 <div class="pt-3 mt-3 text-xs border-t border-border-200 text-ink-700">
                     Rata-rata: <span
-                        class="font-semibold text-ink-900">Rp{{ number_format($orderCount ? $revenue / $orderCount : 0, 0, ',', '.') }}</span>
+                        class="font-semibold text-ink-900">Rp {{ number_format($orderCount ? $revenue / $orderCount : 0, 0, ',', '.') }}</span>
                     / nota
                 </div>
             </div>
@@ -136,7 +136,7 @@
                         </span>
                     </div>
                     <p class="mt-2 text-2xl font-bold text-ink-900">
-                        {{ $grossProfit === null ? '—' : 'Rp' . number_format($grossProfit, 0, ',', '.') }}
+                        {{ $grossProfit === null ? '—' : 'Rp ' . number_format($grossProfit, 0, ',', '.') }}
                     </p>
                 </div>
                 <div class="pt-3 mt-3 text-xs border-t border-border-200 text-ink-700">
@@ -154,7 +154,7 @@
                             <x-icon class="fa-solid fa-scale-unbalanced" />
                         </span>
                     </div>
-                    <p class="mt-2 text-2xl font-bold text-ink-900">Rp{{ number_format($cashDifference, 0, ',', '.') }}
+                    <p class="mt-2 text-2xl font-bold text-ink-900">Rp {{ number_format($cashDifference, 0, ',', '.') }}
                     </p>
                 </div>
                 <div class="pt-3 mt-3 text-xs border-t border-border-200">
@@ -191,7 +191,7 @@
                                 <div class="text-xs">
                                     <p class="font-bold text-ink-900">Penjualan turun {{ abs($change) }}%</p>
                                     <p class="text-ink-700 mt-0.5">Periode sebelumnya
-                                        Rp{{ number_format($previousRevenue, 0, ',', '.') }}. Periksa perbandingan item
+                                        Rp {{ number_format($previousRevenue, 0, ',', '.') }}. Periksa perbandingan item
                                         terjual.</p>
                                 </div>
                             </a>
@@ -228,7 +228,7 @@
                                 <div class="text-xs">
                                     <p class="font-bold text-ink-900">Selisih Kas Shift: {{ $shift->user?->name }}</p>
                                     <p class="text-ink-700 mt-0.5">Terdapat perbedaan kas sebesar
-                                        Rp{{ number_format($shift->cash_difference, 0, ',', '.') }}.</p>
+                                        Rp {{ number_format($shift->cash_difference, 0, ',', '.') }}.</p>
                                 </div>
                             </a>
                         @endforeach
@@ -313,7 +313,7 @@
                                 </div>
                             </div>
                             <span class="text-xs font-bold text-ink-900">
-                                Rp{{ number_format($order->grand_total, 0, ',', '.') }}
+                                Rp {{ number_format($order->grand_total, 0, ',', '.') }}
                             </span>
                         </a>
                     @empty
@@ -350,7 +350,7 @@
                                     </span>
                                 </div>
                                 <span class="text-xs font-bold text-ink-900">
-                                    Rp{{ number_format($method->amount, 0, ',', '.') }}
+                                    Rp {{ number_format($method->amount, 0, ',', '.') }}
                                 </span>
                             </div>
                         @empty

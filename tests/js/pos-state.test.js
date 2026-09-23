@@ -43,3 +43,51 @@ test("pending payload survives persistence without changing reference", () => {
     const storage = { getItem: () => JSON.stringify(data) };
     assert.deepEqual(readState(storage, "test", {}), data);
 });
+
+test("package unit converts stock factor while keeping package price", () => {
+    const product = {
+        name: "Air Mineral",
+        base_unit: "pcs",
+        price: 10000,
+        discount: 0,
+        stock: 48,
+        price_tiers: [],
+        variants: [],
+        units: [{ id: 8, name: "Dus", factor: 12, price: 108000, discount: 0 }],
+        addons: [],
+    };
+    const unit = unitFor(product, null, [], 8, 2);
+    assert.equal(unit.price, 108000);
+    assert.equal(unit.factor, 12);
+    assert.equal(unit.unit_name, "Dus");
+    assert.equal(unit.stock, 48);
+});
+
+test("highest matching wholesale tier is selected", () => {
+    const product = {
+        name: "Gelas",
+        base_unit: "pcs",
+        price: 10000,
+        discount: 0,
+        stock: 100,
+        variants: [],
+        units: [],
+        addons: [],
+        price_tiers: [
+            { min_quantity: 10, price: 9000, discount: 0 },
+            { min_quantity: 25, price: 8000, discount: 0 },
+        ],
+    };
+    assert.equal(unitFor(product, null, [], null, 9).price, 10000);
+    assert.equal(unitFor(product, null, [], null, 10).price, 9000);
+    assert.equal(unitFor(product, null, [], null, 30).price, 8000);
+});
+
+test("fractional quantity totals are rounded to whole rupiah", () => {
+    assert.deepEqual(totals([{ price: 15500, discount: 500, quantity: 1.5 }], 11), {
+        subtotal: 23250,
+        discount: 750,
+        tax: 2475,
+        total: 24975,
+    });
+});

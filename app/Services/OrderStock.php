@@ -17,8 +17,8 @@ class OrderStock
             }
             $product = Product::withoutGlobalScopes()->where('tenant_id', $order->tenant_id)->whereKey($item->product_id)->lockForUpdate()->firstOrFail();
             $stock = $item->variant_id ? $product->variants()->whereKey($item->variant_id)->lockForUpdate()->firstOrFail() : $product;
-            $before = (int) $stock->stock;
-            if (! $restore && $before < $item->reserved_stock) {
+            $before = (float) $stock->stock;
+            if (! $restore && RetailQuantity::ticks($before) < RetailQuantity::ticks($item->reserved_stock)) {
                 throw new \RuntimeException('Pembayaran terlambat membutuhkan rekonsiliasi stok untuk '.$order->invoice_number);
             }
             $stock->increment('stock', $restore ? $item->reserved_stock : -$item->reserved_stock);

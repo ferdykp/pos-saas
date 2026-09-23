@@ -18,7 +18,7 @@
                 <h3 class="text-xl font-bold font-heading text-ink-900">GrowPOS Smart AI Business Advisor Terkunci</h3>
                 <p class="max-w-xl mx-auto mt-2 mb-6 text-xs leading-relaxed text-ink-700 font-body">
                     Dapatkan asisten bisnis AI pribadi untuk menganalisis pergerakan omzet toko, rekomendasi strategi
-                    restock produk terlaris, analisis kombo menu otomatis, dan asisten percakapan bisnis interaktif 24/7.
+                    restock produk terlaris, analisis kombo menu otomatis, berdasarkan data transaksi yang tersedia.
                 </p>
 
                 <div class="grid max-w-xl grid-cols-1 gap-3 mx-auto mb-8 text-left sm:grid-cols-3">

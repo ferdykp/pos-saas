@@ -15,8 +15,14 @@ class TailwindAssetsTest extends TestCase
             if (! $file->isFile() || ! str_ends_with($file->getFilename(), '.blade.php')) {
                 continue;
             }
-            // The standalone thermal receipt is the only manual CSS exception.
-            if ($file->getPathname() === resource_path('views/orders/print.blade.php')) {
+            // Standalone print layouts require print-specific CSS
+            // for physical paper/label dimensions.
+            $printLayoutExceptions = [
+                resource_path('views/orders/print.blade.php'),
+                resource_path('views/products/label.blade.php'),
+            ];
+
+            if (in_array($file->getPathname(), $printLayoutExceptions, true)) {
                 continue;
             }
             $this->assertDoesNotMatchRegularExpression('/<style\b|\bstyle\s*=|(?:font-awesome|select2).*\.css|\bgp-[a-z]/i', file_get_contents($file->getPathname()), $file->getPathname());

@@ -16,6 +16,7 @@ use App\Services\MidtransGateway;
 use App\Services\OrderPaymentService;
 use App\Services\OrderPricing;
 use App\Services\RecipeStock;
+use App\Services\RetailQuantity;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -35,12 +36,16 @@ class PosController extends Controller
         $settings = Setting::where('tenant_id', $tenantId)->pluck('value', 'key')->toArray();
         $pricing = app(OrderPricing::class);
         $products = Product::where('tenant_id', $tenantId)->where('is_active', true)
-            ->with(['discounts', 'variants', 'addons'])->get()->map(function ($product) use ($pricing) {
+            ->with(['discounts', 'variants', 'addons', 'units'])->get()->map(function ($product) use ($pricing) {
                 $unit = $pricing->unitPrice($product);
                 $product->sell_price = $unit['price'];
                 $product->final_price = $unit['final'];
                 $product->discount_applied = $unit['discount'];
                 $product->discount_name = $unit['discount_name'];
+                $product->price_tiers = collect($product->price_tiers ?? [])->map(fn ($tier) => array_merge($tier, ['discount' => $pricing->unitPrice($product, (float) $tier['price'])['discount']]))->all();
+                foreach ($product->units as $saleUnit) {
+                    $saleUnit->discount = $pricing->unitPrice($product, (float) $saleUnit->price)['discount'];
+                }
                 foreach ($product->variants as $variant) {
                     $variantUnit = $pricing->unitPrice($product, (float) $variant->price);
                     $variant->discount = $variantUnit['discount'];
@@ -81,13 +86,14 @@ class PosController extends Controller
             'items' => 'required|array|min:1|max:200',
             'items.*.id' => 'required|integer',
             'items.*.variant_id' => 'nullable|integer',
+            'items.*.unit_id' => 'nullable|integer',
             'items.*.addon_ids' => 'nullable|array|max:20',
             'items.*.addon_ids.*' => 'integer',
             'items.*.note' => 'nullable|string|max:300',
             'checkout_key' => 'required_if:payment_method,midtrans|nullable|uuid',
             'shift_id' => 'nullable|integer',
             'sold_at' => 'nullable|date|before_or_equal:now',
-            'items.*.quantity' => 'required|integer|min:1|max:100000',
+            'items.*.quantity' => 'required|numeric|decimal:0,3|min:0.001|max:100000',
             'customer_id' => ['nullable', 'integer', Rule::exists('customers', 'id')->where('tenant_id', $tenantId)],
             'payment_method' => 'required|in:cash,midtrans',
             'payment_status' => 'required|in:paid,unpaid',
@@ -139,6 +145,14 @@ class PosController extends Controller
                 if (! empty($item['variant_id']) && ! $variant) {
                     throw ValidationException::withMessages(['items' => 'Varian tidak tersedia untuk menu ini.']);
                 }
+                RetailQuantity::requireWhole($item['quantity'], $product->allow_fraction);
+                $saleUnit = ! empty($item['unit_id']) ? $product->units()->find($item['unit_id']) : null;
+                if (! empty($item['unit_id']) && (! $saleUnit || $variant)) {
+                    throw ValidationException::withMessages(['items' => 'Kemasan tidak tersedia atau tidak dapat digabungkan dengan varian.']);
+                }
+                $factor = $saleUnit?->factor ?? 1;
+                $baseQuantity = RetailQuantity::base($item['quantity'], $factor);
+                RetailQuantity::requireWhole($baseQuantity, $product->allow_fraction);
                 $addonIds = $item['addon_ids'] ?? [];
                 $addons = $product->addons()->whereIn('id', $addonIds)->get();
                 if ($addons->count() !== count($addonIds)) {
@@ -147,26 +161,29 @@ class PosController extends Controller
                 $stockModel = $variant ?? $product;
                 $stockKey = ($variant ? 'variant-' : 'product-').$stockModel->id;
                 $tracked = $product->type === 'product' && $product->manage_stock;
-                $stockTotals[$stockKey] = ($stockTotals[$stockKey] ?? 0) + ($tracked ? $item['quantity'] : 0);
-                if ($tracked && $stockModel->stock < $stockTotals[$stockKey]) {
+                $stockTotals[$stockKey] = ($stockTotals[$stockKey] ?? 0) + ($tracked ? $baseQuantity : 0);
+                if ($tracked && RetailQuantity::ticks($stockModel->stock) < RetailQuantity::ticks($stockTotals[$stockKey])) {
                     throw ValidationException::withMessages(['items' => "Stok {$product->product_name} tidak mencukupi."]);
                 }
-                $unit = app(OrderPricing::class)->unitPrice($product, $variant ? (float) $variant->price : null);
+                $pricing = app(OrderPricing::class);
+                $unit = $pricing->unitPrice($product, $saleUnit ? (float) $saleUnit->price : ($variant ? (float) $variant->price : $pricing->retailPrice($product, (float) $item['quantity'])));
                 $price = $unit['price'] + $addons->sum('price');
-                $subtotal += $price * $item['quantity'];
-                $discount += $unit['discount'] * $item['quantity'];
+                $lineSubtotal = (int) round($price * $item['quantity']);
+                $lineDiscount = (int) round($unit['discount'] * $item['quantity']);
+                $subtotal += $lineSubtotal;
+                $discount += $lineDiscount;
                 $reserved = [];
                 foreach ($product->type === 'service' ? [] : $product->materials as $material) {
-                    $reserved[$material->id] = $material->pivot->quantity * $item['quantity'];
+                    $reserved[$material->id] = $material->pivot->quantity * $baseQuantity;
                     $materialTotals[$material->id] = ($materialTotals[$material->id] ?? 0) + $reserved[$material->id];
                 }
                 $costKnown = ! $variant && $product->cost_price > 0 && $addons->every(fn ($addon) => $addon->cost !== null);
-                $lines[] = ['requires_preparation' => $product->type === 'product' && (bool) ($product->requires_preparation ?? (auth()->user()->tenant->businessType() === 'food')), 'discount_amount' => $unit['discount'] * $item['quantity'], 'product_id' => $product->id, 'variant_id' => $variant?->id,
+                $lines[] = ['requires_preparation' => $product->type === 'product' && (bool) ($product->requires_preparation ?? (auth()->user()->tenant->businessType() === 'food')), 'unit_name' => $saleUnit?->name ?? $product->base_unit, 'unit_factor' => $factor, 'discount_amount' => $lineDiscount, 'product_id' => $product->id, 'variant_id' => $variant?->id,
                     'product_name' => $product->product_name.($variant ? ' · '.$variant->name : ''),
-                    'quantity' => $item['quantity'], 'price' => $price, 'subtotal' => $price * $item['quantity'],
-                    'reserved_stock' => $tracked ? $item['quantity'] : 0, 'reserved_materials' => $reserved,
+                    'quantity' => $item['quantity'], 'price' => $price, 'subtotal' => $lineSubtotal,
+                    'reserved_stock' => $tracked ? $baseQuantity : 0, 'reserved_materials' => $reserved,
                     'addons' => $addons->map->only(['id', 'name', 'price'])->values()->all(), 'note' => $item['note'] ?? null,
-                    'unit_cost' => $costKnown ? $product->cost_price + $addons->sum('cost') : null];
+                    'unit_cost' => $costKnown ? $product->cost_price * $factor + $addons->sum('cost') : null];
             }
             $settings = Setting::where('tenant_id', $tenantId)->pluck('value', 'key');
             $taxRate = min(100, max(0, (float) ($settings['tax_percentage'] ?? 0)));

@@ -26,7 +26,7 @@ class OrderReturnService
             $existing = CashEntry::where('operation_key', $data['operation_key'])->first();
             if ($existing) {
                 $returned = DB::table('order_returns')->where('cash_entry_id', $existing->id)->first();
-                if ($existing->kind !== 'refund' || $existing->order_id !== $orderId || $existing->user_id !== $actor->id || $existing->reason !== $data['reason'] || ! $returned || $returned->order_item_id !== (int) $data['item_id'] || $returned->quantity !== (int) $data['quantity'] || (bool) $returned->restock !== (bool) ($data['restock'] ?? false)) {
+                if ($existing->kind !== 'refund' || $existing->order_id !== $orderId || $existing->user_id !== $actor->id || $existing->reason !== $data['reason'] || ! $returned || $returned->order_item_id !== (int) $data['item_id'] || RetailQuantity::ticks($returned->quantity) !== RetailQuantity::ticks($data['quantity']) || (bool) $returned->restock !== (bool) ($data['restock'] ?? false)) {
                     throw ValidationException::withMessages(['operation_key' => 'Identitas retur sudah digunakan untuk data berbeda.']);
                 }
 
@@ -40,9 +40,9 @@ class OrderReturnService
             if (! $item) {
                 throw ValidationException::withMessages(['item_id' => 'Barang tidak termasuk dalam transaksi.']);
             }
-            $previousQty = (int) DB::table('order_returns')->where('order_item_id', $item->id)->sum('quantity');
-            $quantity = (int) $data['quantity'];
-            if ($previousQty + $quantity > $item->quantity) {
+            $previousQty = (float) DB::table('order_returns')->where('order_item_id', $item->id)->sum('quantity');
+            $quantity = (float) $data['quantity'];
+            if (RetailQuantity::ticks($previousQty) + RetailQuantity::ticks($quantity) > RetailQuantity::ticks($item->quantity)) {
                 throw ValidationException::withMessages(['quantity' => 'Jumlah melebihi barang yang belum diretur.']);
             }
             // Cumulative allocation ensures all line entitlements sum to the invoice total,
@@ -68,9 +68,10 @@ class OrderReturnService
                 }
                 $product = Product::whereKey($item->product_id)->lockForUpdate()->firstOrFail();
                 $stock = $item->variant_id ? $product->variants()->whereKey($item->variant_id)->lockForUpdate()->firstOrFail() : $product;
+                $restockQuantity = RetailQuantity::base($quantity, $item->unit_factor);
                 $stockBefore = $stock->stock;
-                $stock->increment('stock', $quantity);
-                StockMovement::create(['tenant_id' => $actor->tenant_id, 'product_id' => $product->id, 'user_id' => $actor->id, 'type' => 'return', 'quantity' => $quantity, 'before_stock' => $stockBefore, 'after_stock' => $stockBefore + $quantity, 'note' => $data['reason'], 'reference_type' => 'order_item', 'reference_id' => $item->id]);
+                $stock->increment('stock', $restockQuantity);
+                StockMovement::create(['tenant_id' => $actor->tenant_id, 'product_id' => $product->id, 'user_id' => $actor->id, 'type' => 'return', 'quantity' => $restockQuantity, 'before_stock' => $stockBefore, 'after_stock' => $stockBefore + $restockQuantity, 'note' => $data['reason'], 'reference_type' => 'order_item', 'reference_id' => $item->id]);
             }
             $priorRefund = (float) DB::table('order_returns')->where('order_id', $order->id)->sum('amount');
             DB::table('order_returns')->insert(['tenant_id' => $actor->tenant_id, 'order_id' => $order->id, 'order_item_id' => $item->id, 'cash_entry_id' => $entry->id, 'quantity' => $quantity, 'amount' => $amount, 'restock' => $restock, 'created_at' => now(), 'updated_at' => now()]);

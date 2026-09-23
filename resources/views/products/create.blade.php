@@ -20,6 +20,7 @@
 
         <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
             @csrf
+            @include('products.partials.retail')
 
             <!-- Section 1: Informasi Dasar Produk -->
             <div class="p-6 border rounded-lg shadow-sm bg-surface-0 border-border-200">
@@ -158,13 +159,13 @@
                         <div>
                             <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Jumlah Stok
                                 Awal</label>
-                            <input type="number" name="stock" id="stock_input" value="0"
+                            <input type="number" name="stock" step="0.001" id="stock_input" value="0"
                                 class="w-full px-3 font-mono text-xs font-semibold transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                         </div>
                         <div>
                             <label class="block font-body text-xs font-semibold text-ink-900 mb-1.5">Batas Minimum
                                 Warning</label>
-                            <input type="number" name="min_stock" id="min_stock_input" value="5"
+                            <input type="number" name="min_stock" step="0.001" id="min_stock_input" value="5"
                                 class="w-full px-3 font-mono text-xs font-semibold transition-all border rounded-sm outline-none h-11 text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                         </div>
                     </div>

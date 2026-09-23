@@ -52,6 +52,9 @@ class BackupDatabase extends Command
             chmod($path, 0600);
             file_put_contents($path.'.sha256', hash_file('sha256', $path));
             chmod($path.'.sha256', 0600);
+            if (\Illuminate\Support\Facades\Schema::hasTable('operational_heartbeats')) {
+                app(\App\Services\OperationalHeartbeat::class)->record('backup');
+            }
             $this->info('Backup tersimpan: '.$path);
             $this->line('Checksum SHA-256 tersimpan. Salin ke penyimpanan privat terpisah dan lakukan uji restore.');
 

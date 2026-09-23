@@ -50,7 +50,7 @@ class RecipeStock
         }
     }
 
-    private function record(Order $order, Material $material, int $quantity, int $before, string $type): void
+    private function record(Order $order, Material $material, int|float $quantity, int|float $before, string $type): void
     {
         StockMovement::create(['tenant_id' => $order->tenant_id, 'material_id' => $material->id, 'user_id' => $order->user_id, 'type' => $type, 'quantity' => $quantity, 'before_stock' => $before, 'after_stock' => $material->stock, 'note' => 'Reservasi / pemulihan bahan '.$order->invoice_number, 'reference_type' => 'order', 'reference_id' => $order->id]);
     }

@@ -1,4 +1,5 @@
 import { money, unitFor, totals, readState, queueOnce } from "./pos-state.js";
+import { rupiahDigits, rupiahInput } from "./currency-input.js";
 
 export default () => ({
     pendingPayments: [],
@@ -18,6 +19,8 @@ export default () => ({
     modal: "",
     selected: null,
     variant: "",
+    saleUnit: "",
+    itemQuantity: 1,
     addonIds: [],
     itemNote: "",
     cash: "",
@@ -34,6 +37,12 @@ export default () => ({
     shiftSummary: null,
     key: "",
     storageReady: true,
+    currencyInput(value) {
+        return rupiahInput(value);
+    },
+    setCurrencyField(field, value) {
+        this[field] = rupiahDigits(value);
+    },
     init() {
         this.config = JSON.parse(
             document.getElementById("grow-pos-data").textContent,
@@ -123,7 +132,7 @@ export default () => ({
     },
     get selectedUnit() {
         return this.selected
-            ? unitFor(this.selected, this.variant, this.addonIds)
+            ? unitFor(this.selected, this.variant, this.addonIds, this.saleUnit, Number(this.itemQuantity))
             : { price: 0, discount: 0 };
     },
     persist() {
@@ -159,6 +168,8 @@ export default () => ({
     choose(product) {
         this.selected = product;
         this.variant = "";
+        this.saleUnit = "";
+        this.itemQuantity = 1;
         this.addonIds = [];
         this.itemNote = "";
         this.modal = "item";
@@ -168,26 +179,39 @@ export default () => ({
         const p = this.selected,
             unit = this.selectedUnit;
         const variantId = this.variant ? Number(this.variant) : null;
+        const quantity = Number(this.itemQuantity);
+        if (!Number.isFinite(quantity) || quantity <= 0 || quantity > 100000 || Math.abs(quantity*1000-Math.round(quantity*1000)) > 0.00001 || (!p.allow_fraction && !Number.isInteger(quantity))) {
+            this.error = "Jumlah tidak valid untuk satuan produk ini.";
+            return;
+        }
         const existingQty = this.cart
             .filter((i) => i.id === p.id && i.variant_id === variantId)
-            .reduce((n, i) => n + i.quantity, 0);
-        if (p.tracked && existingQty + 1 > unit.stock) {
+            .reduce((n, i) => n + Math.round(i.quantity * (i.factor || 1) * 1000), 0);
+        if (p.tracked && existingQty + Math.round(quantity * unit.factor * 1000) > Math.round(unit.stock * 1000)) {
             this.error = "Stok produk tidak mencukupi.";
             return;
         }
         const signature = JSON.stringify([
             p.id,
             variantId,
+            this.saleUnit || null,
             [...this.addonIds].sort(),
             this.itemNote.trim(),
         ]);
         const existing = this.cart.find((i) => i.key === signature);
-        if (existing) existing.quantity++;
+        if (existing) {
+            existing.quantity = Math.round((existing.quantity + quantity)*1000)/1000;
+            this.reprice(existing);
+        }
         else
             this.cart.push({
                 key: signature,
                 id: p.id,
                 variant_id: variantId,
+                unit_id: this.saleUnit ? Number(this.saleUnit) : null,
+                factor: unit.factor,
+                unit_name: unit.unit_name,
+                allow_fraction: p.allow_fraction || false,
                 addon_ids: [...this.addonIds],
                 note: this.itemNote.trim(),
                 name: unit.name,
@@ -198,24 +222,38 @@ export default () => ({
                 addons: p.addons
                     .filter((a) => this.addonIds.includes(a.id))
                     .map((a) => a.name),
-                quantity: 1,
+                quantity,
             });
         this.modal = "";
         this.error = "";
         this.persist();
     },
+    reprice(item) {
+        const product = this.products.find(p => p.id === item.id);
+        if (!product) return;
+        Object.assign(item, unitFor(product, item.variant_id, item.addon_ids || [], item.unit_id, item.quantity));
+    },
     quantity(key, delta) {
-        const item = this.cart.find((i) => i.key === key);
+        const item = this.cart.find(i => i.key === key);
+        if (item) this.setQuantity(key, Math.max(0, Math.round((item.quantity + delta)*1000)/1000));
+    },
+    setQuantity(key, value) {
+        const item = this.cart.find(i => i.key === key);
         if (!item) return;
-        const quantity = this.cart
-            .filter((i) => i.id === item.id && i.variant_id === item.variant_id)
-            .reduce((n, i) => n + i.quantity, 0);
-        if (delta > 0 && item.tracked && quantity + delta > item.stock) {
+        const next = Number(value);
+        if (!Number.isFinite(next) || next < 0 || next > 100000 || Math.abs(next*1000-Math.round(next*1000)) > 0.00001 || (!item.allow_fraction && !Number.isInteger(next))) {
+            this.error = "Jumlah tidak valid untuk satuan produk ini.";
+            return;
+        }
+        const used = this.cart.filter(i => i.id === item.id && i.variant_id === item.variant_id && i.key !== key).reduce((n,i) => n + Math.round(i.quantity*(i.factor || 1)*1000),0);
+        if (item.tracked && used + Math.round(next*(item.factor || 1)*1000) > Math.round(item.stock*1000)) {
             this.error = "Stok produk tidak mencukupi.";
             return;
         }
-        item.quantity += delta;
-        this.cart = this.cart.filter((i) => i.quantity > 0);
+        item.quantity = next;
+        this.reprice(item);
+        this.cart = this.cart.filter(i => i.quantity > 0);
+        this.error = "";
         this.persist();
     },
     hold() {
@@ -344,6 +382,7 @@ export default () => ({
             items: this.cart.map((i) => ({
                 id: i.id,
                 variant_id: i.variant_id,
+                unit_id: i.unit_id || null,
                 addon_ids: i.addon_ids,
                 note: i.note || null,
                 quantity: i.quantity,

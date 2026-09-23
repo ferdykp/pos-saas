@@ -36,14 +36,17 @@ class StockAdjustment
                 throw ValidationException::withMessages([$key => 'Aktifkan pelacakan stok barang terlebih dahulu.']);
             }
             $productId = $item instanceof Product ? $item->id : null;
+            if ($item instanceof Product) {
+                RetailQuantity::requireWhole($data['quantity'], $item->allow_fraction);
+            }
             if ($item instanceof Product && ! empty($data['variant_id'])) {
                 $item = $item->variants()->whereKey($data['variant_id'])->lockForUpdate()->firstOrFail();
             }
-            $quantity = (int) $data['quantity'];
-            if ($data['type'] !== 'adjustment' && $quantity === 0) {
+            $quantity = (float) $data['quantity'];
+            if ($data['type'] !== 'adjustment' && $quantity == 0) {
                 throw ValidationException::withMessages(['quantity' => 'Jumlah masuk/keluar harus lebih dari nol.']);
             }
-            $before = (int) $item->stock;
+            $before = (float) $item->stock;
             $after = match ($data['type']) {
                 'stock_in' => $before + $quantity,
                 'stock_out' => $before - $quantity,

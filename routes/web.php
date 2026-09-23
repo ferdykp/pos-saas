@@ -177,6 +177,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // --- MASTER DATA: PRODUK, KATEGORI & VARIAN ---
         Route::resource('categories', CategoryController::class)->only(['index', 'store', 'destroy'])->middleware('admin');
+        Route::get('/products/{product}/label', [ProductController::class, 'label'])->middleware('admin')->name('products.label');
         Route::resource('products', ProductController::class)->except(['show'])->middleware('admin');
         Route::resource('products.variants', ProductVariantController::class)->only(['store', 'update', 'destroy'])->middleware('admin');
 

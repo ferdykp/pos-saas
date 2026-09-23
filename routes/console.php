@@ -10,3 +10,8 @@ Artisan::command('inspire', function () {
 
 Schedule::command('growpos:reconcile-payments')->everyMinute()->withoutOverlapping(10);
 Schedule::command('growpos:backup')->dailyAt('02:00')->withoutOverlapping(120);
+
+Schedule::call(function () {
+    app(\App\Services\OperationalHeartbeat::class)->record('scheduler');
+    \App\Jobs\RecordWorkerHeartbeat::dispatch(now()->toDateTimeString());
+})->name('operational-heartbeat')->everyMinute()->withoutOverlapping();

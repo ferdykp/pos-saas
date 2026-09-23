@@ -38,6 +38,11 @@ class Plan extends Model
     /**
      * Relasi ke Subscriptions
      */
+    public function advertisedFeatures(): array
+    {
+        return array_diff_key($this->features ?? [], array_flip(['Support 24/7 Chat', 'Account Manager Pribadi', 'Integrasi API Terbuka']));
+    }
+
     public function subscriptions(): HasMany
     {
         return $this->hasMany(Subscription::class);

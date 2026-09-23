@@ -108,7 +108,7 @@
                         <label for="cash_amount" class="block mb-1.5 text-xs font-semibold text-ink-700">Nominal Pengeluaran</label>
                         <div class="relative">
                             <span class="absolute text-xs font-semibold -translate-y-1/2 left-3 top-1/2 text-ink-400">Rp</span>
-                            <input id="cash_amount" type="number" name="amount" min="1" max="999999999999" required value="{{ old('amount') }}"
+                            <input id="cash_amount" type="text" data-rupiah-input name="amount" min="1" max="999999999999" required value="{{ old('amount') }}"
                                 class="w-full h-11 pl-10 pr-3 text-sm border rounded-md border-border-200 bg-surface-0 text-ink-900 focus:border-primary-500 focus:ring-primary-500"
                                 placeholder="0">
                         </div>

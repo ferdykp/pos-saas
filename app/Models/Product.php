@@ -14,6 +14,7 @@ class Product extends Model
     use BelongsToTenant, HasFactory;
 
     protected $fillable = [
+        'base_unit', 'allow_fraction', 'price_tiers',
         'requires_preparation',
         'tenant_id',
         'category_id',
@@ -32,6 +33,8 @@ class Product extends Model
     ];
 
     protected $casts = [
+        'allow_fraction' => 'boolean',
+        'price_tiers' => 'array',
         'is_active' => 'boolean',
         'requires_preparation' => 'boolean',
         'manage_stock' => 'boolean',
@@ -62,6 +65,11 @@ class Product extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function units()
+    {
+        return $this->hasMany(ProductUnit::class);
     }
 
     public function variants()

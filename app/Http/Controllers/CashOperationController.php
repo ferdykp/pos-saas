@@ -124,7 +124,7 @@ class CashOperationController extends Controller
     {
         $data = $request->validate([
             'operation_key' => 'required|uuid', 'item_id' => 'required|integer',
-            'quantity' => 'required|integer|min:1|max:100000', 'restock' => 'sometimes|boolean',
+            'quantity' => 'required|numeric|decimal:0,3|min:0.001|max:100000', 'restock' => 'sometimes|boolean',
             'reason' => 'required|string|max:255',
         ]);
         $returns->process($request->user(), $order->id, $data);

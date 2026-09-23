@@ -123,7 +123,7 @@
                     <label class="block text-xs font-medium text-ink-700 mb-1.5">Nominal Penarikan</label>
                     <div class="relative">
                         <span class="absolute font-mono text-sm -translate-y-1/2 left-3 top-1/2 text-ink-400">Rp</span>
-                        <input type="number" name="amount" x-model="amount" min="10000"
+                        <input type="text" data-rupiah-input name="amount" min="10000"
                             max="{{ $wallet->balance ?? 0 }}" required
                             class="w-full pr-3 font-mono text-sm border rounded-sm pl-9 h-11 border-border-200 text-ink-900 focus:border-primary-600 focus:ring focus:ring-primary-100 focus:outline-none">
                     </div>

@@ -23,7 +23,8 @@ class ProductController extends Controller
             ->when($request->search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('product_name', 'like', "%{$search}%")
-                        ->orWhere('sku', 'like', "%{$search}%");
+                        ->orWhere('sku', 'like', "%{$search}%")
+                        ->orWhere('barcode', 'like', "%{$search}%");
                 });
             })
             ->latest()
@@ -60,14 +61,34 @@ class ProductController extends Controller
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('products', 'public');
         }
-        Product::create(array_merge($request->catalogData(), [
-            'tenant_id' => $tenant->id, 'image' => $imagePath,
-        ]));
+        DB::transaction(function () use ($request, $tenant, $plan, $imagePath) {
+            Tenant::whereKey($tenant->id)->lockForUpdate()->firstOrFail();
+            abort_if(Product::where('tenant_id', $tenant->id)->count() >= $plan->max_products, 422, 'Batas produk paket tercapai.');
+            $product = Product::create(array_merge($request->catalogData(), ['tenant_id' => $tenant->id, 'image' => $imagePath]));
+            app(\App\Services\RetailCatalog::class)->saveUnits($product, $request->validated('units', []));
+        });
 
         $tenantId = auth()->user()->tenant_id;
         Cache::forget("tenant_{$tenantId}_products_pos");
 
         return redirect()->route('products.index')->with('success', 'Produk berhasil ditambahkan');
+    }
+
+    public function label(Product $product)
+    {
+        abort_unless($product->tenant_id === auth()->user()->tenant_id, 403);
+
+        if (blank($product->barcode)) {
+            return back()->withErrors(['barcode' => 'Isi barcode produk terlebih dahulu sebelum mencetak label.']);
+        }
+
+        try {
+            $barcodeSvg = app(\App\Services\Code128Barcode::class)->svg($product->barcode);
+        } catch (\InvalidArgumentException $exception) {
+            return back()->withErrors(['barcode' => $exception->getMessage()]);
+        }
+
+        return view('products.label', compact('product', 'barcodeSvg'));
     }
 
     public function edit(Product $product)
@@ -98,12 +119,15 @@ class ProductController extends Controller
             $data['image'] = $request->file('image')->store('products', 'public');
         }
 
-        DB::transaction(function () use ($product, $data) {
+        DB::transaction(function () use ($product, $data, $request) {
             Tenant::whereKey($product->tenant_id)->lockForUpdate()->firstOrFail();
             $locked = Product::whereKey($product->id)->lockForUpdate()->firstOrFail();
-            $before = (int) $locked->stock;
+            $before = (float) $locked->stock;
             $locked->update($data);
-            if ($before !== (int) $locked->stock) {
+            if ($request->has('units_present')) {
+                app(\App\Services\RetailCatalog::class)->saveUnits($locked, $request->validated('units', []));
+            }
+            if ($before !== (float) $locked->stock) {
                 StockMovement::create([
                     'tenant_id' => $locked->tenant_id, 'product_id' => $locked->id, 'user_id' => auth()->id(),
                     'type' => 'adjustment', 'quantity' => abs($locked->stock - $before),

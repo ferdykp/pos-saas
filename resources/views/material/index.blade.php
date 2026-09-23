@@ -297,7 +297,7 @@
                     <div>
                         <label class="block font-body text-[11px] font-semibold text-primary-700 mb-1">Harga Beli
                             Satuan (Rp)</label>
-                        <input type="number" name="purchase_price" placeholder="0"
+                        <input type="text" data-rupiah-input name="purchase_price" placeholder="0"
                             class="w-full h-10 px-3 font-mono text-xs font-semibold border rounded-sm outline-none text-ink-900 bg-surface-0 border-border-200 focus:border-primary-600">
                     </div>
                 </div>

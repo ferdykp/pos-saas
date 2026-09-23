@@ -87,7 +87,7 @@
                     </div>
                     <div>
                         <label class="block mb-2 text-xs font-black text-gray-400 uppercase">Jumlah</label>
-                        <input type="number" name="quantity" required min="0"
+                        <input type="number" name="quantity" step="0.001" required min="0"
                             class="w-full px-4 py-3 font-bold border-gray-100 rounded-2xl bg-gray-50 focus:border-blue-500">
                     </div>
                     <div>
