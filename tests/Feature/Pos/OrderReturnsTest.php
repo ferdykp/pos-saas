@@ -28,4 +28,38 @@ class OrderReturnsTest extends PosTestCase
         $this->assertDatabaseCount('order_returns', 2);
         $this->assertEquals(20000, $order->fresh()->grand_total);
     }
+
+    public function test_whole_item_rejects_fractional_return_even_after_catalog_change(): void
+    {
+        $user = $this->shop();
+        $product = $this->product($user, ['manage_stock' => true, 'allow_fraction' => false]);
+        $this->shift($user);
+        $this->actingAs($user)->postJson('/pos', $this->checkout($product))->assertOk();
+        $order = Order::firstOrFail();
+        $product->update(['allow_fraction' => true]);
+        $this->postJson('/orders/'.$order->id.'/returns', [
+            'operation_key' => (string) Str::uuid(), 'item_id' => $order->items->first()->id,
+            'quantity' => 0.5, 'restock' => 1, 'reason' => 'Uji barang satuan',
+        ])->assertUnprocessable()->assertJsonValidationErrors('quantity');
+        $this->assertDatabaseCount('order_returns', 0);
+        $this->assertEquals(9, $product->fresh()->stock);
+        $this->getJson('/shifts/summary')->assertJsonPath('cash_expected', 110000);
+    }
+
+    public function test_weighted_item_accepts_fractional_return_using_invoice_snapshot(): void
+    {
+        $user = $this->shop();
+        $product = $this->product($user, ['manage_stock' => true, 'base_unit' => 'kg', 'allow_fraction' => true]);
+        $this->shift($user);
+        $this->actingAs($user)->postJson('/pos', $this->checkout($product))->assertOk();
+        $order = Order::firstOrFail();
+        $product->update(['allow_fraction' => false]);
+        $data = ['operation_key' => (string) Str::uuid(), 'item_id' => $order->items->first()->id,
+            'quantity' => 0.5, 'restock' => 1, 'reason' => 'Retur sebagian berat'];
+        $this->post('/orders/'.$order->id.'/returns', $data)->assertRedirect();
+        $this->post('/orders/'.$order->id.'/returns', $data)->assertRedirect();
+        $this->assertDatabaseCount('order_returns', 1);
+        $this->assertEquals(9.5, $product->fresh()->stock);
+        $this->getJson('/shifts/summary')->assertJsonPath('cash_expected', 105000);
+    }
 }

@@ -51,7 +51,7 @@
                                     <div class="space-y-3">
                                         @foreach($order->items->filter(fn ($item) => $item->requires_preparation !== 0 && $item->requires_preparation !== false) as $item)
                                             <div class="pb-3 border-b last:border-0 last:pb-0 border-border-200">
-                                                <div class="flex items-start gap-2"><span class="font-mono text-sm font-bold text-primary-600">{{ $item->quantity }}×</span><div class="min-w-0"><p class="text-sm font-semibold text-ink-900">{{ $item->product_name }}</p>
+                                                <div class="flex items-start gap-2"><span class="font-mono text-sm font-bold text-primary-600">{{ \App\Support\NumberFormat::quantity($item->quantity) }}×</span><div class="min-w-0"><p class="text-sm font-semibold text-ink-900">{{ $item->product_name }}</p>
                                                 @foreach($item->addons ?? [] as $addon)<p class="mt-0.5 text-[11px] text-ink-400">+ {{ $addon['name'] }}</p>@endforeach
                                                 @if($item->note)<p class="p-2 mt-2 text-[11px] leading-relaxed rounded-md bg-accent-100/60 text-accent-700"><x-icon class="mr-1 fa-solid fa-note-sticky" />{{ $item->note }}</p>@endif</div></div>
                                             </div>

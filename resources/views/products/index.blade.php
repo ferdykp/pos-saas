@@ -206,12 +206,12 @@
                                         <span
                                             class="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold text-semantic-danger bg-red-50 rounded-full">
                                             <x-icon class="fa-solid fa-circle-exclamation text-[10px]" />
-                                            {{ $product->stock }} Unit (Menipis)
+                                            {{ \App\Support\NumberFormat::quantity($product->stock) }} Unit (Menipis)
                                         </span>
                                     @else
                                         <span
                                             class="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold text-primary-700 bg-primary-100 rounded-full">
-                                            {{ $product->stock }} Unit
+                                            {{ \App\Support\NumberFormat::quantity($product->stock) }} Unit
                                         </span>
                                     @endif
                                 </td>

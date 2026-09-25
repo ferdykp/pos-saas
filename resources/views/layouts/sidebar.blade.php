@@ -43,68 +43,9 @@
     </div>
 
     <!-- Navigation Body -->
-    <nav class="flex-1 min-h-0 px-3 py-4 space-y-6 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-surface-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-ink-400">
-
-        <!-- Group: Quick Onboarding & Config -->
-        <div>
-            <p x-show="!sidebarCollapsed"
-                class="px-3 text-[10px] font-bold text-ink-400 uppercase tracking-widest mb-2">
-                Bantuan & Pengaturan
-            </p>
-            <div class="space-y-1">
-                <a href="{{ route('getting-started') }}"
-                    class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('getting-started') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
-                    :title="sidebarCollapsed ? 'Mulai Berjualan' : ''">
-                    <x-icon class="w-5 text-base text-center fa-solid fa-rocket" />
-                    <span x-show="!sidebarCollapsed" class="truncate">Mulai berjualan</span>
-                </a>
-
-                <a href="{{ route('help') }}"
-                    class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('help') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
-                    :title="sidebarCollapsed ? 'Panduan Singkat' : ''">
-                    <x-icon class="w-5 text-base text-center fa-solid fa-circle-question" />
-                    <span x-show="!sidebarCollapsed" class="truncate">Panduan singkat</span>
-                </a>
-
-                @if (auth()->user()->tenant?->hasBusinessModule('food'))
-                    <a href="{{ route('kitchen.index') }}"
-                        class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('kitchen.*') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
-                        :title="sidebarCollapsed ? 'Antrean Dapur' : ''">
-                        <x-icon class="w-5 text-base text-center fa-solid fa-utensils" />
-                        <span x-show="!sidebarCollapsed" class="truncate">Antrean dapur</span>
-                    </a>
-                @endif
-
-                @if (auth()->user()->tenant?->hasBusinessModule('services'))
-                    <a href="{{ route('services.index') }}"
-                        class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('services.*') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
-                        :title="sidebarCollapsed ? 'Pengerjaan Jasa' : ''">
-                        <x-icon class="w-5 text-base text-center fa-solid fa-screwdriver-wrench" />
-                        <span x-show="!sidebarCollapsed" class="truncate">Pengerjaan jasa</span>
-                    </a>
-                @endif
-
-                @if (auth()->user()->role === 'admin')
-                    <a href="{{ route('menu.configure') }}"
-                        class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('menu.configure') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
-                        :title="sidebarCollapsed ? (
-                            {{ json_encode(auth()->user()->tenant?->hasBusinessModule('food') ? 'Varian, Tambahan & Resep' : 'Varian & Pilihan') }}
-                        ) : ''">
-                        <x-icon class="w-5 text-base text-center fa-solid fa-sliders" />
-                        <span x-show="!sidebarCollapsed" class="truncate">
-                            {{ auth()->user()->tenant?->hasBusinessModule('food') ? 'Varian, tambahan & resep' : 'Varian & pilihan' }}
-                        </span>
-                    </a>
-
-                    <a href="{{ route('business.edit') }}"
-                        class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('business.edit') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
-                        :title="sidebarCollapsed ? 'Pengaturan Usaha' : ''">
-                        <x-icon class="w-5 text-base text-center fa-solid fa-gears" />
-                        <span x-show="!sidebarCollapsed" class="truncate">Pengaturan usaha</span>
-                    </a>
-                @endif
-            </div>
-        </div>
+    <nav x-ref="sidebarNav" x-init="$nextTick(() => { $refs.sidebarNav.scrollTop = Number(sessionStorage.getItem('growpos:sidebar-scroll') || 0) })"
+        @scroll.debounce.100ms="sessionStorage.setItem('growpos:sidebar-scroll', $refs.sidebarNav.scrollTop)"
+        class="flex-1 min-h-0 px-3 py-4 space-y-6 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-surface-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-ink-400">
 
         <!-- Group: Utama -->
         <div>
@@ -204,13 +145,19 @@
                     <span x-show="!sidebarCollapsed" class="truncate">Shift Kasir</span>
                 </a>
 
-                @if(auth()->user()->role === 'admin')
-                    <a href="{{ route('payments.review') }}" class="block px-6 py-3 font-semibold">Pemeriksaan pembayaran</a>
-    <a href="{{ route('cash.index') }}"
-                        class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('cash.*') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
-                        :title="sidebarCollapsed ? 'Buku Kas' : ''">
-                        <x-icon class="w-5 text-base text-center fa-solid fa-book-open" />
-                        <span x-show="!sidebarCollapsed" class="truncate">Buku Kas & Pengeluaran</span>
+                @if (auth()->user()->role === 'admin')
+                    <a href="{{ route('payments.review') }}"
+                        class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors
+        {{ request()->routeIs('payments.review')
+            ? 'bg-primary-50 text-primary-600'
+            : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
+                        :title="sidebarCollapsed ? 'Pemeriksaan pembayaran' : ''">
+
+                        <x-icon class="w-5 text-base text-center fa-solid fa-money-check-dollar" />
+
+                        <span x-show="!sidebarCollapsed" class="truncate">
+                            Pemeriksaan pembayaran
+                        </span>
                     </a>
                 @endif
 
@@ -307,6 +254,68 @@
                 @endcan
             </div>
         </div>
+        <!-- Group: Settings & Help -->
+        <div>
+            <p x-show="!sidebarCollapsed"
+                class="px-3 text-[10px] font-bold text-ink-400 uppercase tracking-widest mb-2">
+                Pengaturan & Bantuan
+            </p>
+            <div class="space-y-1">
+                <a href="{{ route('getting-started') }}"
+                    class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('getting-started') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
+                    :title="sidebarCollapsed ? 'Mulai Berjualan' : ''">
+                    <x-icon class="w-5 text-base text-center fa-solid fa-rocket" />
+                    <span x-show="!sidebarCollapsed" class="truncate">Mulai berjualan</span>
+                </a>
+
+                <a href="{{ route('help') }}"
+                    class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('help') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
+                    :title="sidebarCollapsed ? 'Panduan Singkat' : ''">
+                    <x-icon class="w-5 text-base text-center fa-solid fa-circle-question" />
+                    <span x-show="!sidebarCollapsed" class="truncate">Panduan singkat</span>
+                </a>
+
+                @if (auth()->user()->tenant?->hasBusinessModule('food'))
+                    <a href="{{ route('kitchen.index') }}"
+                        class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('kitchen.*') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
+                        :title="sidebarCollapsed ? 'Antrean Dapur' : ''">
+                        <x-icon class="w-5 text-base text-center fa-solid fa-utensils" />
+                        <span x-show="!sidebarCollapsed" class="truncate">Antrean dapur</span>
+                    </a>
+                @endif
+
+                @if (auth()->user()->tenant?->hasBusinessModule('services'))
+                    <a href="{{ route('services.index') }}"
+                        class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('services.*') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
+                        :title="sidebarCollapsed ? 'Pengerjaan Jasa' : ''">
+                        <x-icon class="w-5 text-base text-center fa-solid fa-screwdriver-wrench" />
+                        <span x-show="!sidebarCollapsed" class="truncate">Pengerjaan jasa</span>
+                    </a>
+                @endif
+
+                @if (auth()->user()->role === 'admin')
+                    <a href="{{ route('menu.configure') }}"
+                        class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('menu.configure') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
+                        :title="sidebarCollapsed ? (
+                            {{ json_encode(auth()->user()->tenant?->hasBusinessModule('food') ? 'Varian, Tambahan & Resep' : 'Varian & Pilihan') }}
+                        ) : ''">
+                        <x-icon class="w-5 text-base text-center fa-solid fa-sliders" />
+                        <span x-show="!sidebarCollapsed" class="truncate">
+                            {{ auth()->user()->tenant?->hasBusinessModule('food') ? 'Varian, tambahan & resep' : 'Varian & pilihan' }}
+                        </span>
+                    </a>
+
+                    <a href="{{ route('business.edit') }}"
+                        class="flex items-center gap-3 px-3 h-11 text-xs font-semibold rounded-md transition-colors {{ request()->routeIs('business.edit') ? 'bg-primary-50 text-primary-600' : 'text-ink-700 hover:bg-surface-100 hover:text-ink-900' }}"
+                        :title="sidebarCollapsed ? 'Pengaturan Usaha' : ''">
+                        <x-icon class="w-5 text-base text-center fa-solid fa-gears" />
+                        <span x-show="!sidebarCollapsed" class="truncate">Pengaturan usaha</span>
+                    </a>
+                @endif
+            </div>
+        </div>
+
+
     </nav>
 
     <!-- Sidebar Footer / Store Status Badge -->

@@ -37,6 +37,28 @@ export default () => ({
     shiftSummary: null,
     key: "",
     storageReady: true,
+    cartTier(line) {
+        if (line.unit_id || line.variant_id) {
+            return null;
+        }
+
+        const product = this.products.find((p) => p.id === line.id);
+
+        if (!product) {
+            return null;
+        }
+
+        return (
+            [...(product.price_tiers || [])]
+                .filter(
+                    (tier) =>
+                        Number(tier.min_quantity) <= Number(line.quantity),
+                )
+                .sort(
+                    (a, b) => Number(b.min_quantity) - Number(a.min_quantity),
+                )[0] || null
+        );
+    },
     currencyInput(value) {
         return rupiahInput(value);
     },
@@ -94,6 +116,72 @@ export default () => ({
         this.syncQueue();
     },
     money,
+    formatQuantity(value) {
+        return new Intl.NumberFormat("id-ID", {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 3,
+        }).format(Number(value) || 0);
+    },
+
+    get activeTier() {
+        if (!this.selected || this.saleUnit || this.variant) {
+            return null;
+        }
+
+        const qty = Number(this.itemQuantity) || 0;
+
+        return (
+            [...(this.selected.price_tiers || [])]
+                .filter(
+                    (tier) =>
+                        Number(tier.min_quantity) > 0 &&
+                        Number(tier.min_quantity) <= qty,
+                )
+                .sort(
+                    (a, b) => Number(b.min_quantity) - Number(a.min_quantity),
+                )[0] || null
+        );
+    },
+
+    get nextTier() {
+        if (!this.selected || this.saleUnit || this.variant) {
+            return null;
+        }
+
+        const qty = Number(this.itemQuantity) || 0;
+
+        return (
+            [...(this.selected.price_tiers || [])]
+                .filter((tier) => Number(tier.min_quantity) > qty)
+                .sort(
+                    (a, b) => Number(a.min_quantity) - Number(b.min_quantity),
+                )[0] || null
+        );
+    },
+
+    get wholesaleSaving() {
+        if (!this.selected || !this.activeTier) {
+            return 0;
+        }
+
+        const extras = this.selected.addons
+            .filter((addon) => this.addonIds.includes(addon.id))
+            .reduce((sum, addon) => sum + Number(addon.price), 0);
+        const normalPrice =
+            Number(this.selected.price || 0) -
+            Number(this.selected.discount || 0) +
+            extras;
+
+        const tierPrice =
+            Number(this.selectedUnit.price || 0) -
+            Number(this.selectedUnit.discount || 0);
+
+        return Math.max(
+            0,
+            Math.round(normalPrice * Number(this.itemQuantity || 0)) -
+                Math.round(tierPrice * Number(this.itemQuantity || 0)),
+        );
+    },
     get filtered() {
         const q = this.search.toLowerCase().trim();
         return this.products.filter(
@@ -132,7 +220,13 @@ export default () => ({
     },
     get selectedUnit() {
         return this.selected
-            ? unitFor(this.selected, this.variant, this.addonIds, this.saleUnit, Number(this.itemQuantity))
+            ? unitFor(
+                  this.selected,
+                  this.variant,
+                  this.addonIds,
+                  this.saleUnit,
+                  Number(this.itemQuantity),
+              )
             : { price: 0, discount: 0 };
     },
     persist() {
@@ -180,14 +274,27 @@ export default () => ({
             unit = this.selectedUnit;
         const variantId = this.variant ? Number(this.variant) : null;
         const quantity = Number(this.itemQuantity);
-        if (!Number.isFinite(quantity) || quantity <= 0 || quantity > 100000 || Math.abs(quantity*1000-Math.round(quantity*1000)) > 0.00001 || (!p.allow_fraction && !Number.isInteger(quantity))) {
+        if (
+            !Number.isFinite(quantity) ||
+            quantity <= 0 ||
+            quantity > 100000 ||
+            Math.abs(quantity * 1000 - Math.round(quantity * 1000)) > 0.00001 ||
+            (!p.allow_fraction && !Number.isInteger(quantity))
+        ) {
             this.error = "Jumlah tidak valid untuk satuan produk ini.";
             return;
         }
         const existingQty = this.cart
             .filter((i) => i.id === p.id && i.variant_id === variantId)
-            .reduce((n, i) => n + Math.round(i.quantity * (i.factor || 1) * 1000), 0);
-        if (p.tracked && existingQty + Math.round(quantity * unit.factor * 1000) > Math.round(unit.stock * 1000)) {
+            .reduce(
+                (n, i) => n + Math.round(i.quantity * (i.factor || 1) * 1000),
+                0,
+            );
+        if (
+            p.tracked &&
+            existingQty + Math.round(quantity * unit.factor * 1000) >
+                Math.round(unit.stock * 1000)
+        ) {
             this.error = "Stok produk tidak mencukupi.";
             return;
         }
@@ -200,10 +307,10 @@ export default () => ({
         ]);
         const existing = this.cart.find((i) => i.key === signature);
         if (existing) {
-            existing.quantity = Math.round((existing.quantity + quantity)*1000)/1000;
+            existing.quantity =
+                Math.round((existing.quantity + quantity) * 1000) / 1000;
             this.reprice(existing);
-        }
-        else
+        } else
             this.cart.push({
                 key: signature,
                 id: p.id,
@@ -229,30 +336,63 @@ export default () => ({
         this.persist();
     },
     reprice(item) {
-        const product = this.products.find(p => p.id === item.id);
+        const product = this.products.find((p) => p.id === item.id);
         if (!product) return;
-        Object.assign(item, unitFor(product, item.variant_id, item.addon_ids || [], item.unit_id, item.quantity));
+        Object.assign(
+            item,
+            unitFor(
+                product,
+                item.variant_id,
+                item.addon_ids || [],
+                item.unit_id,
+                item.quantity,
+            ),
+        );
     },
     quantity(key, delta) {
-        const item = this.cart.find(i => i.key === key);
-        if (item) this.setQuantity(key, Math.max(0, Math.round((item.quantity + delta)*1000)/1000));
+        const item = this.cart.find((i) => i.key === key);
+        if (item)
+            this.setQuantity(
+                key,
+                Math.max(0, Math.round((item.quantity + delta) * 1000) / 1000),
+            );
     },
     setQuantity(key, value) {
-        const item = this.cart.find(i => i.key === key);
+        const item = this.cart.find((i) => i.key === key);
         if (!item) return;
         const next = Number(value);
-        if (!Number.isFinite(next) || next < 0 || next > 100000 || Math.abs(next*1000-Math.round(next*1000)) > 0.00001 || (!item.allow_fraction && !Number.isInteger(next))) {
+        if (
+            !Number.isFinite(next) ||
+            next < 0 ||
+            next > 100000 ||
+            Math.abs(next * 1000 - Math.round(next * 1000)) > 0.00001 ||
+            (!item.allow_fraction && !Number.isInteger(next))
+        ) {
             this.error = "Jumlah tidak valid untuk satuan produk ini.";
             return;
         }
-        const used = this.cart.filter(i => i.id === item.id && i.variant_id === item.variant_id && i.key !== key).reduce((n,i) => n + Math.round(i.quantity*(i.factor || 1)*1000),0);
-        if (item.tracked && used + Math.round(next*(item.factor || 1)*1000) > Math.round(item.stock*1000)) {
+        const used = this.cart
+            .filter(
+                (i) =>
+                    i.id === item.id &&
+                    i.variant_id === item.variant_id &&
+                    i.key !== key,
+            )
+            .reduce(
+                (n, i) => n + Math.round(i.quantity * (i.factor || 1) * 1000),
+                0,
+            );
+        if (
+            item.tracked &&
+            used + Math.round(next * (item.factor || 1) * 1000) >
+                Math.round(item.stock * 1000)
+        ) {
             this.error = "Stok produk tidak mencukupi.";
             return;
         }
         item.quantity = next;
         this.reprice(item);
-        this.cart = this.cart.filter(i => i.quantity > 0);
+        this.cart = this.cart.filter((i) => i.quantity > 0);
         this.error = "";
         this.persist();
     },
@@ -332,6 +472,14 @@ export default () => ({
             },
             body: body ? JSON.stringify(body) : undefined,
         });
+        // Session/CSRF expiry must never leave a cashier on a stale privileged screen.
+        if (response.status === 401 || response.status === 419) {
+            window.location.assign(
+                `/login?expired=1&next=${encodeURIComponent(window.location.pathname)}`,
+            );
+            throw new Error("Sesi berakhir. Silakan masuk kembali.");
+        }
+
         let data;
         try {
             data = await response.json();

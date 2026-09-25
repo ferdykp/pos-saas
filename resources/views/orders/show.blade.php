@@ -74,7 +74,7 @@
                         @csrf
                         <input type="hidden" name="operation_key" value="{{ old('operation_key', (string) Illuminate\Support\Str::uuid()) }}">
                         <div class="p-3 text-[11px] leading-relaxed rounded-md bg-accent-100/50 text-accent-700">Refund dihitung proporsional setelah diskon dan pajak. Bahan resep tidak otomatis dikembalikan.</div>
-                        <div><label class="block mb-1.5 text-xs font-semibold text-ink-700">Item yang Diretur</label><select name="item_id" required class="w-full h-11 px-3 text-sm border rounded-md border-border-200 focus:border-primary-500 focus:ring-primary-500">@foreach($order->items as $item)<option value="{{ $item->id }}">{{ $item->product_name }} · {{ $item->quantity }} unit dibeli</option>@endforeach</select></div>
+                        <div><label class="block mb-1.5 text-xs font-semibold text-ink-700">Item yang Diretur</label><select name="item_id" required class="w-full h-11 px-3 text-sm border rounded-md border-border-200 focus:border-primary-500 focus:ring-primary-500">@foreach($order->items as $item)<option value="{{ $item->id }}">{{ $item->product_name }} · {{ \App\Support\NumberFormat::quantity($item->quantity) }} unit dibeli</option>@endforeach</select></div>
                         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2"><div><label class="block mb-1.5 text-xs font-semibold text-ink-700">Jumlah Retur</label><input class="w-full h-11 px-3 text-sm border rounded-md border-border-200 focus:border-primary-500 focus:ring-primary-500" type="number" name="quantity" step="0.001" min="0.001" max="100000" required></div><label class="flex items-start gap-3 p-3 border rounded-md cursor-pointer border-border-200 bg-surface-100"><input class="mt-0.5 rounded border-border-200 text-primary-600 focus:ring-primary-500" type="checkbox" name="restock" value="1"><span><strong class="block text-xs text-ink-900">Kembalikan ke stok</strong><span class="text-[10px] leading-relaxed text-ink-400">Centang hanya jika barang masih layak dijual.</span></span></label></div>
                         <div><label class="block mb-1.5 text-xs font-semibold text-ink-700">Alasan Retur</label><input class="w-full h-11 px-3 text-sm border rounded-md border-border-200 focus:border-primary-500 focus:ring-primary-500" name="reason" maxlength="255" required placeholder="Contoh: ukuran tidak sesuai"></div>
                         <button class="inline-flex items-center justify-center h-10 gap-2 px-4 text-xs font-semibold text-white rounded-md bg-accent-700 hover:opacity-90"><x-icon class="fa-solid fa-money-bill-transfer" /> Proses Retur & Uang Keluar</button>
@@ -85,7 +85,7 @@
             @if($returns->isNotEmpty())
                 <div class="overflow-hidden border rounded-lg bg-surface-0 border-border-200">
                     <div class="flex items-center justify-between p-4 border-b bg-surface-100 border-border-200"><h2 class="text-xs font-semibold text-ink-900"><x-icon class="mr-2 fa-solid fa-clock-rotate-left text-ink-400" />Riwayat Retur</h2><strong class="font-mono text-xs text-semantic-danger">-Rp {{ number_format($returns->sum('amount'), 0, ',', '.') }}</strong></div>
-                    <div class="divide-y divide-border-200">@foreach($returns as $returned)<div class="flex items-start justify-between gap-4 p-4 text-xs"><div><p class="font-semibold text-ink-900">Item #{{ $returned->order_item_id }} · {{ $returned->quantity }} unit</p><p class="mt-1 text-[10px] text-ink-400">{{ $returned->restock ? 'Dikembalikan ke stok' : 'Tanpa restok' }}</p></div><span class="font-mono font-semibold whitespace-nowrap text-semantic-danger">-Rp {{ number_format($returned->amount, 0, ',', '.') }}</span></div>@endforeach</div>
+                    <div class="divide-y divide-border-200">@foreach($returns as $returned)<div class="flex items-start justify-between gap-4 p-4 text-xs"><div><p class="font-semibold text-ink-900">Item #{{ $returned->order_item_id }} · {{ \App\Support\NumberFormat::quantity($returned->quantity) }} unit</p><p class="mt-1 text-[10px] text-ink-400">{{ $returned->restock ? 'Dikembalikan ke stok' : 'Tanpa restok' }}</p></div><span class="font-mono font-semibold whitespace-nowrap text-semantic-danger">-Rp {{ number_format($returned->amount, 0, ',', '.') }}</span></div>@endforeach</div>
                 </div>
             @endif
         </section>
@@ -159,7 +159,7 @@
                             <span>Rp {{ number_format($item->subtotal, 0, ',', '.') }}</span>
                         </div>
                         <div class="text-[11px] text-ink-400 mt-0.5">
-                            {{ $item->quantity }}x @ Rp {{ number_format($item->price, 0, ',', '.') }}
+                            {{ \App\Support\NumberFormat::quantity($item->quantity) }}x @ Rp {{ number_format($item->price, 0, ',', '.') }}
                         </div>
                     </div>
                 @endforeach

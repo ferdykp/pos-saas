@@ -107,7 +107,7 @@ export default {
             maxWidth: {
                 tablet: "720px",
                 laptop: "1080px",
-                desktop: "1320px",
+                desktop: "1680px",
                 "content-desktop": "1060px",
                 "modal-sm": "480px",
                 "modal-lg": "720px",

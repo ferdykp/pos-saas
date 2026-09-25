@@ -128,3 +128,21 @@ test("unconfirmed QR without an image never opens the paid receipt", () => {
     assert.equal(pos.pendingPayments.length, 1);
     assert.equal(pos.payment.order_id, 19);
 });
+
+test("wholesale savings compare the same addons on normal and bulk prices", () => {
+    const pos = terminal();
+    pos.selected = {
+        price: 10000,
+        discount: 0,
+        variants: [],
+        addons: [{ id: 1, price: 3000 }],
+        price_tiers: [{ min_quantity: 10, price: 8000, discount: 0 }],
+    };
+    pos.addonIds = [1];
+    pos.itemQuantity = 10;
+    assert.equal(pos.wholesaleSaving, 20000);
+    pos.addonIds = [];
+    assert.equal(pos.wholesaleSaving, 20000);
+    pos.itemQuantity = 1;
+    assert.equal(pos.wholesaleSaving, 0);
+});

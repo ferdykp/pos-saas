@@ -111,14 +111,14 @@
                                 <td class="px-5 py-3 font-mono text-center">
                                     <span
                                         class="font-bold text-sm {{ $item->stock <= $item->min_stock ? 'text-semantic-danger' : 'text-ink-900' }}">
-                                        {{ $item->stock }}
+                                        {{ \App\Support\NumberFormat::quantity($item->stock) }}
                                     </span>
                                     <span class="text-xs font-medium text-ink-400 ml-0.5">{{ $item->unit }}</span>
                                 </td>
 
                                 <!-- Minimum Stock Warning -->
                                 <td class="px-5 py-3 font-mono text-xs text-center text-ink-700">
-                                    {{ $item->min_stock }} {{ $item->unit }}
+                                    {{ \App\Support\NumberFormat::quantity($item->min_stock) }} {{ $item->unit }}
                                 </td>
 
                                 <!-- Status Badge (Pill Shape: radius-full) -->

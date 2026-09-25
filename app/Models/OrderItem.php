@@ -12,7 +12,7 @@ class OrderItem extends Model
     use HasFactory;
 
     protected $fillable = [
-        'unit_name', 'unit_factor',
+        'unit_name', 'unit_factor', 'allow_fraction',
         'requires_preparation', 'discount_amount',
         'order_id',
         'product_id',
@@ -25,7 +25,7 @@ class OrderItem extends Model
         'subtotal',
     ];
 
-    protected $casts = ['requires_preparation' => 'boolean', 'addons' => 'array', 'reserved_materials' => 'array'];
+    protected $casts = ['allow_fraction' => 'boolean', 'requires_preparation' => 'boolean', 'addons' => 'array', 'reserved_materials' => 'array'];
 
     public function order()
     {

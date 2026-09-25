@@ -36,6 +36,12 @@
             {{-- Session Status (Pesan Sukses/Error dari Laravel) --}}
             <x-auth-session-status class="mb-6" :status="session('status')" />
 
+            @if (request('expired'))
+                <div class="p-3 mb-5 text-xs font-medium border rounded-lg bg-amber-50 border-amber-200 text-amber-800">
+                    Sesi Anda telah berakhir demi keamanan. Silakan masuk kembali untuk melanjutkan.
+                </div>
+            @endif
+
             <div class="mb-8 space-y-2">
                 <h2 class="text-display text-ink-900">Selamat Datang</h2>
                 <p class="text-body-lg text-ink-700">Silakan masuk ke akun Anda untuk melanjutkan.</p>

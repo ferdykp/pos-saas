@@ -203,8 +203,8 @@
                                 <x-icon class="mt-1 fa-solid fa-box-open text-semantic-warning" />
                                 <div class="text-xs">
                                     <p class="font-bold text-ink-900">Stok Menipis: {{ $product->product_name }}</p>
-                                    <p class="text-ink-700 mt-0.5">Sisa {{ $product->stock }} (Batas minimal
-                                        {{ $product->min_stock }}).</p>
+                                    <p class="text-ink-700 mt-0.5">Sisa {{ \App\Support\NumberFormat::quantity($product->stock) }} (Batas minimal
+                                        {{ \App\Support\NumberFormat::quantity($product->min_stock) }}).</p>
                                 </div>
                             </a>
                         @endforeach
@@ -215,7 +215,7 @@
                                 <x-icon class="mt-1 fa-solid fa-cubes text-semantic-warning" />
                                 <div class="text-xs">
                                     <p class="font-bold text-ink-900">Bahan Baku Menipis: {{ $material->name }}</p>
-                                    <p class="text-ink-700 mt-0.5">Sisa {{ $material->stock }} {{ $material->unit }}.
+                                    <p class="text-ink-700 mt-0.5">Sisa {{ \App\Support\NumberFormat::quantity($material->stock) }} {{ $material->unit }}.
                                         Segera jadwalkan pengadaan.</p>
                                 </div>
                             </a>
@@ -264,7 +264,7 @@
                                     <span class="font-semibold text-ink-900 truncate max-w-[200px] sm:max-w-[280px]">
                                         {{ $product->product_name }}
                                     </span>
-                                    <span class="font-bold text-primary-600">{{ $product->quantity }} terjual</span>
+                                    <span class="font-bold text-primary-600">{{ \App\Support\NumberFormat::quantity($product->quantity) }} terjual</span>
                                 </div>
                                 <progress aria-label="Penjualan {{ $product->product_name }}" value="{{ $percent }}" max="100" class="block w-full h-2 overflow-hidden rounded-full appearance-none border-0 bg-surface-100 [&::-webkit-progress-bar]:bg-surface-100 [&::-webkit-progress-value]:bg-primary-600 [&::-moz-progress-bar]:bg-primary-600"></progress>
                             </div>

@@ -76,7 +76,17 @@ class PosController extends Controller
             ->map(fn (Order $order) => ['order_id' => $order->id, 'invoice_number' => $order->invoice_number,
                 'payment_method' => 'midtrans', 'grand_total' => (float) $order->grand_total, 'qr_url' => $order->qr_url]);
 
-        return view('pos.index', compact('customers', 'categories', 'products', 'settings', 'hasShift', 'activeShift', 'pendingPayments'));
+        // Riwayat cepat POS: kasir hanya melihat transaksi yang ia proses sendiri.
+        // Admin tetap dapat melihat riwayat tenant lengkap melalui halaman back-office.
+        $recentOrders = Order::with(['customer', 'items'])
+            ->where('tenant_id', $tenantId)
+            ->where('user_id', $userId)
+            ->latest('sold_at')
+            ->latest('id')
+            ->limit(20)
+            ->get();
+
+        return view('pos.index', compact('customers', 'categories', 'products', 'settings', 'hasShift', 'activeShift', 'pendingPayments', 'recentOrders'));
     }
 
     public function store(Request $request)
@@ -178,7 +188,7 @@ class PosController extends Controller
                     $materialTotals[$material->id] = ($materialTotals[$material->id] ?? 0) + $reserved[$material->id];
                 }
                 $costKnown = ! $variant && $product->cost_price > 0 && $addons->every(fn ($addon) => $addon->cost !== null);
-                $lines[] = ['requires_preparation' => $product->type === 'product' && (bool) ($product->requires_preparation ?? (auth()->user()->tenant->businessType() === 'food')), 'unit_name' => $saleUnit?->name ?? $product->base_unit, 'unit_factor' => $factor, 'discount_amount' => $lineDiscount, 'product_id' => $product->id, 'variant_id' => $variant?->id,
+                $lines[] = ['allow_fraction' => $product->allow_fraction, 'requires_preparation' => $product->type === 'product' && (bool) ($product->requires_preparation ?? (auth()->user()->tenant->businessType() === 'food')), 'unit_name' => $saleUnit?->name ?? $product->base_unit, 'unit_factor' => $factor, 'discount_amount' => $lineDiscount, 'product_id' => $product->id, 'variant_id' => $variant?->id,
                     'product_name' => $product->product_name.($variant ? ' · '.$variant->name : ''),
                     'quantity' => $item['quantity'], 'price' => $price, 'subtotal' => $lineSubtotal,
                     'reserved_stock' => $tracked ? $baseQuantity : 0, 'reserved_materials' => $reserved,

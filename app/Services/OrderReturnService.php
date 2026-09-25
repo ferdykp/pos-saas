@@ -42,6 +42,10 @@ class OrderReturnService
             }
             $previousQty = (float) DB::table('order_returns')->where('order_item_id', $item->id)->sum('quantity');
             $quantity = (float) $data['quantity'];
+            // New invoices retain their selling rule even after catalog settings change.
+            // For legacy invoices, use fractional evidence or the current catalog rule.
+            $allowFraction = $item->allow_fraction ?? (RetailQuantity::ticks($item->quantity) % 1000 !== 0 || (bool) $item->product?->allow_fraction);
+            RetailQuantity::requireWhole($quantity, $allowFraction);
             if (RetailQuantity::ticks($previousQty) + RetailQuantity::ticks($quantity) > RetailQuantity::ticks($item->quantity)) {
                 throw ValidationException::withMessages(['quantity' => 'Jumlah melebihi barang yang belum diretur.']);
             }

@@ -52,7 +52,7 @@
                             </td>
                             <td
                                 class="px-6 py-4 text-center font-bold {{ in_array($log->type, ['stock_in', 'return']) ? 'text-green-600' : 'text-red-600' }}">
-                                {{ in_array($log->type, ['stock_in', 'return']) ? '+' : '-' }} {{ $log->quantity }}
+                                {{ in_array($log->type, ['stock_in', 'return']) ? '+' : '-' }} {{ \App\Support\NumberFormat::quantity($log->quantity) }}
                             </td>
                             <td class="px-6 py-4 font-black text-center text-gray-900">{{ $log->after_stock }}</td>
                             <td class="px-6 py-4">

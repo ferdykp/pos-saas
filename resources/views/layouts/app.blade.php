@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html class="motion-safe:scroll-smooth [&_*]:[-webkit-tap-highlight-color:transparent] motion-reduce:[&_*]:!scroll-auto motion-reduce:[&_*]:!transition-none motion-reduce:[&_*]:!animate-none motion-reduce:[&_*::before]:!animate-none motion-reduce:[&_*::after]:!animate-none" lang="id">
 
 <head>
     <meta charset="utf-8">
@@ -41,7 +41,7 @@
         <span>Koneksi terputus. Buka layar kasir untuk melihat draft dan antrean transaksi di perangkat ini.</span>
     </div>
 
-    <div class="flex h-screen overflow-hidden" x-data="{ sidebarOpen: false, sidebarCollapsed: false }">
+    <div class="flex h-screen overflow-hidden" x-data="{ sidebarOpen: false, sidebarCollapsed: localStorage.getItem('growpos:sidebar-collapsed') === '1' }" x-init="$watch('sidebarCollapsed', value => localStorage.setItem('growpos:sidebar-collapsed', value ? '1' : '0'))">
 
         <!-- Sidebar Navigation -->
         @include('layouts.sidebar')
@@ -52,7 +52,8 @@
             @include('layouts.navbar')
 
             <!-- Main Content Area -->
-            <main class="flex-1 overflow-y-auto focus:outline-none bg-surface-100 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-surface-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-ink-400">
+            <main id="main-content"
+                class="flex-1 overflow-y-auto scroll-smooth focus:outline-none bg-surface-100 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-surface-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-ink-400">
                 <div class="h-full">
 
                     <!-- Floating Toast Notification System -->

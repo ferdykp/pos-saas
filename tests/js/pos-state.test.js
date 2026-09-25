@@ -84,10 +84,13 @@ test("highest matching wholesale tier is selected", () => {
 });
 
 test("fractional quantity totals are rounded to whole rupiah", () => {
-    assert.deepEqual(totals([{ price: 15500, discount: 500, quantity: 1.5 }], 11), {
-        subtotal: 23250,
-        discount: 750,
-        tax: 2475,
-        total: 24975,
-    });
+    assert.deepEqual(
+        totals([{ price: 15500, discount: 500, quantity: 1.5 }], 11),
+        {
+            subtotal: 23250,
+            discount: 750,
+            tax: 2475,
+            total: 24975,
+        },
+    );
 });

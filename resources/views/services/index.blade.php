@@ -41,7 +41,7 @@
 
                         <div class="space-y-2.5 mb-4">
                             @foreach($order->items as $item)
-                                <div class="flex items-start gap-2 text-xs"><span class="font-mono font-bold text-primary-600">{{ $item->quantity }}×</span><div><p class="font-semibold text-ink-900">{{ $item->product_name }}</p>@if($item->note)<p class="mt-0.5 text-[10px] text-ink-400">{{ $item->note }}</p>@endif</div></div>
+                                <div class="flex items-start gap-2 text-xs"><span class="font-mono font-bold text-primary-600">{{ \App\Support\NumberFormat::quantity($item->quantity) }}×</span><div><p class="font-semibold text-ink-900">{{ $item->product_name }}</p>@if($item->note)<p class="mt-0.5 text-[10px] text-ink-400">{{ $item->note }}</p>@endif</div></div>
                             @endforeach
                         </div>
 

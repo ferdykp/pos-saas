@@ -92,7 +92,7 @@
                 <td colspan="2" class="font-bold uppercase">{{ $item->product_name }}@foreach($item->addons ?? [] as $addon)<div class="item-detail">+ {{ $addon['name'] }}</div>@endforeach @if($item->note)<div class="item-detail">{{ $item->note }}</div>@endif</td>
             </tr>
             <tr>
-                <td class="item-detail">{{ $item->quantity }} {{ $item->unit_name }} × @ Rp {{ number_format($item->price, 0, ',', '.') }}
+                <td class="item-detail">{{ \App\Support\NumberFormat::quantity($item->quantity) }} {{ $item->unit_name }} × @ Rp {{ number_format($item->price, 0, ',', '.') }}
                 </td>
                 <td class="item-price">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</td>
             </tr>

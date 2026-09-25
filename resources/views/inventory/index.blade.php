@@ -31,7 +31,7 @@
                                 <p class="text-sm font-bold text-gray-900">{{ $product->product_name }}</p>
                                 <p class="text-xs text-gray-400">SKU: {{ $product->sku }}</p>
                                 @foreach($product->variants as $variant)
-                                    <div class="mt-2 text-sm">{{ $variant->name }}: {{ $variant->stock }}
+                                    <div class="mt-2 text-sm">{{ $variant->name }}: {{ \App\Support\NumberFormat::quantity($variant->stock) }}
                                         <button type="button" class="text-blue-700 underline" data-product-id="{{ $product->id }}" data-product-name="{{ $product->product_name }} / {{ $variant->name }}" data-variant-id="{{ $variant->id }}" onclick="openModal(this.dataset.productId, this.dataset.productName, this.dataset.variantId)">Ubah stok varian</button>
                                     </div>
                                 @endforeach
@@ -39,7 +39,7 @@
                             <td class="px-6 py-4 text-center">
                                 <span
                                     class="text-lg font-black {{ $product->stock <= $product->min_stock ? 'text-red-600' : 'text-gray-900' }}">
-                                    {{ $product->stock }}
+                                    {{ \App\Support\NumberFormat::quantity($product->stock) }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-center">
